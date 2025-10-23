@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Header from './components/Header';
 import CryptoGrid from './components/CryptoGrid';
 import Chart from './components/Chart';
-import Sidebar from './components/Sidebar';
+import ModelStats from './components/ModelStats';
 import StatusBar from './components/StatusBar';
 import Particles from './components/Particles';
 
@@ -29,7 +29,7 @@ function App() {
             <Chart />
           </div>
           <div>
-            <Sidebar />
+            <ModelStats />
           </div>
         </div>
         <StatusBar />

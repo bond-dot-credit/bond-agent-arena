@@ -9,15 +9,11 @@ const Header: React.FC = () => {
       <div className="flex justify-between items-center">
         {/* Logo/Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400 to-cyan-400 flex items-center justify-center shadow-lg shadow-green-400/20">
-            <span className="text-black font-bold text-xl">A</span>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 via-cyan-400 to-blue-400 text-transparent bg-clip-text tracking-tight">
-              Alpha Arena
-            </h1>
-            <p className="text-xs text-gray-500 tracking-wider">AI TRADING CHAMPIONSHIP</p>
-          </div>
+          <img
+            src="/bondcredit-logo-white.png"
+            alt="Bond Credit"
+            className="h-12 w-auto"
+          />
         </div>
 
         {/* Navigation */}
