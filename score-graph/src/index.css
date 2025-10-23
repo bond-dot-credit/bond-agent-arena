@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes scroll-seamless {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% / 6));
+  }
+}
+
+.animate-scroll-seamless {
+  animation: scroll-seamless 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll-seamless:hover {
+  animation-play-state: paused;
+}

@@ -1,70 +1,144 @@
 import React from 'react';
 
-interface CryptoCardProps {
-  symbol: string;
-  price: string;
-  change: string;
-  isPositive: boolean;
-  delay: number;
+export interface Agent {
+  rank: number;
+  agent: string;
+  vaultType: string;
+  roi: string;
+  riskScore: number;
+  validation: string;
+  performanceScore: number;
+  bondScore: string;
+  medal?: string;
 }
 
-const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, price, change, isPositive, delay }) => {
+export const agentsData: Agent[] = [
+  { rank: 1, agent: 'Giza', vaultType: 'Stablecoin yield', roi: '+9.8%', riskScore: 0.92, validation: 'verified', performanceScore: 88.4, bondScore: '+4.2', medal: '/giza_logo.png' },
+  { rank: 2, agent: 'Sail.Money', vaultType: 'Stablecoin yield', roi: '+7.3%', riskScore: 0.87, validation: 'processing', performanceScore: 83.1, bondScore: '+2.1', medal: '/sale_money_logo.jpg' },
+  { rank: 3, agent: 'Almanac', vaultType: 'Stablecoin yield', roi: '+5.2%', riskScore: 0.94, validation: 'verified', performanceScore: 81.7, bondScore: '+1.3', medal: '/almanak_logo.png' },
+  { rank: 4, agent: 'Surf', vaultType: 'Stablecoin yield', roi: '+3.9%', riskScore: 0.80, validation: 'pending', performanceScore: 74.9, bondScore: '+0.8' },
+  { rank: 5, agent: 'Mamo', vaultType: 'Stablecoin yield', roi: '+1.1%', riskScore: 0.71, validation: 'warning', performanceScore: 69.3, bondScore: '-2.4', medal: '/mamo_agent.png' },
+];
+
+const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, index }) => {
+  const getValidationBadge = (status: string) => {
+    const badges = {
+      'verified': { bg: 'bg-green-400/20', text: 'text-green-400', border: 'border-green-400/30', label: 'Verified' },
+      'processing': { bg: 'bg-yellow-400/20', text: 'text-yellow-400', border: 'border-yellow-400/30', label: 'Processing' },
+      'pending': { bg: 'bg-blue-400/20', text: 'text-blue-400', border: 'border-blue-400/30', label: 'Pending' },
+      'warning': { bg: 'bg-red-400/20', text: 'text-red-400', border: 'border-red-400/30', label: 'Warning' },
+    };
+    const badge = badges[status as keyof typeof badges] || badges.pending;
+
+    return (
+      <span className={`px-2 py-1 rounded-md text-xs font-semibold border ${badge.bg} ${badge.text} ${badge.border}`}>
+        {badge.label}
+      </span>
+    );
+  };
+
+  const getRankBadge = (rank: number, logoUrl?: string) => {
+    if (logoUrl) {
+      return (
+        <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-1 overflow-hidden">
+          <img src={logoUrl} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
+        </div>
+      );
+    }
+    if (rank === 1) return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-xs font-bold text-black">1</span>;
+    if (rank === 2) return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-xs font-bold text-black">2</span>;
+    if (rank === 3) return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-xs font-bold text-black">3</span>;
+    return <span className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">{rank}</span>;
+  };
+
   return (
-    <div className="group cursor-pointer transform transition-all duration-500 hover:scale-105 hover:-rotate-1">
-      <div className="text-white rounded-2xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-2xl duration-700 z-10 relative backdrop-blur-xl hover:border-white/25 overflow-hidden hover:shadow-white/5 hover:shadow-3xl">
+    <div className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.01]">
+      <div className="text-white rounded-xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-green-400/30 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-          <div style={{animationDelay: `${delay}s`}} className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-gradient-to-tr from-green-400/20 to-transparent blur-2xl opacity-30 group-hover:opacity-50 transform group-hover:scale-110 transition-all duration-700 animate-pulse" />
-          <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 blur-xl animate-ping" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
-        <div className="p-5 relative z-10">
-          <div className="flex flex-col">
-            <div className="mb-3">
-              <p className={`text-base font-bold ${isPositive ? 'text-green-400' : 'text-red-400'} group-hover:text-white transition-colors duration-300`}>
-                {symbol}
-              </p>
+        <div className="px-6 py-4 relative z-10 grid grid-cols-8 gap-6 items-center">
+          {/* Rank */}
+          <div className="flex items-center justify-center">
+            {getRankBadge(agent.rank, agent.medal)}
+          </div>
+
+          {/* Agent */}
+          <div className="col-span-1">
+            <p className="font-bold text-white group-hover:text-green-400 transition-colors duration-300 text-base">{agent.agent}</p>
+          </div>
+
+          {/* Vault Type */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-400">{agent.vaultType}</p>
+          </div>
+
+          {/* ROI */}
+          <div className="text-center">
+            <p className={`font-bold text-base ${agent.roi.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+              {agent.roi}
+            </p>
+          </div>
+
+          {/* Risk Score */}
+          <div>
+            <div className="flex flex-col gap-1">
+              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-green-400 to-cyan-400 transition-all duration-500"
+                  style={{ width: `${agent.riskScore * 100}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-400 font-mono">{agent.riskScore}</span>
             </div>
-            <div className="mb-2 transform group-hover:scale-105 transition-transform duration-300">
-              <p className="text-2xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-                {price}
-              </p>
-            </div>
-            <div className={`text-sm font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-              {change}
-            </div>
-            <div className="mt-4 w-1/3 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent rounded-full transform group-hover:w-full transition-all duration-500" />
+          </div>
+
+          {/* Validation */}
+          <div className="flex justify-center">
+            {getValidationBadge(agent.validation)}
+          </div>
+
+          {/* Performance Score */}
+          <div className="text-center">
+            <p className="font-bold text-white font-mono text-base">{agent.performanceScore}</p>
+          </div>
+
+          {/* Bond Score */}
+          <div className="text-center">
+            <p className={`font-bold font-mono text-base ${agent.bondScore.startsWith('+') ? 'text-green-400' : agent.bondScore.startsWith('-') ? 'text-red-400' : 'text-gray-500'}`}>
+              {agent.bondScore}
+            </p>
           </div>
         </div>
-        <div className="absolute top-0 left-0 w-12 h-12 bg-gradient-to-br from-white/10 to-transparent rounded-br-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="absolute bottom-0 right-0 w-12 h-12 bg-gradient-to-tl from-white/10 to-transparent rounded-tl-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </div>
   );
 };
 
 const CryptoGrid: React.FC = () => {
-  const cryptos = [
-    { symbol: 'BTC', price: '$95,000.00', change: '+2.34%', isPositive: true },
-    { symbol: 'ETH', price: '$3,500.00', change: '+1.87%', isPositive: true },
-    { symbol: 'SOL', price: '$180.00', change: '-0.92%', isPositive: false },
-    { symbol: 'BNB', price: '$600.00', change: '+0.45%', isPositive: true },
-    { symbol: 'DOGE', price: '$0.3500', change: '+3.21%', isPositive: true },
-    { symbol: 'XRP', price: '$0.50', change: '-1.15%', isPositive: false },
-  ];
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mb-10">
-      {cryptos.map((crypto, index) => (
-        <CryptoCard
-          key={crypto.symbol}
-          symbol={crypto.symbol}
-          price={crypto.price}
-          change={crypto.change}
-          isPositive={crypto.isPositive}
-          delay={index * 0.15}
-        />
-      ))}
+    <div className="mb-10">
+      {/* Table Header */}
+      <div className="mb-4 px-6">
+        <div className="grid grid-cols-8 gap-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <div className="text-center">Rank</div>
+          <div>Agent</div>
+          <div>Vault Type</div>
+          <div className="text-center">ROI</div>
+          <div>Risk Score</div>
+          <div className="text-center">Validation</div>
+          <div className="text-center">Performance</div>
+          <div className="text-center">Bond Score</div>
+        </div>
+      </div>
+
+      {/* Table Rows */}
+      <div className="space-y-3">
+        {agentsData.map((agent, index) => (
+          <LeaderboardRow key={agent.rank} agent={agent} index={index} />
+        ))}
+      </div>
     </div>
   );
 };

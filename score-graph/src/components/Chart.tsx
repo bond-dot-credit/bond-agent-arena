@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
+import { agentsData } from './CryptoGrid';
 
 interface ModelData {
   color: string;
@@ -17,15 +18,20 @@ interface ChartData {
   [modelName: string]: ChartPoint[];
 }
 
-const models: { [key: string]: ModelData } = {
-  'GPT-5': { color: '#8b5cf6', icon: '🟣', value: 12619.44 },
-  'Claude Sonnet 4.5': { color: '#ff6b35', icon: '🟠', value: 8537.88 },
-  'Gemini 2.5 Pro': { color: '#4285F4', icon: '🔵', value: 11788.96 },
-  'Grok 4': { color: '#000000', icon: '⚫', value: 8065.50 },
-  'DeepSeek Chat v3.1': { color: '#4d6bfe', icon: '🔷', value: 3975.38 },
-  'Qwen3 Max': { color: '#00ff88', icon: '🟢', value: 2757.90 },
-  'BTC Buy & Hold': { color: '#5a5a5a', icon: '₿', value: 10000, dashed: true }
-};
+const agentColors = ['#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+const models: { [key: string]: ModelData } = agentsData.reduce((acc, agent, index) => {
+  const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
+  const baseValue = 10000;
+  const finalValue = baseValue * (1 + roiNum / 100);
+
+  acc[agent.agent] = {
+    color: agentColors[index % agentColors.length],
+    icon: agent.medal || '🤖',
+    value: finalValue
+  };
+  return acc;
+}, {} as { [key: string]: ModelData });
 
 const Chart: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -63,21 +69,56 @@ const Chart: React.FC = () => {
       const data: ChartPoint[] = [];
       const baseValue = 10000;
       const model = models[modelName];
+      const targetValue = model.value;
+
+      // Market-like volatility parameters
+      const volatility = 0.015 + Math.random() * 0.01; // 1.5-2.5% volatility
+      const trendStrength = 0.3 + Math.random() * 0.4;
+
+      let currentValue = baseValue;
+      let momentum = 0;
 
       for (let i = 0; i <= dataPoints; i++) {
         const date = new Date(now.getTime() - (dataPoints - i) * getTimeInterval(currentTimeframe));
         const time = date.getTime();
-
-        const targetValue = model.value;
         const progress = i / dataPoints;
 
-        const volatility = 0.02;
-        const trendValue = baseValue + (targetValue - baseValue) * progress;
-        const randomChange = (Math.random() - 0.5) * baseValue * volatility;
-        const value = trendValue + randomChange;
+        // Expected value based on final ROI
+        const expectedValue = baseValue + (targetValue - baseValue) * progress;
 
-        data.push({ time, value: Math.max(value, baseValue * 0.3) });
+        // Add momentum-based movement (trending behavior)
+        const drift = (expectedValue - currentValue) * trendStrength * 0.1;
+        momentum = momentum * 0.7 + drift * 0.3;
+
+        // Add volatility with autocorrelation
+        const randomShock = (Math.random() - 0.5) * 2;
+        const volatilityComponent = currentValue * volatility * randomShock;
+
+        // Combine trend, momentum, and volatility
+        const change = momentum + volatilityComponent;
+        currentValue = currentValue + change;
+
+        // Add occasional market events (spikes/dips)
+        if (Math.random() < 0.05) {
+          const eventMagnitude = (Math.random() - 0.5) * currentValue * 0.03;
+          currentValue += eventMagnitude;
+        }
+
+        // Keep values reasonable
+        currentValue = Math.max(currentValue, baseValue * 0.7);
+        currentValue = Math.min(currentValue, baseValue * 1.5);
+
+        data.push({ time, value: currentValue });
       }
+
+      // Ensure last point converges to target
+      const lastPoint = data[data.length - 1];
+      const adjustment = (targetValue - lastPoint.value) / 5;
+      for (let i = Math.max(0, data.length - 5); i < data.length; i++) {
+        const weight = (i - (data.length - 5)) / 5;
+        data[i].value += adjustment * weight;
+      }
+
       newChartData[modelName] = data;
     });
     setChartData(newChartData);
@@ -128,7 +169,7 @@ const Chart: React.FC = () => {
       .attr('y1', (d) => yScale(minValue + (maxValue - minValue) * (d / yTicks)))
       .attr('x2', chartWidth)
       .attr('y2', (d) => yScale(minValue + (maxValue - minValue) * (d / yTicks)))
-      .attr('stroke', 'rgba(0, 0, 0, 0.1)')
+      .attr('stroke', 'rgba(255, 255, 255, 0.1)')
       .attr('stroke-width', '0.5')
       .attr('stroke-dasharray', '1,3');
 
@@ -142,7 +183,7 @@ const Chart: React.FC = () => {
       .attr('y1', 0)
       .attr('x2', (d) => (chartWidth / xTicks) * d)
       .attr('y2', chartHeight)
-      .attr('stroke', 'rgba(0, 0, 0, 0.1)')
+      .attr('stroke', 'rgba(255, 255, 255, 0.1)')
       .attr('stroke-width', '0.5')
       .attr('stroke-dasharray', '1,3');
 
@@ -158,7 +199,7 @@ const Chart: React.FC = () => {
         .datum(data)
         .attr('fill', 'none')
         .attr('stroke', model.color)
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 3)
         .attr('stroke-linecap', 'round')
         .attr('stroke-linejoin', 'round')
         .attr('stroke-dasharray', model.dashed ? '5,5' : '0,0')
@@ -178,7 +219,7 @@ const Chart: React.FC = () => {
           .attr('cy', 0)
           .attr('r', 12)
           .attr('fill', model.color)
-          .attr('stroke', '#fff')
+          .attr('stroke', '#000')
           .attr('stroke-width', 2);
 
         iconGroup.append('text')
@@ -186,7 +227,7 @@ const Chart: React.FC = () => {
           .attr('y', 4)
           .attr('text-anchor', 'middle')
           .attr('font-size', '10')
-          .attr('fill', '#fff')
+          .attr('fill', '#000')
           .attr('font-weight', 'bold')
           .text(model.icon);
 
@@ -194,7 +235,7 @@ const Chart: React.FC = () => {
           .attr('x', 45)
           .attr('y', 4)
           .attr('font-size', '12')
-          .attr('fill', '#000')
+          .attr('fill', '#fff')
           .attr('font-weight', '600')
           .attr('font-family', 'Courier New, monospace')
           .text(`$${model.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
@@ -213,7 +254,7 @@ const Chart: React.FC = () => {
       .call(g => g.select('.domain').remove()) // Remove the axis line
       .selectAll('text')
       .attr('font-size', '10')
-      .attr('fill', 'rgba(0, 0, 0, 0.8)')
+      .attr('fill', 'rgba(255, 255, 255, 0.7)')
       .attr('font-family', 'Courier New, monospace')
       .attr('font-weight', '600');
 
@@ -230,7 +271,7 @@ const Chart: React.FC = () => {
       .call(g => g.select('.domain').remove()) // Remove the axis line
       .selectAll('text')
       .attr('font-size', '8')
-      .attr('fill', 'rgba(0, 0, 0, 0.8)')
+      .attr('fill', 'rgba(255, 255, 255, 0.7)')
       .attr('font-family', 'IBM Plex Mono, monospace')
       .attr('font-weight', '600');
 
@@ -240,10 +281,10 @@ const Chart: React.FC = () => {
       .attr('y', chartHeight - 10)
       .attr('text-anchor', 'end')
       .attr('font-size', '12')
-      .attr('fill', 'rgba(0, 0, 0, 0.3)')
+      .attr('fill', 'rgba(255, 255, 255, 0.2)')
       .attr('font-family', 'Courier New, monospace')
       .attr('font-weight', 'bold')
-      .text('nof1.ai');
+      .text('bond.credit');
 
   }, [chartData]);
 
@@ -271,19 +312,19 @@ const Chart: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5 relative">
+    <div className="bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-md border border-white/10 rounded-2xl p-6 relative shadow-2xl">
       <div className="flex justify-between items-center mb-5">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-gray-900">TOTAL ACCOUNT VALUE</h2>
+          <h2 className="text-xl font-bold text-white">TOTAL ACCOUNT VALUE</h2>
           <div className="flex gap-1">
             <button
-              className={`px-3 py-1 bg-gray-900 text-white rounded-md font-semibold text-sm ${showDollar ? 'bg-gray-900' : 'bg-gray-700'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-green-400 text-black' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => handleValueToggle(true)}
             >
               $
             </button>
             <button
-              className={`px-3 py-1 bg-gray-900 text-white rounded-md font-semibold text-sm ${!showDollar ? 'bg-gray-900' : 'bg-gray-700'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-green-400 text-black' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => handleValueToggle(false)}
             >
               %
@@ -294,7 +335,7 @@ const Chart: React.FC = () => {
           {['ALL', '72H', '24H', '1H'].map((tf) => (
             <button
               key={tf}
-              className={`px-4 py-2 bg-gray-900 text-white rounded-md font-semibold ${currentTimeframe === tf ? 'bg-gray-900' : 'bg-gray-700'}`}
+              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-green-400 text-black' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
               onClick={() => handleTimeframeChange(tf)}
             >
               {tf}
@@ -302,7 +343,7 @@ const Chart: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="relative h-96">
+      <div className="relative h-96 bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-4">
         <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
         {loading && (
           <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
