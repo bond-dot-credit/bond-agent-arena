@@ -127,10 +127,10 @@ const ModelStats: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-6">
         {activeTab === 'leaderboard' && (
           <div>
-            <h2 className="text-base font-bold mb-3 text-white tracking-wider">AGENT LEADERBOARD</h2>
+            <h2 className="text-lg font-bold mb-4 text-white tracking-wider">AGENT LEADERBOARD</h2>
             
             {/* Table Header */}
-            <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 mb-2 pb-2 border-b border-white/10 text-[10px] text-gray-500 font-semibold uppercase">
+            <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 mb-2 pb-2 border-b border-white/10 text-xs text-gray-500 font-semibold uppercase">
               <div className="text-left">#</div>
               <div className="text-left">Agent</div>
               <div className="text-center">Trend</div>
@@ -150,11 +150,11 @@ const ModelStats: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-1.5 min-w-0">
                       {agent.medal && (
-                        <div className="w-4 h-4 flex-shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden p-0.5">
+                        <div className="w-5 h-5 flex-shrink-0 rounded-full bg-white border border-white/10 flex items-center justify-center overflow-hidden p-0.5">
                           <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
                         </div>
                       )}
-                      <span className="font-bold text-white text-xs truncate">
+                      <span className="font-bold text-white text-sm truncate">
                         {agent.agent}
                       </span>
                     </div>
@@ -162,19 +162,19 @@ const ModelStats: React.FC = () => {
                       {generateSparkline(agent.roi)}
                     </div>
                     <div className="text-right">
-                      <span className={`font-bold text-xs ${agent.roi.startsWith('+') ? 'text-[#c9b382]' : 'text-red-400'}`}>
+                      <span className={`font-bold text-sm ${agent.roi.startsWith('+') ? 'text-[#c9b382]' : 'text-red-400'}`}>
                         {agent.roi}
                       </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-1.5 text-[10px] ml-[40px]">
+                  <div className="grid grid-cols-3 gap-1.5 text-xs ml-[40px]">
+                    <div className="flex flex-col">
+                      <span className="text-gray-500">Score</span>
+                      <span className="font-mono text-white">{agent.bondScore}</span>
+                    </div>
                     <div className="flex flex-col">
                       <span className="text-gray-500">Risk</span>
                       <span className="font-mono text-white">{agent.riskScore}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-gray-500">Perf</span>
-                      <span className="font-mono text-white">{agent.performanceScore}</span>
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-gray-500">Status</span>

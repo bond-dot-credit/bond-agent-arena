@@ -27,17 +27,17 @@ function App() {
 
           {/* Combined Chart and Leaderboard */}
           <div className="bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-md border border-white/10 rounded-2xl p-5 relative shadow-2xl mb-4">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-              <div className="lg:col-span-3">
+            <div className="grid grid-cols-1 lg:grid-cols-7 gap-5">
+              <div className="lg:col-span-5">
                 <Chart />
               </div>
-              <div>
+              <div className="lg:col-span-2">
                 <ModelStats />
               </div>
             </div>
           </div>
 
-          <StatusBar />
+          <CryptoGrid />
         </div>
       </div>
     </div>

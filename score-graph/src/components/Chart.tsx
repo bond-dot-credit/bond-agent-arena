@@ -237,22 +237,44 @@ const Chart: React.FC = () => {
         const iconGroup = g.append('g')
           .attr('transform', `translate(${x}, ${y})`);
 
-        iconGroup.append('circle')
-          .attr('cx', 20)
-          .attr('cy', 0)
-          .attr('r', 12)
-          .attr('fill', model.color)
-          .attr('stroke', '#000')
-          .attr('stroke-width', 2);
+        // Check if model has a logo/medal
+        if (model.icon && model.icon.startsWith('/')) {
+          // White circle background for logo
+          iconGroup.append('circle')
+            .attr('cx', 20)
+            .attr('cy', 0)
+            .attr('r', 16)
+            .attr('fill', 'white')
+            .attr('stroke', model.color)
+            .attr('stroke-width', 2);
 
-        iconGroup.append('text')
-          .attr('x', 20)
-          .attr('y', 4)
-          .attr('text-anchor', 'middle')
-          .attr('font-size', '10')
-          .attr('fill', '#000')
-          .attr('font-weight', 'bold')
-          .text(model.icon);
+          // Add image element for logo
+          iconGroup.append('image')
+            .attr('x', 20 - 12)
+            .attr('y', -12)
+            .attr('width', 24)
+            .attr('height', 24)
+            .attr('href', model.icon)
+            .attr('preserveAspectRatio', 'xMidYMid meet');
+        } else {
+          // Fallback colored circle with emoji
+          iconGroup.append('circle')
+            .attr('cx', 20)
+            .attr('cy', 0)
+            .attr('r', 16)
+            .attr('fill', model.color)
+            .attr('stroke', '#000')
+            .attr('stroke-width', 2);
+
+          iconGroup.append('text')
+            .attr('x', 20)
+            .attr('y', 4)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '12')
+            .attr('fill', '#000')
+            .attr('font-weight', 'bold')
+            .text(model.icon);
+        }
 
         iconGroup.append('text')
           .attr('x', 45)

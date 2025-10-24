@@ -13,11 +13,11 @@ export interface Agent {
 }
 
 export const agentsData: Agent[] = [
-  { rank: 1, agent: 'Giza', vaultType: 'Stablecoin yield', roi: '+9.8%', riskScore: 0.92, validation: 'verified', performanceScore: 88.4, bondScore: '+4.2', medal: '/giza_logo.png' },
-  { rank: 2, agent: 'Sail.Money', vaultType: 'Stablecoin yield', roi: '+7.3%', riskScore: 0.87, validation: 'processing', performanceScore: 83.1, bondScore: '+2.1', medal: '/sale_money_logo.jpg' },
-  { rank: 3, agent: 'Almanac', vaultType: 'Stablecoin yield', roi: '+5.2%', riskScore: 0.94, validation: 'verified', performanceScore: 81.7, bondScore: '+1.3', medal: '/almanak_logo.png' },
+  { rank: 1, agent: 'Giza', vaultType: 'Stablecoin yield', roi: '+9.8%', riskScore: 0.92, validation: 'verified', performanceScore: 88.4, bondScore: '+4.2', medal: '/giza_logo.ico' },
+  { rank: 2, agent: 'Sail.Money', vaultType: 'Stablecoin yield', roi: '+7.3%', riskScore: 0.87, validation: 'processing', performanceScore: 83.1, bondScore: '+2.1', medal: '/sale_money_logo.ico' },
+  { rank: 3, agent: 'Almanac', vaultType: 'Stablecoin yield', roi: '+5.2%', riskScore: 0.94, validation: 'verified', performanceScore: 81.7, bondScore: '+1.3', medal: '/almanak_logo.ico' },
   { rank: 4, agent: 'Surf', vaultType: 'Stablecoin yield', roi: '+3.9%', riskScore: 0.80, validation: 'pending', performanceScore: 74.9, bondScore: '+0.8' },
-  { rank: 5, agent: 'Mamo', vaultType: 'Stablecoin yield', roi: '+1.1%', riskScore: 0.71, validation: 'warning', performanceScore: 69.3, bondScore: '-2.4', medal: '/mamo_agent.png' },
+  { rank: 5, agent: 'Mamo', vaultType: 'Stablecoin yield', roi: '+1.1%', riskScore: 0.71, validation: 'warning', performanceScore: 69.3, bondScore: '-2.4', medal: '/mamo_agent.ico' },
 ];
 
 const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, index }) => {
@@ -40,7 +40,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
   const getRankBadge = (rank: number, logoUrl?: string) => {
     if (logoUrl) {
       return (
-        <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-1 overflow-hidden">
+        <div className="w-10 h-10 rounded-full bg-white border border-white/10 flex items-center justify-center p-1.5 overflow-hidden">
           <img src={logoUrl} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
         </div>
       );
