@@ -18,11 +18,11 @@ interface ChartData {
   [modelName: string]: ChartPoint[];
 }
 
-const agentColors = ['#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+const agentColors = ['#c9b382', '#d4a574', '#b89968', '#e0c896', '#a88a5e'];
 
 const models: { [key: string]: ModelData } = agentsData.reduce((acc, agent, index) => {
   const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
-  const baseValue = 10000;
+  const baseValue = 2000;
   const finalValue = baseValue * (1 + roiNum / 100);
 
   acc[agent.agent] = {
@@ -67,7 +67,7 @@ const Chart: React.FC = () => {
 
     Object.keys(models).forEach(modelName => {
       const data: ChartPoint[] = [];
-      const baseValue = 10000;
+      const baseValue = 2000;
       const model = models[modelName];
       const targetValue = model.value;
 
@@ -128,9 +128,9 @@ const Chart: React.FC = () => {
   const createChart = useCallback(() => {
     if (!svgRef.current) return;
 
-    const width = 800;
-    const height = 400;
-    const margin = { top: 20, right: 120, bottom: 60, left: 80 };
+    const width = 1000;
+    const height = 550;
+    const margin = { top: 15, right: 140, bottom: 50, left: 55 };
 
     const svg = d3.select(svgRef.current)
       .attr('viewBox', `0 0 ${width} ${height}`)
@@ -186,6 +186,29 @@ const Chart: React.FC = () => {
       .attr('stroke', 'rgba(255, 255, 255, 0.1)')
       .attr('stroke-width', '0.5')
       .attr('stroke-dasharray', '1,3');
+
+    // Benchmark line (8% Aave base yield)
+    const benchmarkValue = 2000 * 1.08; // 8% on $2000
+    g.append('line')
+      .attr('x1', 0)
+      .attr('y1', yScale(benchmarkValue))
+      .attr('x2', chartWidth)
+      .attr('y2', yScale(benchmarkValue))
+      .attr('stroke', '#c9b382')
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('opacity', 0.6);
+
+    // Benchmark label
+    g.append('text')
+      .attr('x', chartWidth - 10)
+      .attr('y', yScale(benchmarkValue) - 5)
+      .attr('text-anchor', 'end')
+      .attr('font-size', '11')
+      .attr('fill', '#c9b382')
+      .attr('font-family', 'Courier New, monospace')
+      .attr('font-weight', 'bold')
+      .text('Aave 8% Benchmark');
 
     // Model lines
     Object.entries(chartData).forEach(([modelName, data]) => {
@@ -245,7 +268,7 @@ const Chart: React.FC = () => {
     // Y-axis
     const yAxis = d3.axisLeft(yScale)
       .ticks(yTicks)
-      .tickFormat(d => `$${(d as number / 1000).toFixed(0)}K`)
+      .tickFormat(d => `$${(d as number).toFixed(0)}`)
       .tickSizeOuter(0);
 
     g.append('g')
@@ -312,19 +335,19 @@ const Chart: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-md border border-white/10 rounded-2xl p-6 relative shadow-2xl">
-      <div className="flex justify-between items-center mb-5">
+    <div className="relative">
+      <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-bold text-white">TOTAL ACCOUNT VALUE</h2>
           <div className="flex gap-1">
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-green-400 text-black' : 'bg-gray-800 text-gray-400'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => handleValueToggle(true)}
             >
               $
             </button>
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-green-400 text-black' : 'bg-gray-800 text-gray-400'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => handleValueToggle(false)}
             >
               %
@@ -335,7 +358,7 @@ const Chart: React.FC = () => {
           {['ALL', '72H', '24H', '1H'].map((tf) => (
             <button
               key={tf}
-              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-green-400 text-black' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
               onClick={() => handleTimeframeChange(tf)}
             >
               {tf}
@@ -343,11 +366,11 @@ const Chart: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="relative h-96 bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-4">
+      <div className="relative h-[550px] bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3">
         <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
         {loading && (
           <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
-            <div className="text-green-400 text-base font-semibold">Loading Chart Data...</div>
+            <div className="text-[#c9b382] text-base font-semibold">Loading Chart Data...</div>
           </div>
         )}
       </div>

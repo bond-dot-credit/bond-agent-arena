@@ -23,7 +23,7 @@ export const agentsData: Agent[] = [
 const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, index }) => {
   const getValidationBadge = (status: string) => {
     const badges = {
-      'verified': { bg: 'bg-green-400/20', text: 'text-green-400', border: 'border-green-400/30', label: 'Verified' },
+      'verified': { bg: 'bg-[#c9b382]/20', text: 'text-[#c9b382]', border: 'border-[#c9b382]/30', label: 'Verified' },
       'processing': { bg: 'bg-yellow-400/20', text: 'text-yellow-400', border: 'border-yellow-400/30', label: 'Processing' },
       'pending': { bg: 'bg-blue-400/20', text: 'text-blue-400', border: 'border-blue-400/30', label: 'Pending' },
       'warning': { bg: 'bg-red-400/20', text: 'text-red-400', border: 'border-red-400/30', label: 'Warning' },
@@ -53,10 +53,10 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
   return (
     <div className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.01]">
-      <div className="text-white rounded-xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-green-400/30 overflow-hidden">
+      <div className="text-white rounded-xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-[#c9b382]/30 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9b382]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
         <div className="px-6 py-4 relative z-10 grid grid-cols-8 gap-6 items-center">
           {/* Rank */}
@@ -66,7 +66,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
           {/* Agent */}
           <div className="col-span-1">
-            <p className="font-bold text-white group-hover:text-green-400 transition-colors duration-300 text-base">{agent.agent}</p>
+            <p className="font-bold text-white group-hover:text-[#c9b382] transition-colors duration-300 text-base">{agent.agent}</p>
           </div>
 
           {/* Vault Type */}
@@ -76,7 +76,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
           {/* ROI */}
           <div className="text-center">
-            <p className={`font-bold text-base ${agent.roi.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`font-bold text-base ${agent.roi.startsWith('+') ? 'text-[#c9b382]' : 'text-red-400'}`}>
               {agent.roi}
             </p>
           </div>
@@ -86,7 +86,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
             <div className="flex flex-col gap-1">
               <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-green-400 to-cyan-400 transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#c9b382] to-[#e0c896] transition-all duration-500"
                   style={{ width: `${agent.riskScore * 100}%` }}
                 />
               </div>
@@ -106,7 +106,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
           {/* Bond Score */}
           <div className="text-center">
-            <p className={`font-bold font-mono text-base ${agent.bondScore.startsWith('+') ? 'text-green-400' : agent.bondScore.startsWith('-') ? 'text-red-400' : 'text-gray-500'}`}>
+            <p className={`font-bold font-mono text-base ${agent.bondScore.startsWith('+') ? 'text-[#c9b382]' : agent.bondScore.startsWith('-') ? 'text-red-400' : 'text-gray-500'}`}>
               {agent.bondScore}
             </p>
           </div>

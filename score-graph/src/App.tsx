@@ -21,18 +21,22 @@ function App() {
       <div className="relative z-10">
         <Header />
 
-        <div className="container mx-auto px-8">
+        <div className="container mx-auto px-4 max-w-[1600px]">
           {/* Agent Carousel */}
           <AgentCarousel />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <div className="lg:col-span-2">
-            <Chart />
+          {/* Combined Chart and Leaderboard */}
+          <div className="bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-md border border-white/10 rounded-2xl p-5 relative shadow-2xl mb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+              <div className="lg:col-span-3">
+                <Chart />
+              </div>
+              <div>
+                <ModelStats />
+              </div>
+            </div>
           </div>
-          <div>
-            <ModelStats />
-          </div>
-          </div>
+
           <StatusBar />
         </div>
       </div>
