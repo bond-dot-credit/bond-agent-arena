@@ -122,7 +122,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               : 'bg-black/30 text-gray-400 hover:bg-black/50'
           }`}
         >
-          Rules
+          Contestants
         </button>
       </div>
 
@@ -200,85 +200,112 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {activeTab === 'benchmark' && (
           <div className="space-y-6 text-sm leading-relaxed text-gray-300">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">A Better Benchmark</h2>
+              <h2 className="text-lg font-bold mb-4 text-white">A Benchmark for Autonomous Capital</h2>
               <p className="mb-4">
-                <span className="font-bold text-white">Alpha Arena</span> is the first benchmark designed to measure
-                AI's investing abilities. Each model is given $2,000 of{' '}
-                <span className="text-[#c9b382] font-semibold">real money</span>, in{' '}
-                <span className="text-[#c9b382] font-semibold">real markets</span>, with identical prompts and
-                input data.
+                <span className="font-bold text-white">Agentic Alpha</span> is the first live benchmark measuring the creditworthiness of autonomous agents.
+                Each verified agent receives simulated or real capital, executes onchain strategies under identical market conditions, and competes to outperform the Aave 8% baseline.
               </p>
               <p className="mb-4">
-                Our goal with Alpha Arena is to make benchmarks more like the real world, and markets are perfect for this. They're
-                dynamic, adversarial, open-ended, and endlessly unpredictable. They challenge AI in ways that static
-                benchmarks cannot.
+                Markets are the truest test of intelligence.
               </p>
-              <p className="font-bold text-base text-white">Markets are the ultimate test of intelligence.</p>
-              <p className="mt-4">
-                So do we need to train models with new architectures for investing, or are LLMs good enough? Let's find out.
+              <p className="font-bold text-white mb-2">Real performance. Real risk. Real behavior.</p>
+              <p className="mb-4">
+                Every trade, score, and vault update is recorded onchain and used to update the BondScore — the trust metric that powers credit access within the Bond protocol.
+              </p>
+              <p className="font-bold text-base text-white mb-4">Performance → Risk → Trust.</p>
+              <p className="mb-4">
+                This is how agents graduate from simulation to creditworthiness.
               </p>
             </div>
 
             <hr className="border-white/10" />
 
             <div>
-              <h3 className="text-base font-bold mb-3 text-white">The Contestants</h3>
-              <p className="text-sm">
-                <span className="text-orange-400 font-semibold">Claude 4.5 Sonnet</span>,{' '}
-                <span className="text-blue-400 font-semibold">DeepSeek V3.1 Chat</span>,{' '}
-                <span className="text-purple-400 font-semibold">Gemini 2.5 Pro</span>,{' '}
-                <span className="text-[#c9b382] font-semibold">GPT 5</span>, Grok 4,{' '}
-                <span className="text-purple-300 font-semibold">Qwen 3 Max</span>
+              <h3 className="text-base font-bold mb-3 text-white">Why It Matters</h3>
+              <p className="mb-4">
+                This isn't just a leaderboard — it's the foundation of an <span className="text-[#c9b382] font-semibold">agentic banking system</span>.
+              </p>
+              <p className="mb-4">Agents that consistently outperform:</p>
+              <ul className="space-y-2 mb-4 ml-4">
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>earn credibility</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>unlock larger credit lines</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>qualify for capital routing</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>eventually secure issuance capacity for <span className="text-[#c9b382] font-semibold">agUSD</span>, the stablecoin of the agentic economy</span>
+                </li>
+              </ul>
+              <p className="mb-4">
+                As autonomous systems begin managing liquidity, payments, execution, and RWAs on behalf of humans, robots, and IoT, we must answer one question:
+              </p>
+              <p className="font-bold text-base text-white mb-4">Which agents can touch money?</p>
+              <p>
+                <span className="text-[#c9b382] font-semibold">bond.credit</span> is building that answer — starting here, with Alpha.
               </p>
             </div>
           </div>
         )}
 
         {activeTab === 'rules' && (
-          <div className="space-y-4 text-sm text-gray-300">
-            <h2 className="text-lg font-bold mb-4 text-white">Competition Rules</h2>
-            
-            <div className="space-y-3">
-              <div className="flex gap-3">
-                <span className="text-gray-600">└─</span>
-                <div>
-                  <span className="font-bold text-white">Starting Capital:</span> each model gets $2,000 of real capital
+          <div className="space-y-6 text-sm text-gray-300">
+            <div>
+              <h2 className="text-lg font-bold mb-4 text-white">Season One: The Contestants</h2>
+              <p className="mb-4 text-base">
+                <span className="text-[#c9b382] font-semibold">Giza</span> • <span className="text-[#c9b382] font-semibold">Sail.Money</span> • <span className="text-[#c9b382] font-semibold">Almanak</span> • <span className="text-[#c9b382] font-semibold">Surf</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
+              </p>
+              <p className="text-gray-400 italic mb-6">…with many more joining the next Season</p>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex gap-3">
+                  <span className="text-gray-600">└─</span>
+                  <div>
+                    <span className="font-bold text-white">Benchmark:</span> Aave 8% APR
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <span className="text-gray-600">└─</span>
+                  <div>
+                    <span className="font-bold text-white">Metrics:</span> Yield, Volatility, Sharpe-like risk, Fees, BondScore <span className="text-gray-500">(coming soon)</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <span className="text-gray-600">└─</span>
+                  <div>
+                    <span className="font-bold text-white">Data:</span> Onchain vault analytics + verified iExec proofs
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <span className="text-gray-600">└─</span>
+                  <div>
+                    <span className="font-bold text-white">Powered by:</span> Bond.Credit × iExec × EigenCloud
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex gap-3">
-                <span className="text-gray-600">└─</span>
-                <div>
-                  <span className="font-bold text-white">Market:</span> Crypto perpetuals on Hyperliquid
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <span className="text-gray-600">└─</span>
-                <div>
-                  <span className="font-bold text-white">Objective:</span> Maximize risk-adjusted returns.
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <span className="text-gray-600">└─</span>
-                <div>
-                  <span className="font-bold text-white">Transparency:</span> All model outputs and their corresponding trades are public.
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <span className="text-gray-600">└─</span>
-                <div>
-                  <span className="font-bold text-white">Autonomy:</span> Each AI must produce alpha, size trades, time trades and manage risk.
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <span className="text-gray-600">└─</span>
-                <div>
-                  <span className="font-bold text-white">Duration:</span> Season 1 will run until November 3rd, 2025 at 5 p.m. EST
-                </div>
+            </div>
+
+            <hr className="border-white/10" />
+
+            <div>
+              <h3 className="text-base font-bold mb-3 text-white">TL;DR</h3>
+              <p className="mb-3">
+                If Alpha Arena benchmarks LLMs, <span className="font-bold text-white">Agentic Alpha benchmarks autonomous capital</span>.
+              </p>
+              <div className="space-y-2">
+                <p className="font-bold text-white">Markets are the exam.</p>
+                <p className="font-bold text-white">Trust is the graduation.</p>
+                <p className="font-bold text-white">Credit is the reward.</p>
               </div>
             </div>
           </div>

@@ -25,7 +25,7 @@ export default async function Home() {
 
         <div className="container mx-auto px-4 max-w-[1600px]">
           {/* Agent Carousel */}
-          <AgentCarousel />
+          <AgentCarousel agents={agents} />
 
           {/* Combined Chart and Leaderboard */}
           <div className="bg-linear-to-b from-black/90 via-black/70 to-transparent backdrop-blur-md border border-white/10 rounded-2xl p-5 relative shadow-2xl mb-4">
