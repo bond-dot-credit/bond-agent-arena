@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAgentByAddress, getAgentPerformance } from '@/lib/services/agentService';
 
+export const runtime = 'edge';
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ address: string }> }

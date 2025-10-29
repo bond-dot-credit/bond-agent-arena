@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAllAgents } from '@/lib/services/agentService';
 
+export const runtime = 'edge';
+
 export async function GET() {
   try {
     const agents = await getAllAgents();
