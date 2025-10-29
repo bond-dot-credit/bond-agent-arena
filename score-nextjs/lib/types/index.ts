@@ -1,0 +1,30 @@
+export interface Agent {
+  rank: number;
+  agent: string;
+  contractAddress: string;
+  vaultType: string;
+  roi: string;
+  riskScore: number;
+  validation: 'verified' | 'processing' | 'pending' | 'warning';
+  performanceScore: number;
+  bondScore: string;
+  medal?: string;
+}
+
+export interface PerformanceSnapshot {
+  timestamp: number;
+  usdcAmount: number;
+  rewardTokenAmount?: number;
+  rewardTokenSymbol?: string;
+  rewardPriceUsd?: number;
+  totalValueUsd: number;
+}
+
+export interface AgentPerformance {
+  agent: Agent;
+  snapshots: PerformanceSnapshot[];
+  currentValue: number;
+  initialValue: number;
+  totalReturn: number;
+  roiPercentage: number;
+}
