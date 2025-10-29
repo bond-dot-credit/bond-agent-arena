@@ -1,0 +1,8 @@
+{
+  "name": "score-nextjs",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-10-29",
+  "assets": {
+    "directory": ".open-next/assets"
+  }
+}
