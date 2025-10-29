@@ -477,7 +477,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           ))}
         </div>
       </div>
-      <div className="relative h-[550px] bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3">
+      <div className="relative h-[550px] bg-linear-to-br from-white/5 to-white/10 rounded-lg p-3">
         <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
         {loading && (
           <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
