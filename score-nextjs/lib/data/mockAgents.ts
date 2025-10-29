@@ -27,7 +27,7 @@ export const mockAgents: Agent[] = [
   },
   {
     rank: 3,
-    agent: 'Almanac',
+    agent: 'Almanak',
     contractAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
     vaultType: 'Stablecoin yield',
     roi: '+5.2%',
@@ -46,7 +46,8 @@ export const mockAgents: Agent[] = [
     riskScore: 0.80,
     validation: 'pending',
     performanceScore: 74.9,
-    bondScore: '+0.8'
+    bondScore: '+0.8',
+    medal: '/surf_logo.avif'
   },
   {
     rank: 5,

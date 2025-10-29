@@ -67,7 +67,7 @@ const generateYieldEvents = (dataPoints: ChartPoint[], agentName: string): Chart
 const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const agentsData = agents;
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const [currentTimeframe, setCurrentTimeframe] = useState<string>('72H');
+  const [currentTimeframe, setCurrentTimeframe] = useState<string>('24H');
   const [showDollar, setShowDollar] = useState<boolean>(true);
   const [chartData, setChartData] = useState<ChartData>({});
   const [loading, setLoading] = useState<boolean>(true);
@@ -159,11 +159,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    const allValues = Object.values(chartData).flat().map(d => d.value);
     const allTimes = Object.values(chartData).flat().map(d => d.time);
-
-    const minValue = Math.min(...allValues) * 0.995;
-    const maxValue = Math.max(...allValues) * 1.005;
     const minTime = Math.min(...allTimes);
     const maxTime = Math.max(...allTimes);
 
@@ -171,9 +167,28 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .domain([minTime, maxTime])
       .range([0, chartWidth]);
 
-    const yScale = d3.scaleLinear()
-      .domain([minValue, maxValue])
-      .range([chartHeight, 0]);
+    let yScale: d3.ScaleLinear<number, number>;
+    let minValue: number;
+    let maxValue: number;
+
+    if (showDollar) {
+      // Dollar view: show absolute values
+      const allValues = Object.values(chartData).flat().map(d => d.value);
+      minValue = Math.min(...allValues) * 0.995;
+      maxValue = Math.max(...allValues) * 1.005;
+      yScale = d3.scaleLinear()
+        .domain([minValue, maxValue])
+        .range([chartHeight, 0]);
+    } else {
+      // Percentage view: calculate ROI %
+      const baseValue = 2000;
+      const allRoiPercents = Object.values(chartData).flat().map(d => ((d.value - baseValue) / baseValue) * 100);
+      minValue = Math.min(...allRoiPercents) * 0.95;
+      maxValue = Math.max(...allRoiPercents) * 1.05;
+      yScale = d3.scaleLinear()
+        .domain([minValue, maxValue])
+        .range([chartHeight, 0]);
+    }
 
     // Grid lines
     const yTicks = 7;
@@ -205,7 +220,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('stroke-dasharray', '1,3');
 
     // Benchmark line (8% Aave base yield)
-    const benchmarkValue = 2000 * 1.08;
+    const benchmarkValue = showDollar ? 2000 * 1.08 : 8;
     g.append('line')
       .attr('x1', 0)
       .attr('y1', yScale(benchmarkValue))
@@ -229,13 +244,22 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
     // Model lines and trade points
     Object.entries(chartData).forEach(([modelName, data]) => {
+      const model = models[modelName];
+      const baseValue = 2000;
+
       // Use curve interpolation for smooth, natural-looking lines
       const lineGenerator = d3.line<ChartPoint>()
         .x(d => xScale(d.time))
-        .y(d => yScale(d.value))
+        .y(d => {
+          if (showDollar) {
+            return yScale(d.value);
+          } else {
+            // Convert to ROI %
+            const roiPercent = ((d.value - baseValue) / baseValue) * 100;
+            return yScale(roiPercent);
+          }
+        })
         .curve(d3.curveMonotoneX); // Smooth curve that preserves monotonicity
-
-      const model = models[modelName];
 
       // Draw line with smooth curves
       g.append('path')
@@ -247,26 +271,20 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         .attr('stroke-linejoin', 'round')
         .attr('d', lineGenerator);
 
-      // Draw yield event markers
+      // Draw yield event markers with proper hover
       data.forEach(point => {
         if (point.isTradePoint) {
           const x = xScale(point.time);
-          const y = yScale(point.value);
+          const y = showDollar
+            ? yScale(point.value)
+            : yScale(((point.value - baseValue) / baseValue) * 100);
 
-          // Yield event marker circle
-          g.append('circle')
-            .attr('cx', x)
-            .attr('cy', y)
-            .attr('r', 4)
-            .attr('fill', point.tradeType === 'buy' ? '#10b981' : '#ef4444')
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1.5)
-            .style('cursor', 'pointer')
-            .append('title')
-            .text(`${point.tradeNote}\nTotal: $${point.value.toFixed(2)}`);
+          const markerGroup = g.append('g')
+            .attr('class', 'yield-marker')
+            .style('cursor', 'pointer');
 
           // Small indicator line pointing up for gains, down for costs
-          g.append('line')
+          markerGroup.append('line')
             .attr('x1', x)
             .attr('y1', y)
             .attr('x2', x)
@@ -274,6 +292,77 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             .attr('stroke', point.tradeType === 'buy' ? '#10b981' : '#ef4444')
             .attr('stroke-width', 1.5)
             .attr('opacity', 0.6);
+
+          // Yield event marker circle
+          const circle = markerGroup.append('circle')
+            .attr('cx', x)
+            .attr('cy', y)
+            .attr('r', 4)
+            .attr('fill', point.tradeType === 'buy' ? '#10b981' : '#ef4444')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 1.5);
+
+          // Tooltip background
+          const tooltip = markerGroup.append('g')
+            .attr('class', 'tooltip')
+            .attr('opacity', 0)
+            .attr('pointer-events', 'none');
+
+          const tooltipBg = tooltip.append('rect')
+            .attr('x', x + 10)
+            .attr('y', y - 35)
+            .attr('rx', 4)
+            .attr('fill', 'rgba(0, 0, 0, 0.9)')
+            .attr('stroke', point.tradeType === 'buy' ? '#10b981' : '#ef4444')
+            .attr('stroke-width', 1);
+
+          const tooltipText = tooltip.append('text')
+            .attr('x', x + 15)
+            .attr('y', y - 20)
+            .attr('fill', '#fff')
+            .attr('font-size', '11')
+            .attr('font-family', 'Courier New, monospace')
+            .text(`${point.tradeNote}`);
+
+          const tooltipValue = tooltip.append('text')
+            .attr('x', x + 15)
+            .attr('y', y - 8)
+            .attr('fill', '#c9b382')
+            .attr('font-size', '10')
+            .attr('font-weight', 'bold')
+            .attr('font-family', 'Courier New, monospace')
+            .text(`Total: $${point.value.toFixed(2)}`);
+
+          // Calculate tooltip background size
+          const textBBox = (tooltipText.node() as SVGTextElement).getBBox();
+          const valueBBox = (tooltipValue.node() as SVGTextElement).getBBox();
+          const maxWidth = Math.max(textBBox.width, valueBBox.width);
+          tooltipBg
+            .attr('width', maxWidth + 10)
+            .attr('height', 30);
+
+          // Hover events
+          markerGroup
+            .on('mouseenter', function() {
+              circle
+                .transition()
+                .duration(200)
+                .attr('r', 6);
+              tooltip
+                .transition()
+                .duration(200)
+                .attr('opacity', 1);
+            })
+            .on('mouseleave', function() {
+              circle
+                .transition()
+                .duration(200)
+                .attr('r', 4);
+              tooltip
+                .transition()
+                .duration(200)
+                .attr('opacity', 0);
+            });
         }
       });
 
@@ -281,7 +370,9 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       if (data.length > 0) {
         const lastPoint = data[data.length - 1];
         const x = xScale(lastPoint.time);
-        const y = yScale(lastPoint.value);
+        const y = showDollar
+          ? yScale(lastPoint.value)
+          : yScale(((lastPoint.value - baseValue) / baseValue) * 100);
 
         const iconGroup = g.append('g')
           .attr('transform', `translate(${x}, ${y})`);
@@ -371,6 +462,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             .attr('preserveAspectRatio', 'xMidYMid meet');
         }
 
+        const displayValue = showDollar
+          ? `$${model.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          : `${(((model.value - 2000) / 2000) * 100).toFixed(2)}%`;
+
         iconGroup.append('text')
           .attr('x', 45)
           .attr('y', 4)
@@ -378,14 +473,14 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           .attr('fill', '#fff')
           .attr('font-weight', '600')
           .attr('font-family', 'Courier New, monospace')
-          .text(`$${model.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+          .text(displayValue);
       }
     });
 
     // Y-axis
     const yAxis = d3.axisLeft(yScale)
       .ticks(yTicks)
-      .tickFormat(d => `$${(d as number).toFixed(0)}`)
+      .tickFormat(d => showDollar ? `$${(d as number).toFixed(0)}` : `${(d as number).toFixed(1)}%`)
       .tickSizeOuter(0);
 
     g.append('g')
@@ -426,7 +521,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('font-weight', 'bold')
       .text('bond.credit');
 
-  }, [chartData, models]);
+  }, [chartData, models, showDollar]);
 
   useEffect(() => {
     fetchAgentData();
