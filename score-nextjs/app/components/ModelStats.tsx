@@ -96,7 +96,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       <div className="flex border-b border-white/10">
         <button
           onClick={() => setActiveTab('leaderboard')}
-          className={`flex-1 px-4 py-3 text-xs font-bold uppercase transition-colors ${
+          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'leaderboard'
               ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
               : 'bg-black/30 text-gray-400 hover:bg-black/50'
@@ -106,7 +106,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         </button>
         <button
           onClick={() => setActiveTab('benchmark')}
-          className={`flex-1 px-4 py-3 text-xs font-bold uppercase transition-colors ${
+          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'benchmark'
               ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
               : 'bg-black/30 text-gray-400 hover:bg-black/50'
@@ -116,7 +116,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         </button>
         <button
           onClick={() => setActiveTab('rules')}
-          className={`flex-1 px-4 py-3 text-xs font-bold uppercase transition-colors ${
+          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'rules'
               ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
               : 'bg-black/30 text-gray-400 hover:bg-black/50'
@@ -127,10 +127,10 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4">
         {activeTab === 'leaderboard' && (
           <div>
-            <h2 className="text-lg font-bold mb-4 text-white tracking-wider">AGENT LEADERBOARD</h2>
+            <h2 className="text-base font-bold mb-3 text-white tracking-wider">AGENT LEADERBOARD</h2>
             
             {/* Table Header */}
             <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 mb-2 pb-2 border-b border-white/10 text-xs text-gray-500 font-semibold uppercase">
@@ -145,7 +145,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               {agentsData.map((agent, index) => (
                 <div
                   key={agent.agent}
-                  className="hover:bg-white/5 py-2 rounded-lg transition-all duration-300"
+                  className="hover:bg-white/5 py-1.5 rounded-lg transition-all duration-300"
                 >
                   <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 items-center mb-1">
                     <div className="text-left">
@@ -153,7 +153,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                     </div>
                     <div className="flex items-center gap-1.5 min-w-0">
                       {agent.medal && (
-                        <div className="w-5 h-5 flex-shrink-0 rounded-full bg-white border border-white/10 flex items-center justify-center overflow-hidden p-0.5">
+                        <div className="w-5 h-5 shrink-0 rounded-full bg-white border border-white/10 flex items-center justify-center overflow-hidden p-0.5">
                           <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -170,7 +170,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-1.5 text-xs ml-[40px]">
+                  <div className="grid grid-cols-3 gap-1.5 text-xs ml-10">
                     <div className="flex flex-col">
                       <span className="text-gray-500">Score</span>
                       <span className="font-mono text-white">{agent.bondScore}</span>

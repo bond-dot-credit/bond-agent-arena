@@ -1,6 +1,5 @@
 import Header from './components/Header';
 import AgentCarousel from './components/AgentCarousel';
-import CryptoGrid from './components/CryptoGrid';
 import ChartWithData from './components/ChartWithData';
 import ModelStats from './components/ModelStats';
 import { Component as EtheralShadow } from './components/ui/etheral-shadow';
@@ -39,7 +38,6 @@ export default async function Home() {
             </div>
           </div>
 
-          <CryptoGrid agents={agents} />
         </div>
       </div>
     </div>

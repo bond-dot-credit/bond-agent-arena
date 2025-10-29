@@ -521,6 +521,113 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('font-weight', 'bold')
       .text('bond.credit');
 
+    // Add hover crosshair and tooltips
+    const baseValue = 2000;
+    const crosshairGroup = g.append('g')
+      .attr('class', 'crosshair')
+      .style('display', 'none');
+
+    const verticalLine = crosshairGroup.append('line')
+      .attr('y1', 0)
+      .attr('y2', chartHeight)
+      .attr('stroke', 'rgba(255, 255, 255, 0.3)')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '4,4');
+
+    const tooltipGroup = crosshairGroup.append('g')
+      .attr('class', 'tooltip-group');
+
+    // Create overlay for mouse tracking
+    const overlay = g.append('rect')
+      .attr('class', 'overlay')
+      .attr('width', chartWidth)
+      .attr('height', chartHeight)
+      .attr('fill', 'none')
+      .attr('pointer-events', 'all');
+
+    overlay
+      .on('mousemove', function(event) {
+        const [mouseX] = d3.pointer(event, this);
+        const xTime = xScale.invert(mouseX);
+
+        // Find closest data point for each model
+        const tooltipData: Array<{modelName: string, value: number, color: string}> = [];
+
+        Object.entries(chartData).forEach(([modelName, data]) => {
+          // Find closest point
+          let closestPoint = data[0];
+          let minDist = Math.abs(data[0].time - xTime);
+
+          data.forEach(point => {
+            const dist = Math.abs(point.time - xTime);
+            if (dist < minDist) {
+              minDist = dist;
+              closestPoint = point;
+            }
+          });
+
+          tooltipData.push({
+            modelName,
+            value: closestPoint.value,
+            color: models[modelName].color
+          });
+        });
+
+        // Show crosshair
+        crosshairGroup.style('display', null);
+        verticalLine.attr('x1', mouseX).attr('x2', mouseX);
+
+        // Clear previous tooltips
+        tooltipGroup.selectAll('*').remove();
+
+        // Draw tooltips for each agent
+        tooltipData.forEach((item, idx) => {
+          const yPos = showDollar
+            ? yScale(item.value)
+            : yScale(((item.value - baseValue) / baseValue) * 100);
+
+          // Tooltip circle
+          tooltipGroup.append('circle')
+            .attr('cx', mouseX)
+            .attr('cy', yPos)
+            .attr('r', 5)
+            .attr('fill', item.color)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2);
+
+          // Tooltip box
+          const displayValue = showDollar
+            ? `$${item.value.toFixed(2)}`
+            : `${(((item.value - baseValue) / baseValue) * 100).toFixed(2)}%`;
+
+          const tooltipText = `${item.modelName}: ${displayValue}`;
+
+          const textBg = tooltipGroup.append('rect')
+            .attr('x', mouseX + 10)
+            .attr('y', yPos - 20 + (idx * 25))
+            .attr('rx', 4)
+            .attr('fill', 'rgba(0, 0, 0, 0.9)')
+            .attr('stroke', item.color)
+            .attr('stroke-width', 1);
+
+          const text = tooltipGroup.append('text')
+            .attr('x', mouseX + 15)
+            .attr('y', yPos - 5 + (idx * 25))
+            .attr('fill', '#fff')
+            .attr('font-size', '11')
+            .attr('font-family', 'Courier New, monospace')
+            .text(tooltipText);
+
+          const bbox = (text.node() as SVGTextElement).getBBox();
+          textBg
+            .attr('width', bbox.width + 10)
+            .attr('height', 18);
+        });
+      })
+      .on('mouseleave', function() {
+        crosshairGroup.style('display', 'none');
+      });
+
   }, [chartData, models, showDollar]);
 
   useEffect(() => {
