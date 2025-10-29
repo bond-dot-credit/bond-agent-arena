@@ -1,12 +1,15 @@
 import Header from './components/Header';
 import AgentCarousel from './components/AgentCarousel';
 import CryptoGrid from './components/CryptoGrid';
-import Chart from './components/Chart';
+import ChartWithData from './components/ChartWithData';
 import ModelStats from './components/ModelStats';
 import { Component as EtheralShadow } from './components/ui/etheral-shadow';
-import { mockAgents } from '@/lib/data/mockAgents';
+import { getAllAgents } from '@/lib/services/agentService';
 
-export default function Home() {
+export default async function Home() {
+  // Fetch agents from Supabase
+  const agents = await getAllAgents();
+
   return (
     <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
       <div className="absolute inset-0 z-0">
@@ -28,15 +31,15 @@ export default function Home() {
           <div className="bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-md border border-white/10 rounded-2xl p-5 relative shadow-2xl mb-4">
             <div className="grid grid-cols-1 lg:grid-cols-7 gap-5">
               <div className="lg:col-span-5">
-                <Chart agents={mockAgents} />
+                <ChartWithData agents={agents} />
               </div>
               <div className="lg:col-span-2">
-                <ModelStats agents={mockAgents} />
+                <ModelStats agents={agents} />
               </div>
             </div>
           </div>
 
-          <CryptoGrid agents={mockAgents} />
+          <CryptoGrid agents={agents} />
         </div>
       </div>
     </div>

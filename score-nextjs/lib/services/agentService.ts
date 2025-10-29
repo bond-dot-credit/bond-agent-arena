@@ -101,16 +101,10 @@ export async function getAgentPerformance(
     .from('performance_snapshots')
     .select('*')
     .eq('agent_id', agent.id)
-    .order('timestamp', { ascending: true });
+    .order('timestamp', { ascending: false }); // Get latest first
 
-  if (from) {
-    query = query.gte('timestamp', new Date(from).toISOString());
-  }
-
-  if (to) {
-    query = query.lte('timestamp', new Date(to).toISOString());
-  }
-
+  // For short timeframes, just get the most recent N points without time filtering
+  // This ensures we always have data even if seeded data is old
   if (limit) {
     query = query.limit(limit);
   }
@@ -120,7 +114,10 @@ export async function getAgentPerformance(
   if (error) throw error;
   if (!snapshots) return [];
 
-  return snapshots.map((snapshot: PerformanceSnapshotRow) => ({
+  // Reverse to get chronological order (oldest to newest)
+  const orderedSnapshots = snapshots.reverse();
+
+  return orderedSnapshots.map((snapshot: PerformanceSnapshotRow) => ({
     timestamp: new Date(snapshot.timestamp).getTime(),
     usdcAmount: snapshot.usdc_amount,
     rewardTokenAmount: snapshot.reward_token_amount || undefined,

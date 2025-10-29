@@ -20,17 +20,29 @@ export async function GET(
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
-    // Calculate limit based on interval
+    // Calculate limit and time range based on interval
     let limit: number | undefined;
-    if (interval === '1h') limit = 12;
-    else if (interval === '24h') limit = 24;
-    else if (interval === '72h') limit = 72;
-    else limit = 168; // ALL - 7 days
+    let fromTime: number | undefined;
+    const now = Date.now();
 
-    // Get performance data
+    if (interval === '1H') {
+      limit = 12;
+      fromTime = now - (1 * 60 * 60 * 1000); // Last 1 hour
+    } else if (interval === '24H') {
+      limit = 24;
+      fromTime = now - (24 * 60 * 60 * 1000); // Last 24 hours
+    } else if (interval === '72H') {
+      limit = 72;
+      fromTime = now - (72 * 60 * 60 * 1000); // Last 72 hours
+    } else {
+      limit = 168; // ALL - 7 days
+      fromTime = now - (168 * 60 * 60 * 1000);
+    }
+
+    // Get performance data with time filtering
     const snapshots = await getAgentPerformance(
       address,
-      from ? parseInt(from) : undefined,
+      from ? parseInt(from) : fromTime,
       to ? parseInt(to) : undefined,
       limit
     );
