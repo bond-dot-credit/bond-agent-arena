@@ -1,58 +1,54 @@
 import { NextResponse } from 'next/server';
-import { mockAgents } from '@/lib/data/mockAgents';
+import { getAgentByAddress, getAgentPerformance } from '@/lib/services/agentService';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ address: string }> }
 ) {
-  const { address } = await params;
-  const { searchParams } = new URL(request.url);
+  try {
+    const { address } = await params;
+    const { searchParams } = new URL(request.url);
 
-  const from = searchParams.get('from');
-  const to = searchParams.get('to');
-  const interval = searchParams.get('interval') || '1h';
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
+    const interval = searchParams.get('interval') || '1h';
 
-  // Find agent
-  const agent = mockAgents.find(a => a.contractAddress.toLowerCase() === address.toLowerCase());
+    // Get agent
+    const agent = await getAgentByAddress(address);
 
-  if (!agent) {
-    return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
-  }
+    if (!agent) {
+      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
+    }
 
-  // Generate mock performance data
-  const baseValue = 2000;
-  const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
-  const targetValue = baseValue * (1 + roiNum / 100);
+    // Calculate limit based on interval
+    let limit: number | undefined;
+    if (interval === '1h') limit = 12;
+    else if (interval === '24h') limit = 24;
+    else if (interval === '72h') limit = 72;
+    else limit = 168; // ALL - 7 days
 
-  const now = Date.now();
-  const dataPoints = interval === '1h' ? 12 : interval === '24h' ? 24 : 168;
-  const timeInterval = interval === '1h' ? 5 * 60 * 1000 : 60 * 60 * 1000;
+    // Get performance data
+    const snapshots = await getAgentPerformance(
+      address,
+      from ? parseInt(from) : undefined,
+      to ? parseInt(to) : undefined,
+      limit
+    );
 
-  const snapshots = [];
-  let currentValue = baseValue;
+    const baseValue = 2000;
+    const currentValue = snapshots.length > 0 ? snapshots[snapshots.length - 1].totalValueUsd : baseValue;
+    const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
 
-  for (let i = 0; i <= dataPoints; i++) {
-    const timestamp = now - (dataPoints - i) * timeInterval;
-    const progress = i / dataPoints;
-
-    const volatility = 0.015;
-    const expectedValue = baseValue + (targetValue - baseValue) * progress;
-    const noise = (Math.random() - 0.5) * baseValue * volatility;
-    currentValue = Math.max(expectedValue + noise, baseValue * 0.8);
-
-    snapshots.push({
-      timestamp,
-      usdcAmount: currentValue,
-      totalValueUsd: currentValue,
+    return NextResponse.json({
+      agent,
+      snapshots,
+      currentValue,
+      initialValue: baseValue,
+      totalReturn: currentValue - baseValue,
+      roiPercentage: roiNum,
     });
+  } catch (error) {
+    console.error('Error fetching agent performance:', error);
+    return NextResponse.json({ error: 'Failed to fetch performance data' }, { status: 500 });
   }
-
-  return NextResponse.json({
-    agent,
-    snapshots,
-    currentValue: snapshots[snapshots.length - 1].totalValueUsd,
-    initialValue: baseValue,
-    totalReturn: snapshots[snapshots.length - 1].totalValueUsd - baseValue,
-    roiPercentage: roiNum,
-  });
 }
