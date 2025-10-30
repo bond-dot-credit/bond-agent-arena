@@ -262,14 +262,16 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         .curve(d3.curveMonotoneX); // Smooth curve that preserves monotonicity
 
       // Draw line with smooth curves
-      g.append('path')
+      const linePath = g.append('path')
         .datum(data)
+        .attr('class', `line-${modelName.replace(/[\s.]+/g, '-')}`)
         .attr('fill', 'none')
         .attr('stroke', model.color)
         .attr('stroke-width', 3)
         .attr('stroke-linecap', 'round')
         .attr('stroke-linejoin', 'round')
-        .attr('d', lineGenerator);
+        .attr('d', lineGenerator)
+        .attr('opacity', 1);
 
       // Draw yield event markers with proper hover
       data.forEach(point => {
@@ -281,7 +283,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
           const markerGroup = g.append('g')
             .attr('class', 'yield-marker')
-            .style('cursor', 'pointer');
+            .style('cursor', 'pointer')
+            .style('pointer-events', 'all');
 
           // Small indicator line pointing up for gains, down for costs
           markerGroup.append('line')
@@ -510,22 +513,15 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('font-family', 'IBM Plex Mono, monospace')
       .attr('font-weight', '600');
 
-    // Watermark
-    g.append('text')
-      .attr('x', chartWidth - 10)
-      .attr('y', chartHeight - 10)
-      .attr('text-anchor', 'end')
-      .attr('font-size', '12')
-      .attr('fill', 'rgba(255, 255, 255, 0.2)')
-      .attr('font-family', 'Courier New, monospace')
-      .attr('font-weight', 'bold')
-      .text('bond.credit');
+    // Create overlay for mouse tracking at the END (higher z-index)
+    // This will be appended later after all chart elements
 
     // Add hover crosshair and tooltips
     const baseValue = 2000;
     const crosshairGroup = g.append('g')
       .attr('class', 'crosshair')
-      .style('display', 'none');
+      .style('display', 'none')
+      .style('pointer-events', 'none'); // Don't block hover events
 
     const verticalLine = crosshairGroup.append('line')
       .attr('y1', 0)
@@ -537,21 +533,35 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     const tooltipGroup = crosshairGroup.append('g')
       .attr('class', 'tooltip-group');
 
-    // Create overlay for mouse tracking
+    // Watermark
+    g.append('text')
+      .attr('x', chartWidth - 10)
+      .attr('y', chartHeight - 10)
+      .attr('text-anchor', 'end')
+      .attr('font-size', '12')
+      .attr('fill', 'rgba(255, 255, 255, 0.2)')
+      .attr('font-family', 'Courier New, monospace')
+      .attr('font-weight', 'bold')
+      .text('bond.credit')
+      .style('pointer-events', 'none');
+
+    // NOW add overlay after all elements are drawn
     const overlay = g.append('rect')
       .attr('class', 'overlay')
       .attr('width', chartWidth)
       .attr('height', chartHeight)
       .attr('fill', 'none')
-      .attr('pointer-events', 'all');
+      .attr('pointer-events', 'all')
+      .lower(); // Move to back so it doesn't block yield markers
 
     overlay
       .on('mousemove', function(event) {
-        const [mouseX] = d3.pointer(event, this);
+        const [mouseX, mouseY] = d3.pointer(event, this);
         const xTime = xScale.invert(mouseX);
+        const yValue = yScale.invert(mouseY);
 
-        // Find closest data point for each model
-        const tooltipData: Array<{modelName: string, value: number, color: string}> = [];
+        // Find closest data point for each model and calculate distance from mouse
+        const tooltipData: Array<{modelName: string, value: number, color: string, distance: number}> = [];
 
         Object.entries(chartData).forEach(([modelName, data]) => {
           // Find closest point
@@ -566,12 +576,36 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             }
           });
 
+          // Calculate Y distance from mouse to this line
+          const pointYValue = showDollar
+            ? closestPoint.value
+            : ((closestPoint.value - baseValue) / baseValue) * 100;
+          const yDistance = Math.abs(pointYValue - yValue);
+
           tooltipData.push({
             modelName,
             value: closestPoint.value,
-            color: models[modelName].color
+            color: models[modelName].color,
+            distance: yDistance
           });
         });
+
+        // Sort by distance to find the closest line
+        tooltipData.sort((a, b) => a.distance - b.distance);
+        const closestAgent = tooltipData[0];
+
+        // Dim all lines
+        svg.selectAll('path[class^="line-"]')
+          .attr('opacity', 0.2)
+          .attr('stroke-width', 3)
+          .style('filter', 'none');
+
+        // Highlight only the closest hovered line with glow
+        const hoveredLine = svg.select(`.line-${closestAgent.modelName.replace(/[\s.]+/g, '-')}`);
+        hoveredLine
+          .attr('opacity', 1)
+          .attr('stroke-width', 4)
+          .style('filter', `drop-shadow(0 0 8px ${closestAgent.color})`);
 
         // Show crosshair
         crosshairGroup.style('display', null);
@@ -580,52 +614,62 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         // Clear previous tooltips
         tooltipGroup.selectAll('*').remove();
 
-        // Draw tooltips for each agent
-        tooltipData.forEach((item, idx) => {
-          const yPos = showDollar
-            ? yScale(item.value)
-            : yScale(((item.value - baseValue) / baseValue) * 100);
+        // Draw tooltip only for the closest agent
+        const yPos = showDollar
+          ? yScale(closestAgent.value)
+          : yScale(((closestAgent.value - baseValue) / baseValue) * 100);
 
-          // Tooltip circle
-          tooltipGroup.append('circle')
-            .attr('cx', mouseX)
-            .attr('cy', yPos)
-            .attr('r', 5)
-            .attr('fill', item.color)
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 2);
+        // Tooltip circle
+        tooltipGroup.append('circle')
+          .attr('cx', mouseX)
+          .attr('cy', yPos)
+          .attr('r', 6)
+          .attr('fill', closestAgent.color)
+          .attr('stroke', '#fff')
+          .attr('stroke-width', 2);
 
-          // Tooltip box
-          const displayValue = showDollar
-            ? `$${item.value.toFixed(2)}`
-            : `${(((item.value - baseValue) / baseValue) * 100).toFixed(2)}%`;
+        // Tooltip box with agent name in color
+        const displayValue = showDollar
+          ? `$${closestAgent.value.toFixed(2)}`
+          : `${(((closestAgent.value - baseValue) / baseValue) * 100).toFixed(2)}%`;
 
-          const tooltipText = `${item.modelName}: ${displayValue}`;
+        const textBg = tooltipGroup.append('rect')
+          .attr('x', mouseX + 10)
+          .attr('y', yPos - 20)
+          .attr('rx', 4)
+          .attr('fill', 'rgba(0, 0, 0, 0.95)')
+          .attr('stroke', closestAgent.color)
+          .attr('stroke-width', 2);
 
-          const textBg = tooltipGroup.append('rect')
-            .attr('x', mouseX + 10)
-            .attr('y', yPos - 20 + (idx * 25))
-            .attr('rx', 4)
-            .attr('fill', 'rgba(0, 0, 0, 0.9)')
-            .attr('stroke', item.color)
-            .attr('stroke-width', 1);
+        const agentNameText = tooltipGroup.append('text')
+          .attr('x', mouseX + 15)
+          .attr('y', yPos - 5)
+          .attr('fill', closestAgent.color)
+          .attr('font-size', '12')
+          .attr('font-weight', 'bold')
+          .attr('font-family', 'Courier New, monospace')
+          .text(closestAgent.modelName);
 
-          const text = tooltipGroup.append('text')
-            .attr('x', mouseX + 15)
-            .attr('y', yPos - 5 + (idx * 25))
-            .attr('fill', '#fff')
-            .attr('font-size', '11')
-            .attr('font-family', 'Courier New, monospace')
-            .text(tooltipText);
+        const valueText = tooltipGroup.append('text')
+          .attr('x', mouseX + 15 + (agentNameText.node() as SVGTextElement).getBBox().width + 5)
+          .attr('y', yPos - 5)
+          .attr('fill', '#fff')
+          .attr('font-size', '12')
+          .attr('font-family', 'Courier New, monospace')
+          .text(displayValue);
 
-          const bbox = (text.node() as SVGTextElement).getBBox();
-          textBg
-            .attr('width', bbox.width + 10)
-            .attr('height', 18);
-        });
+        const totalWidth = (agentNameText.node() as SVGTextElement).getBBox().width + (valueText.node() as SVGTextElement).getBBox().width;
+        textBg
+          .attr('width', totalWidth + 15)
+          .attr('height', 20);
       })
       .on('mouseleave', function() {
         crosshairGroup.style('display', 'none');
+        // Restore all lines to full opacity and remove effects
+        svg.selectAll('path[class^="line-"]')
+          .attr('opacity', 1)
+          .attr('stroke-width', 3)
+          .style('filter', 'none');
       });
 
   }, [chartData, models, showDollar]);
