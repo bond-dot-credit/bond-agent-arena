@@ -103,8 +103,15 @@ export async function getAgentPerformance(
     .eq('agent_id', agent.id)
     .order('timestamp', { ascending: false }); // Get latest first
 
-  // For short timeframes, just get the most recent N points without time filtering
-  // This ensures we always have data even if seeded data is old
+  // Apply time filtering if provided
+  if (from) {
+    query = query.gte('timestamp', new Date(from).toISOString());
+  }
+  if (to) {
+    query = query.lte('timestamp', new Date(to).toISOString());
+  }
+
+  // Apply limit if provided
   if (limit) {
     query = query.limit(limit);
   }

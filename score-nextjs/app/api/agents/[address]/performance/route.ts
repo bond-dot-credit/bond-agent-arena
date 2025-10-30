@@ -28,8 +28,8 @@ export async function GET(
     const now = Date.now();
 
     if (interval === '1H') {
-      limit = 12;
-      fromTime = now - (1 * 60 * 60 * 1000); // Last 1 hour
+      limit = 3; // Get last 3 snapshots (1.5 hours of data at 30min intervals)
+      fromTime = undefined; // Don't filter by time, just get latest
     } else if (interval === '24H') {
       limit = 24;
       fromTime = now - (24 * 60 * 60 * 1000); // Last 24 hours
@@ -50,6 +50,7 @@ export async function GET(
     );
 
     const baseValue = 2000;
+    const initialValue = snapshots.length > 0 ? snapshots[0].totalValueUsd : baseValue;
     const currentValue = snapshots.length > 0 ? snapshots[snapshots.length - 1].totalValueUsd : baseValue;
     const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
 
@@ -57,8 +58,8 @@ export async function GET(
       agent,
       snapshots,
       currentValue,
-      initialValue: baseValue,
-      totalReturn: currentValue - baseValue,
+      initialValue,
+      totalReturn: currentValue - initialValue,
       roiPercentage: roiNum,
     });
   } catch (error) {

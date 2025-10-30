@@ -8,12 +8,14 @@
     "start": "next start",
     "deploy": "npx wrangler deploy --assets=./.next",
     "lint": "eslint",
-    "update-snapshots": "tsx scripts/update-snapshots.ts"
+    "update-snapshots": "tsx scripts/update-snapshots.ts",
+    "reset-snapshots": "tsx scripts/reset-and-update-snapshots.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.77.0",
     "@types/d3": "^7.4.3",
     "d3": "^7.9.0",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.23.24",
     "next": "16.0.1",
     "ogl": "^1.0.11",
@@ -29,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

@@ -172,10 +172,21 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     let maxValue: number;
 
     if (showDollar) {
-      // Dollar view: show absolute values
+      // Dollar view: use logarithmic-like scaling to amplify small changes
       const allValues = Object.values(chartData).flat().map(d => d.value);
-      minValue = Math.min(...allValues) * 0.995;
-      maxValue = Math.max(...allValues) * 1.005;
+      const minVal = Math.min(...allValues);
+      const maxVal = Math.max(...allValues);
+      const range = maxVal - minVal;
+
+      // Use exponential scaling to amplify view of small changes
+      // This makes $0.50 changes look more dramatic
+      const amplificationFactor = 5;
+      const centerValue = (minVal + maxVal) / 2;
+      const amplifiedRange = range * amplificationFactor;
+
+      minValue = centerValue - amplifiedRange / 2;
+      maxValue = centerValue + amplifiedRange / 2;
+
       yScale = d3.scaleLinear()
         .domain([minValue, maxValue])
         .range([chartHeight, 0]);
@@ -246,6 +257,9 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     Object.entries(chartData).forEach(([modelName, data]) => {
       const model = models[modelName];
       const baseValue = 2000;
+
+      // Get the actual latest value from the chart data
+      const latestValue = data.length > 0 ? data[data.length - 1].value : model.value;
 
       // Use curve interpolation for smooth, natural-looking lines
       const lineGenerator = d3.line<ChartPoint>()
@@ -466,8 +480,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         }
 
         const displayValue = showDollar
-          ? `$${model.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-          : `${(((model.value - 2000) / 2000) * 100).toFixed(2)}%`;
+          ? `$${latestValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          : `${(((latestValue - 2000) / 2000) * 100).toFixed(2)}%`;
 
         iconGroup.append('text')
           .attr('x', 45)
@@ -480,10 +494,11 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       }
     });
 
-    // Y-axis
+    // Y-axis - show more precision for shorter timeframes
+    const decimalPlaces = currentTimeframe === '1H' ? 3 : 2;
     const yAxis = d3.axisLeft(yScale)
       .ticks(yTicks)
-      .tickFormat(d => showDollar ? `$${(d as number).toFixed(0)}` : `${(d as number).toFixed(1)}%`)
+      .tickFormat(d => showDollar ? `$${(d as number).toFixed(decimalPlaces)}` : `${(d as number).toFixed(2)}%`)
       .tickSizeOuter(0);
 
     g.append('g')

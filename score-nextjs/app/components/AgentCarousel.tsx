@@ -18,19 +18,22 @@ const AgentCarousel: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         const values = await Promise.all(
           agents.map(async (agent) => {
             const response = await fetch(
-              `/api/agents/${agent.contractAddress}/performance?interval=24H`,
+              `/api/agents/${agent.contractAddress}/performance?interval=ALL`,
               { cache: 'no-store' }
             );
 
             if (response.ok) {
               const data = await response.json();
               const currentValue = data.currentValue || 2000;
-              const roi = parseFloat(agent.roi.replace('%', '').replace('+', ''));
+              const baseValue = 2000;
+
+              // Calculate total change from start ($2000)
+              const totalChange = ((currentValue - baseValue) / baseValue) * 100;
 
               return {
                 name: agent.agent,
                 value: currentValue,
-                change24h: roi
+                change24h: totalChange
               };
             }
 
@@ -42,7 +45,9 @@ const AgentCarousel: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           })
         );
 
-        setAgentValues(values);
+        // Sort by ROI (highest to lowest)
+        const sortedValues = values.sort((a, b) => b.change24h - a.change24h);
+        setAgentValues(sortedValues);
       } catch (error) {
         console.error('Failed to fetch agent values:', error);
       }

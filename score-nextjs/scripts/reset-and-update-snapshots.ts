@@ -78,40 +78,33 @@ function calculateHalfHourlyYield(dailyYield: number): number {
 }
 
 /**
- * Get the latest snapshot for an agent
- * @param agentId Agent ID
- * @returns Latest snapshot or null
+ * Delete all existing snapshots
  */
-async function getLatestSnapshot(agentId: number) {
-  const { data, error } = await supabase
+async function clearAllSnapshots() {
+  console.log('Clearing all existing snapshots...');
+  const { error } = await supabase
     .from('performance_snapshots')
-    .select('*')
-    .eq('agent_id', agentId)
-    .order('timestamp', { ascending: false })
-    .limit(1)
-    .single();
+    .delete()
+    .neq('agent_id', 0); // Delete all (using neq with impossible value)
 
-  if (error && error.code !== 'PGRST116') {
-    // PGRST116 is "not found" error
-    console.error(`Error fetching latest snapshot for agent ${agentId}:`, error);
-    return null;
+  if (error) {
+    console.error('Error clearing snapshots:', error);
+    throw error;
   }
 
-  return data;
+  console.log('✓ All snapshots cleared');
 }
 
 /**
- * Generate new snapshots for an agent over the next 3 days
+ * Generate new snapshots for an agent starting from $2000
  * @param agent Agent APR configuration
  */
 async function generateSnapshotsForAgent(agent: AgentAPR) {
   console.log(`\nGenerating snapshots for ${agent.agentName}...`);
   console.log(`Daily APRs: Day 0: ${agent.dailyAPRs[0].toFixed(4)}%, Day 1: ${agent.dailyAPRs[1].toFixed(4)}%, Day 2: ${agent.dailyAPRs[2].toFixed(4)}%`);
 
-  // Get latest snapshot to determine current capital
-  const latestSnapshot = await getLatestSnapshot(agent.agentId);
-  let currentCapital = latestSnapshot ? parseFloat(latestSnapshot.total_value_usd) : BASE_CAPITAL;
-
+  // Always start from BASE_CAPITAL ($2000)
+  let currentCapital = BASE_CAPITAL;
   console.log(`Starting capital: $${currentCapital.toFixed(2)}`);
 
   // Generate snapshots for the past 3 days (144 half-hour periods going backwards)
@@ -171,22 +164,26 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
 }
 
 /**
- * Main function to update all agent snapshots
+ * Main function to reset and update all agent snapshots
  */
-async function updateAllSnapshots() {
-  console.log('=== Starting Snapshot Update ===');
-  console.log(`Updating snapshots for ${agentAPRs.length} agents`);
+async function resetAndUpdateAllSnapshots() {
+  console.log('=== Starting Snapshot Reset & Update ===');
+  console.log(`Will reset all data and generate fresh snapshots starting from $${BASE_CAPITAL}`);
   console.log(`Period: Next 3 days (144 snapshots per agent)\n`);
 
+  // Clear all existing snapshots
+  await clearAllSnapshots();
+
+  // Generate new snapshots for all agents
   for (const agent of agentAPRs) {
     await generateSnapshotsForAgent(agent);
   }
 
-  console.log('\n=== Snapshot Update Complete ===');
+  console.log('\n=== Snapshot Reset & Update Complete ===');
 }
 
 // Run the script
-updateAllSnapshots()
+resetAndUpdateAllSnapshots()
   .then(() => {
     console.log('\nScript finished successfully');
     process.exit(0);
