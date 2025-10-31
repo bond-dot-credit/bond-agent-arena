@@ -3,6 +3,11 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { Agent } from '@/lib/types';
+import BarChartView from './BarChartView';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 interface ModelData {
   color: string;
@@ -23,7 +28,14 @@ interface ChartData {
   [modelName: string]: ChartPoint[];
 }
 
-const agentColors = ['#c9b382', '#d4a574', '#b89968', '#e0c896', '#a88a5e'];
+// Refined color palette for agents with better readability on dark backgrounds
+const agentColors = [
+  '#E57373', // Giza - Pink-red, warm tone
+  '#64B5F6', // Sail.Money - Bright blue
+  '#FFD54F', // Almanak - Mustard yellow
+  '#9575CD', // Mamo - Premium purple
+  '#4DB6AC', // Surf - Cool teal
+];
 
 // Simulated yield events showing how agents generate stablecoin returns
 const generateYieldEvents = (dataPoints: ChartPoint[], agentName: string): ChartPoint[] => {
@@ -71,6 +83,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const [showDollar, setShowDollar] = useState<boolean>(true);
   const [chartData, setChartData] = useState<ChartData>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [viewMode, setViewMode] = useState<'bar' | 'line'>('bar'); // Default to bar chart
 
   const models: { [key: string]: ModelData } = agentsData.reduce((acc, agent, index) => {
     const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
@@ -725,6 +738,44 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               %
             </button>
           </div>
+          {/* Chart Type Toggle */}
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(event, newMode) => {
+              if (newMode !== null) {
+                setViewMode(newMode);
+              }
+            }}
+            aria-label="chart type"
+            sx={{
+              ml: 2,
+              '& .MuiToggleButton-root': {
+                color: '#9CA3AF',
+                borderColor: '#374151',
+                backgroundColor: '#1F2937',
+                padding: '6px 12px',
+                '&.Mui-selected': {
+                  color: '#000',
+                  backgroundColor: '#c9b382',
+                  borderColor: '#c9b382',
+                  '&:hover': {
+                    backgroundColor: '#d4a574',
+                  },
+                },
+                '&:hover': {
+                  backgroundColor: '#374151',
+                },
+              },
+            }}
+          >
+            <ToggleButton value="bar" aria-label="bar chart">
+              <BarChartIcon sx={{ fontSize: 20 }} />
+            </ToggleButton>
+            <ToggleButton value="line" aria-label="line chart">
+              <ShowChartIcon sx={{ fontSize: 20 }} />
+            </ToggleButton>
+          </ToggleButtonGroup>
         </div>
         <div className="flex gap-2">
           {['ALL', '72H', '24H', '1H'].map((tf) => (
@@ -738,29 +789,47 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           ))}
         </div>
       </div>
-      <div className="relative h-[550px] bg-linear-to-br from-white/5 to-white/10 rounded-lg p-3">
-        <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
-        {loading && (
-          <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
-            <div className="flex flex-col items-center gap-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9b382]"></div>
-              <div className="text-[#c9b382] text-base font-semibold">Fetching {currentTimeframe} data...</div>
-            </div>
-          </div>
+      <div
+        className="relative h-[550px] rounded-lg p-3"
+        style={{
+          backgroundColor: '#1A1A1A',
+          boxShadow: '0 0 10px rgba(255,255,255,0.05)',
+        }}
+      >
+        {viewMode === 'bar' ? (
+          <BarChartView
+            agentsData={agentsData}
+            currentTimeframe={currentTimeframe}
+            showDollar={showDollar}
+          />
+        ) : (
+          <>
+            <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
+            {loading && (
+              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9b382]"></div>
+                  <div className="text-[#c9b382] text-base font-semibold">Fetching {currentTimeframe} data...</div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
-      {/* Yield events legend */}
-      <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          <span>Yield Generated</span>
+      {/* Yield events legend - only show for line chart */}
+      {viewMode === 'line' && (
+        <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <span>Yield Generated</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <span>Fees/Costs</span>
+          </div>
+          <span className="text-gray-500">• Hover markers to see yield details</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <span>Fees/Costs</span>
-        </div>
-        <span className="text-gray-500">• Hover markers to see yield details</span>
-      </div>
+      )}
     </div>
   );
 };

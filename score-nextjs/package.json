@@ -12,14 +12,20 @@
     "reset-snapshots": "tsx scripts/reset-and-update-snapshots.ts"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.4",
+    "@mui/material": "^7.3.4",
     "@supabase/supabase-js": "^2.77.0",
     "@types/d3": "^7.4.3",
+    "chart.js": "^4.5.1",
     "d3": "^7.9.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.24",
     "next": "16.0.1",
     "ogl": "^1.0.11",
     "react": "19.2.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "19.2.0",
     "simplex-noise": "^4.0.3"
   },
