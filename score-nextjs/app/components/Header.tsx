@@ -46,10 +46,14 @@ const Header: React.FC = () => {
               LEADERBOARD
             </a>
             <a
-              href="#"
-              className="text-sm font-semibold text-gray-400 hover:text-[#c9b382] transition-colors duration-300"
+              href="/agents"
+              className={`text-sm font-semibold transition-colors duration-300 ${
+                pathname === '/agents'
+                  ? 'text-white border-b-2 border-[#c9b382] pb-1'
+                  : 'text-gray-400 hover:text-[#c9b382]'
+              }`}
             >
-            AGENTS
+              AGENTS
             </a>
           </nav>
 

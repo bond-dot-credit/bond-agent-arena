@@ -1,10 +1,10 @@
+import { getAllAgents } from '@/lib/services/agentService';
+import AgentsClient from '../components/AgentsClient';
 import Header from '../components/Header';
 import AgentCarousel from '../components/AgentCarousel';
-import CryptoGrid from '../components/CryptoGrid';
 import { Component as EtheralShadow } from '../components/ui/etheral-shadow';
-import { getAllAgents } from '@/lib/services/agentService';
 
-export default async function LeaderboardPage() {
+export default async function AgentsPage() {
   const agents = await getAllAgents();
 
   return (
@@ -24,14 +24,8 @@ export default async function LeaderboardPage() {
           {/* Agent Carousel */}
           <AgentCarousel agents={agents} />
 
-          {/* Page Title */}
-          <div className="mb-8 mt-8">
-            <h1 className="text-4xl font-bold text-[#c9b382] mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Agent Leaderboard</h1>
-            <p className="text-gray-400 text-lg" style={{ fontFamily: 'Inter, sans-serif' }}>Live performance rankings of autonomous yield agents</p>
-          </div>
-
-          {/* Detailed Leaderboard Grid */}
-          <CryptoGrid agents={agents} />
+          {/* Agents Content */}
+          <AgentsClient agents={agents} />
         </div>
       </div>
     </div>
