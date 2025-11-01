@@ -28,17 +28,17 @@ export async function GET(
     const now = Date.now();
 
     if (interval === '1H') {
-      limit = 3; // Get last 3 snapshots (1.5 hours of data at 30min intervals)
+      limit = 3; // Get last 3 snapshots
       fromTime = undefined; // Don't filter by time, just get latest
     } else if (interval === '24H') {
-      limit = 24;
-      fromTime = now - (24 * 60 * 60 * 1000); // Last 24 hours
+      limit = 24; // Get last 24 snapshots
+      fromTime = undefined; // Don't filter by time, just get latest like 1H
     } else if (interval === '72H') {
       limit = 72;
-      fromTime = now - (72 * 60 * 60 * 1000); // Last 72 hours
+      fromTime = undefined; // Don't filter by time, just get latest
     } else {
       limit = 168; // ALL - 7 days
-      fromTime = now - (168 * 60 * 60 * 1000);
+      fromTime = undefined; // Don't filter by time, just get latest
     }
 
     // Get performance data with time filtering

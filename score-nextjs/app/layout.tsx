@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Bond Credit - Agent Performance Dashboard",
   description: "Track AI agent performance with real-time metrics and analytics",
+  icons: {
+    icon: '/bond.credit_icon.svg',
+  },
 };
 
 export default function RootLayout({

@@ -5,7 +5,7 @@ import { Agent } from '@/lib/types';
 
 const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const agentsData = agents;
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'benchmark' | 'rules'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'benchmark' | 'rules'>('benchmark');
 
   const getValidationIcon = (status: string) => {
     const icons = {
@@ -95,16 +95,6 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Tabs */}
       <div className="flex border-b border-white/10">
         <button
-          onClick={() => setActiveTab('leaderboard')}
-          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
-            activeTab === 'leaderboard'
-              ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
-              : 'bg-black/30 text-gray-400 hover:bg-black/50'
-          }`}
-        >
-          Leaderboard
-        </button>
-        <button
           onClick={() => setActiveTab('benchmark')}
           className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'benchmark'
@@ -113,6 +103,16 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           }`}
         >
           README.TXT
+        </button>
+        <button
+          onClick={() => setActiveTab('leaderboard')}
+          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
+            activeTab === 'leaderboard'
+              ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
+              : 'bg-black/30 text-gray-400 hover:bg-black/50'
+          }`}
+        >
+          Leaderboard
         </button>
         <button
           onClick={() => setActiveTab('rules')}
@@ -200,21 +200,9 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {activeTab === 'benchmark' && (
           <div className="space-y-6 text-sm leading-relaxed text-gray-300">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">A Benchmark for Autonomous Capital</h2>
+              <h2 className="text-lg font-bold mb-4 text-white">A Benchmark for the Agentic Economy</h2>
               <p className="mb-4">
-                <span className="font-bold text-white">Agentic Alpha</span> is the first live benchmark measuring the creditworthiness of autonomous agents.
-                Each verified agent receives simulated or real capital, executes onchain strategies under identical market conditions, and competes to outperform the Aave 8% baseline.
-              </p>
-              <p className="mb-4">
-                Markets are the truest test of intelligence.
-              </p>
-              <p className="font-bold text-white mb-2">Real performance. Real risk. Real behavior.</p>
-              <p className="mb-4">
-                Every trade, score, and vault update is recorded onchain and used to update the BondScore — the trust metric that powers credit access within the Bond protocol.
-              </p>
-              <p className="font-bold text-base text-white mb-4">Performance → Risk → Trust.</p>
-              <p className="mb-4">
-                This is how agents graduate from simulation to creditworthiness.
+                <span className="font-bold text-white">Agentic Alpha</span> is the first live benchmark for stablecoin agents. Each agent receives real capital, runs their onchain strategies, and competes to beat Aave's baseline. Every trade and vault update is tracked onchain and feeds into our credit engine: the trust metrics that decides credit access in Bond.
               </p>
             </div>
 
@@ -223,9 +211,8 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h3 className="text-base font-bold mb-3 text-white">Why It Matters</h3>
               <p className="mb-4">
-                This isn't just a leaderboard — it's the foundation of an <span className="text-[#c9b382] font-semibold">agentic banking system</span>.
+                This isn't just a leaderboard, it's the first layer of agentic banking. Agents that outperform:
               </p>
-              <p className="mb-4">Agents that consistently outperform:</p>
               <ul className="space-y-2 mb-4 ml-4">
                 <li className="flex gap-2">
                   <span className="text-gray-600">•</span>
@@ -233,23 +220,19 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-gray-600">•</span>
-                  <span>unlock larger credit lines</span>
+                  <span>unlock higher credit limits</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-gray-600">•</span>
-                  <span>qualify for capital routing</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
-                  <span>eventually secure issuance capacity for <span className="text-[#c9b382] font-semibold">agUSD</span>, the stablecoin of the agentic economy</span>
+                  <span>receive capital routing</span>
                 </li>
               </ul>
               <p className="mb-4">
-                As autonomous systems begin managing liquidity, payments, execution, and RWAs on behalf of humans, robots, and IoT, we must answer one question:
+                As agents start managing liquidity, payments, and RWAs for humans, robots, and IoT devices, one question matters:
               </p>
-              <p className="font-bold text-base text-white mb-4">Which agents can touch money?</p>
+              <p className="font-bold text-base text-white mb-4">Which agents can manage credit?</p>
               <p>
-                <span className="text-[#c9b382] font-semibold">bond.credit</span> is building that answer — starting here, with Alpha.
+                <span className="text-[#c9b382] font-semibold">bond.credit</span> is building that answer. And it starts with the Alpha.
               </p>
             </div>
           </div>

@@ -41,8 +41,9 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
 
           if (response.ok) {
             const data = await response.json();
-            const latestValue = data.currentValue || 2000;
-            const baseValue = 2000;
+
+            const latestValue = data.currentValue;
+            const baseValue = data.initialValue;
 
             // Calculate value to display
             const displayValue = showDollar
@@ -121,8 +122,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
         },
       },
       y: {
-        beginAtZero: showDollar ? false : true,
-        min: showDollar ? 1999 : undefined,
+        beginAtZero: false,
         ticks: {
           color: '#fff',
           font: {
