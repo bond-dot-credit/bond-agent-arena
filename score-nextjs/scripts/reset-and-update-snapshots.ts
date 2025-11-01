@@ -109,7 +109,7 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
 
   // Generate snapshots for the past 3 days (144 half-hour periods going backwards)
   const snapshots = [];
-  const now = new Date();
+  const now = Date.now(); // Use timestamp instead of Date object
 
   for (let i = 0; i < 144; i++) {
     // Determine which day we're on (2, 1, or 0) - going from oldest to newest
@@ -121,7 +121,8 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
     const halfHourlyYield = calculateHalfHourlyYield(dailyYield);
 
     // Calculate timestamp (30 minutes apart, going backwards from now)
-    const timestamp = new Date(now.getTime() - (144 - i) * 30 * 60 * 1000);
+    // i=0: 72 hours ago, i=143: 30 min ago
+    const timestamp = new Date(now - (144 - i - 1) * 30 * 60 * 1000);
 
     // Add half-hourly yield with high volatility (±15% for dramatic visualization)
     // But ensure it averages out to the correct APR over time
