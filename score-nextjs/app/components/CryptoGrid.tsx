@@ -1,37 +1,53 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Agent } from '@/lib/types';
 
+const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <span
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        className="cursor-help"
+      >
+        {children}
+      </span>
+      {show && (
+        <div className="absolute z-50 w-64 p-3 text-xs text-white bg-black/95 border border-white/20 rounded-lg shadow-xl bottom-full left-1/2 transform -translate-x-1/2 mb-2">
+          <div className="text-gray-300 leading-relaxed">{text}</div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/20" />
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, index }) => {
-  const getValidationBadge = (status: string) => {
-    const badges = {
-      'verified': { bg: 'bg-[#c9b382]/20', text: 'text-[#c9b382]', border: 'border-[#c9b382]/30', label: 'Verified' },
-      'processing': { bg: 'bg-yellow-400/20', text: 'text-yellow-400', border: 'border-yellow-400/30', label: 'Processing' },
-      'pending': { bg: 'bg-blue-400/20', text: 'text-blue-400', border: 'border-blue-400/30', label: 'Pending' },
-      'warning': { bg: 'bg-red-400/20', text: 'text-red-400', border: 'border-red-400/30', label: 'Warning' },
+  const getRankDisplay = (rank: number) => {
+    const rankStyles = {
+      1: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40',
+      2: 'bg-gray-400/20 text-gray-300 border-gray-400/40',
+      3: 'bg-orange-500/20 text-orange-400 border-orange-500/40',
     };
-    const badge = badges[status as keyof typeof badges] || badges.pending;
+
+    const style = rankStyles[rank as keyof typeof rankStyles] || 'bg-gray-700/30 text-gray-500 border-gray-600/30';
 
     return (
-      <span className={`px-2 py-1 rounded-md text-xs font-semibold border ${badge.bg} ${badge.text} ${badge.border}`}>
-        {badge.label}
+      <span className={`w-8 h-8 rounded-full ${style} flex items-center justify-center text-sm font-semibold border`}>
+        {rank}
       </span>
     );
   };
 
-  const getRankBadge = (rank: number, logoUrl?: string) => {
-    if (logoUrl) {
-      return (
-        <div className="w-10 h-10 rounded-full bg-white border border-white/10 flex items-center justify-center p-1.5 overflow-hidden">
-          <img src={logoUrl} alt={`Rank ${rank}`} className="w-full h-full object-contain" />
-        </div>
-      );
+  const formatCurrency = (value?: number) => {
+    if (!value) return 'N/A';
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
     }
-    if (rank === 1) return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-xs font-bold text-black">1</span>;
-    if (rank === 2) return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-xs font-bold text-black">2</span>;
-    if (rank === 3) return <span className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-xs font-bold text-black">3</span>;
-    return <span className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">{rank}</span>;
+    return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (
@@ -41,57 +57,49 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9b382]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
-        <div className="px-6 py-4 relative z-10 grid grid-cols-8 gap-6 items-center">
+        <div className="px-6 py-4 relative z-10 grid grid-cols-7 gap-6 items-center">
           {/* Rank */}
-          <div className="flex items-center justify-center">
-            {getRankBadge(agent.rank, agent.medal)}
+          <div className="flex items-center justify-start">
+            {getRankDisplay(agent.rank)}
           </div>
 
-          {/* Agent */}
-          <div className="col-span-1">
+          {/* Agent Name + Logo */}
+          <div className="flex items-center gap-3">
+            {agent.medal && (
+              <div className="w-8 h-8 rounded-full bg-white border border-white/10 flex items-center justify-center p-1 overflow-hidden shrink-0">
+                <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+              </div>
+            )}
             <p className="font-bold text-white group-hover:text-[#c9b382] transition-colors duration-300 text-base">{agent.agent}</p>
           </div>
 
           {/* Vault Type */}
-          <div className="col-span-1">
+          <div>
             <p className="text-sm text-gray-400">{agent.vaultType}</p>
           </div>
 
-          {/* ROI */}
+          {/* AUA */}
           <div className="text-center">
-            <p className={`font-bold text-base ${agent.roi.startsWith('+') ? 'text-[#c9b382]' : 'text-red-400'}`}>
-              {agent.roi}
+            <p className="font-bold text-white text-base">
+              {formatCurrency(agent.aua || 2000.01)}
             </p>
           </div>
 
-          {/* Risk Score */}
-          <div>
-            <div className="flex flex-col gap-1">
-              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#c9b382] to-[#e0c896] transition-all duration-500"
-                  style={{ width: `${agent.riskScore * 100}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-400 font-mono">{agent.riskScore}</span>
-            </div>
-          </div>
-
-          {/* Validation */}
-          <div className="flex justify-center">
-            {getValidationBadge(agent.validation)}
-          </div>
-
-          {/* Performance Score */}
+          {/* AUM */}
           <div className="text-center">
-            <p className="font-bold text-white font-mono text-base">{agent.performanceScore}</p>
+            <p className="font-bold text-white text-base">
+              {formatCurrency(agent.aum || 50000000)}
+            </p>
+          </div>
+
+          {/* Expected Yield */}
+          <div className="text-center">
+            <p className="text-sm text-gray-500 font-semibold">COMING SOON</p>
           </div>
 
           {/* Bond Score */}
           <div className="text-center">
-            <p className={`font-bold font-mono text-base ${agent.bondScore.startsWith('+') ? 'text-[#c9b382]' : agent.bondScore.startsWith('-') ? 'text-red-400' : 'text-gray-500'}`}>
-              {agent.bondScore}
-            </p>
+            <p className="text-sm text-gray-500 font-semibold">COMING SOON</p>
           </div>
         </div>
       </div>
@@ -104,14 +112,31 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     <div className="mb-10">
       {/* Table Header */}
       <div className="mb-4 px-6">
-        <div className="grid grid-cols-8 gap-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          <div className="text-center">Rank</div>
+        <div className="grid grid-cols-7 gap-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <div className="text-left">Rank</div>
           <div>Agent</div>
           <div>Vault Type</div>
-          <div className="text-center">ROI</div>
-          <div>Risk Score</div>
-          <div className="text-center">Validation</div>
-          <div className="text-center">Performance</div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1">
+              AUA
+              <Tooltip text="AUA means Asset Under Agent - How much is the Agent managing for the individual end user.">
+                <span className="w-3.5 h-3.5 rounded-full bg-gray-700/50 hover:bg-[#c9b382]/30 flex items-center justify-center text-[10px] text-gray-400 hover:text-[#c9b382] transition-all cursor-help border border-gray-600/50 hover:border-[#c9b382]/50">
+                  !
+                </span>
+              </Tooltip>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1">
+              AUM
+              <Tooltip text="AUM means Asset Under Management - How much is the Agent managing in total.">
+                <span className="w-3.5 h-3.5 rounded-full bg-gray-700/50 hover:bg-[#c9b382]/30 flex items-center justify-center text-[10px] text-gray-400 hover:text-[#c9b382] transition-all cursor-help border border-gray-600/50 hover:border-[#c9b382]/50">
+                  !
+                </span>
+              </Tooltip>
+            </div>
+          </div>
+          <div className="text-center">Expected Yield</div>
           <div className="text-center">Bond Score</div>
         </div>
       </div>

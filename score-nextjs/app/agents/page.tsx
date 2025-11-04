@@ -21,8 +21,8 @@ export default async function AgentsPage() {
         <Header />
 
         <div className="container mx-auto px-4 max-w-[1600px]">
-          {/* Agent Carousel */}
-          <AgentCarousel agents={agents} />
+          {/* Token Prices */}
+          <AgentCarousel />
 
           {/* Agents Content */}
           <AgentsClient agents={agents} />

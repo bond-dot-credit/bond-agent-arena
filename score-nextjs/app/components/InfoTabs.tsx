@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { Agent } from '@/lib/types';
 
-const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
+const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const agentsData = agents;
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'benchmark' | 'rules'>('benchmark');
+  const [activeTab, setActiveTab] = useState<'benchmark' | 'rules'>('benchmark');
 
   const getValidationIcon = (status: string) => {
     const icons = {
@@ -105,16 +105,6 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           README.TXT
         </button>
         <button
-          onClick={() => setActiveTab('leaderboard')}
-          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
-            activeTab === 'leaderboard'
-              ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
-              : 'bg-black/30 text-gray-400 hover:bg-black/50'
-          }`}
-        >
-          Leaderboard
-        </button>
-        <button
           onClick={() => setActiveTab('rules')}
           className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'rules'
@@ -128,11 +118,10 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'leaderboard' && (
+        {/* {activeTab === 'leaderboard' && (
           <div>
             <h2 className="text-base font-bold mb-3 text-white tracking-wider">AGENT LEADERBOARD</h2>
-            
-            {/* Table Header */}
+
             <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 mb-2 pb-2 border-b border-white/10 text-xs text-gray-500 font-semibold uppercase">
               <div className="text-left">#</div>
               <div className="text-left">Agent</div>
@@ -140,7 +129,6 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               <div className="text-right">ROI</div>
             </div>
 
-            {/* Table Rows */}
             <div className="space-y-1">
               {agentsData.map((agent, index) => (
                 <div
@@ -195,7 +183,7 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               ))}
             </div>
           </div>
-        )}
+        )} */}
 
         {activeTab === 'benchmark' && (
           <div className="space-y-6 text-sm leading-relaxed text-gray-300">
@@ -298,4 +286,4 @@ const ModelStats: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   );
 };
 
-export default ModelStats;
+export default InfoTabs;
