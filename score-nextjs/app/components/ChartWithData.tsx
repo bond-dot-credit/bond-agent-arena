@@ -31,7 +31,7 @@ interface ChartData {
 // Refined color palette for agents with better readability on dark backgrounds
 const agentColors = [
   '#E57373', // Giza - Pink-red, warm tone
-  '#64B5F6', // Sail.Money - Bright blue
+  '#64B5F6', // Sail - Bright blue
   '#FFD54F', // Almanak - Mustard yellow
   '#9575CD', // Mamo - Premium purple
   '#4DB6AC', // SurfLiquid - Cool teal

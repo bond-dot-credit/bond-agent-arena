@@ -32,7 +32,7 @@ Each snapshot includes ±0.5% random volatility to simulate realistic market con
 | Agent      | APR   |
 |------------|-------|
 | Giza       | 9.8%  |
-| Sail.Money | 7.3%  |
+| Sail       | 7.3%  |
 | Almanak    | 5.2%  |
 | SurfLiquid | 3.9%  |
 | Mamo       | 1.1%  |

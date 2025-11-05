@@ -33,7 +33,7 @@ const agentAPRs: AgentAPR[] = [
   },
   {
     agentId: 2,
-    agentName: 'Sail.Money',
+    agentName: 'Sail',
     dailyAPRs: [9.80, 8.84, 8.9131]
   },
   {

@@ -15,7 +15,7 @@ export const mockAgents: Agent[] = [
   },
   {
     rank: 2,
-    agent: 'Sail.Money',
+    agent: 'Sail',
     contractAddress: '0x1234567890123456789012345678901234567890',
     vaultType: 'Stablecoin yield',
     roi: '+7.3%',

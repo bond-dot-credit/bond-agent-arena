@@ -17,7 +17,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // CONFIGURE THIS: Manually set the APR for today for each agent
 const dailyAPRs = {
   Giza: 8.26,        // Set the APR % for today
-  'Sail.Money': 9.15,
+  Sail: 9.15,
   Almanak: 6.40,
   SurfLiquid: 3.9,
   Mamo: 6.9,
@@ -25,7 +25,7 @@ const dailyAPRs = {
 
 const agents = [
   { agentId: 1, agentName: 'Giza' },
-  { agentId: 2, agentName: 'Sail.Money' },
+  { agentId: 2, agentName: 'Sail' },
   { agentId: 3, agentName: 'Almanak' },
   { agentId: 4, agentName: 'SurfLiquid' },
   { agentId: 5, agentName: 'Mamo' },
