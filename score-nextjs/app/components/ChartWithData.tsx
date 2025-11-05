@@ -721,7 +721,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
   return (
     <div className="relative">
-      <div className="flex justify-between items-center mb-4">
+      {/* Desktop Header */}
+      <div className="hidden md:flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-bold text-white">TOTAL ACCOUNT VALUE</h2>
           <div className="flex gap-1">
@@ -787,6 +788,72 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               {tf}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Mobile Header - Stacked Layout */}
+      <div className="md:hidden mb-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-white">ACCOUNT VALUE</h2>
+          <div className="flex gap-1">
+            <button
+              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+              onClick={() => setShowDollar(true)}
+            >
+              $
+            </button>
+            <button
+              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${!showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+              onClick={() => setShowDollar(false)}
+            >
+              %
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-1 flex-1">
+            {['ALL', '72H', '24H', '1H'].map((tf) => (
+              <button
+                key={tf}
+                className={`flex-1 px-2 py-1.5 rounded-md font-semibold text-xs transition-all ${currentTimeframe === tf ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+                onClick={() => handleTimeframeChange(tf)}
+              >
+                {tf}
+              </button>
+            ))}
+          </div>
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(event, newMode) => {
+              if (newMode !== null) {
+                setViewMode(newMode);
+              }
+            }}
+            aria-label="chart type"
+            size="small"
+            sx={{
+              '& .MuiToggleButton-root': {
+                color: '#9CA3AF',
+                borderColor: '#374151',
+                backgroundColor: '#1F2937',
+                padding: '4px 8px',
+                minWidth: '32px',
+                '&.Mui-selected': {
+                  color: '#000',
+                  backgroundColor: '#c9b382',
+                  borderColor: '#c9b382',
+                },
+              },
+            }}
+          >
+            <ToggleButton value="bar" aria-label="bar chart">
+              <BarChartIcon sx={{ fontSize: 16 }} />
+            </ToggleButton>
+            <ToggleButton value="line" aria-label="line chart">
+              <ShowChartIcon sx={{ fontSize: 16 }} />
+            </ToggleButton>
+          </ToggleButtonGroup>
         </div>
       </div>
       <div

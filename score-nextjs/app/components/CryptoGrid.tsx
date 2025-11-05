@@ -57,7 +57,9 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9b382]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
-        <div className="px-6 py-4 relative z-10 grid grid-cols-7 gap-6 items-center">
+
+        {/* Desktop View - Hidden on mobile */}
+        <div className="hidden md:grid px-6 py-4 relative z-10 grid-cols-7 gap-6 items-center">
           {/* Rank */}
           <div className="flex items-center justify-start">
             {getRankDisplay(agent.rank)}
@@ -102,6 +104,40 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
             <p className="text-sm text-gray-500 font-semibold">COMING SOON</p>
           </div>
         </div>
+
+        {/* Mobile View - Card Layout */}
+        <div className="md:hidden px-4 py-4 relative z-10 space-y-3">
+          {/* Rank + Agent Name */}
+          <div className="flex items-center gap-3">
+            {getRankDisplay(agent.rank)}
+            {agent.medal && (
+              <div className="w-6 h-6 rounded-full bg-white border border-white/10 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
+                <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+              </div>
+            )}
+            <p className="font-bold text-white group-hover:text-[#c9b382] transition-colors duration-300 text-sm">{agent.agent}</p>
+          </div>
+
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <p className="text-gray-500 mb-1">Vault Type</p>
+              <p className="text-gray-300">{agent.vaultType}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">AUA</p>
+              <p className="text-white font-bold">{formatCurrency(agent.aua || 2000.01)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">AUM</p>
+              <p className="text-white font-bold">{formatCurrency(agent.aum || 50000000)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Expected Yield</p>
+              <p className="text-gray-500 font-semibold">COMING SOON</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -110,8 +146,8 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   return (
     <div className="mb-10">
-      {/* Table Header */}
-      <div className="mb-4 px-6">
+      {/* Table Header - Hidden on mobile */}
+      <div className="hidden md:block mb-4 px-6">
         <div className="grid grid-cols-7 gap-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
           <div className="text-left">Rank</div>
           <div>Agent</div>

@@ -1,3 +1,7 @@
+// AGENTS PAGE - COMMENTED OUT FOR NOW
+// Uncomment when ready to use
+
+/*
 import { getAllAgents } from '@/lib/services/agentService';
 import AgentsClient from '../components/AgentsClient';
 import Header from '../components/Header';
@@ -21,13 +25,17 @@ export default async function AgentsPage() {
         <Header />
 
         <div className="container mx-auto px-4 max-w-[1600px]">
-          {/* Token Prices */}
           <AgentCarousel />
 
-          {/* Agents Content */}
           <AgentsClient agents={agents} />
         </div>
       </div>
     </div>
   );
+}
+*/
+
+// Temporary redirect to home page
+export default function AgentsPage() {
+  return null;
 }

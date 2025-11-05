@@ -52,6 +52,9 @@ export function Waves({
     useEffect(() => {
         if (!containerRef.current || !svgRef.current) return
 
+        // Check if mobile
+        const isMobile = window.innerWidth < 768
+
         // Initialize noise generator
         noiseRef.current = createNoise2D()
 
@@ -59,9 +62,11 @@ export function Waves({
         setSize()
         setLines()
 
-        // Bind events
+        // Bind events (skip mouse tracking on mobile for performance)
         window.addEventListener('resize', onResize)
-        window.addEventListener('mousemove', onMouseMove)
+        if (!isMobile) {
+            window.addEventListener('mousemove', onMouseMove)
+        }
         containerRef.current.addEventListener('touchmove', onTouchMove, { passive: false })
 
         // Start animation
@@ -99,9 +104,10 @@ export function Waves({
         })
         pathsRef.current = []
 
-        // Use smaller spacing to generate more lines and points for smoother results
-        const xGap = 8  // Reduced horizontal spacing
-        const yGap = 8  // Reduced vertical spacing for denser points
+        // Use smaller spacing on desktop, larger on mobile for performance
+        const isMobile = width < 768
+        const xGap = isMobile ? 16 : 8  // Larger spacing on mobile
+        const yGap = isMobile ? 16 : 8  // Larger spacing on mobile
 
         const oWidth = width + 200
         const oHeight = height + 30

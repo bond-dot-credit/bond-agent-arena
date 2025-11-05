@@ -73,16 +73,16 @@ const AgentCarousel: React.FC = () => {
   }
 
   return (
-    <div className="relative overflow-hidden mb-4 py-2 border-y border-[#c9b382]/20 bg-gradient-to-r from-black/50 via-[#c9b382]/5 to-black/50">
+    <div className="relative overflow-hidden mb-4 py-3 border-y border-[#c9b382]/20 bg-gradient-to-r from-black/50 via-[#c9b382]/5 to-black/50">
       <div className="container mx-auto px-4 max-w-[1600px]">
-        <div className="flex items-center justify-center gap-12">
+        <div className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-4 md:gap-12">
           {tokenPrices.map((token) => (
-            <div key={token.symbol} className="flex items-center gap-3">
-              <span className="text-[#c9b382] font-bold text-sm">${token.symbol}</span>
-              <span className="text-white font-mono text-sm">
+            <div key={token.symbol} className="flex items-center gap-2 md:gap-3">
+              <span className="text-[#c9b382] font-bold text-xs md:text-sm">${token.symbol}</span>
+              <span className="text-white font-mono text-xs md:text-sm">
                 ${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className={`text-xs font-semibold ${token.change24h >= 0 ? 'text-[#c9b382]' : 'text-red-400'}`}>
+              <span className={`text-[10px] md:text-xs font-semibold ${token.change24h >= 0 ? 'text-[#c9b382]' : 'text-red-400'}`}>
                 {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
               </span>
             </div>

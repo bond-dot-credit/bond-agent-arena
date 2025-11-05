@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const Header: React.FC = () => {
   const pathname = usePathname();
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
@@ -22,22 +23,22 @@ const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 mb-4 py-3 bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] border-b border-white/10">
       <div className="container mx-auto px-4 max-w-[1600px]">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center">
           {/* Logo/Brand */}
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <a href="/" className="relative">
               {/* Glow effect */}
               <div className="absolute inset-0 bg-[#c9b382] blur-xl opacity-50 animate-pulse rounded-full"></div>
               <img
                 src="/bondcredit-logo-white.png"
                 alt="Bond Credit"
-                className="h-10 w-auto relative z-10"
+                className="h-8 md:h-10 w-auto relative z-10"
               />
-            </div>
+            </a>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex items-center gap-8">
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-center">
             <a
               href="/"
               className={`text-sm font-semibold transition-colors duration-300 ${
@@ -58,33 +59,80 @@ const Header: React.FC = () => {
             >
               LEADERBOARD
             </a>
-            <a
-              href="/agents"
-              className={`text-sm font-semibold transition-colors duration-300 ${
-                pathname === '/agents'
-                  ? 'text-white border-b-2 border-[#c9b382] pb-1'
-                  : 'text-gray-400 hover:text-[#c9b382]'
-              }`}
-            >
-              AGENTS
-            </a>
           </nav>
 
-          {/* Right side links */}
-          <div className="flex items-center gap-6 text-sm">
+          {/* Desktop Right side links */}
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6 text-xs xl:text-sm">
             <button
               onClick={() => setShowWaitlistModal(true)}
               className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1"
             >
-              JOIN THE PLATFORM WAITLIST
+              JOIN WAITLIST
               <span className="text-xs">↗</span>
             </button>
             <a href="https://bond.credit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1">
-              ABOUT BOND.CREDIT
+              ABOUT
               <span className="text-xs">↗</span>
             </a>
           </div>
+
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden text-white p-2 ml-auto"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden mt-4 pb-4 border-t border-white/10 pt-4">
+            <nav className="flex flex-col gap-4">
+              <a
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`text-sm font-semibold transition-colors duration-300 ${
+                  pathname === '/' ? 'text-[#c9b382]' : 'text-gray-400'
+                }`}
+              >
+                LIVE
+              </a>
+              <a
+                href="/leaderboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`text-sm font-semibold transition-colors duration-300 ${
+                  pathname === '/leaderboard' ? 'text-[#c9b382]' : 'text-gray-400'
+                }`}
+              >
+                LEADERBOARD
+              </a>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowWaitlistModal(true);
+                }}
+                className="text-sm font-semibold text-gray-400 text-left"
+              >
+                JOIN WAITLIST
+              </button>
+              <a
+                href="https://bond.credit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-gray-400"
+              >
+                ABOUT BOND.CREDIT
+              </a>
+            </nav>
+          </div>
+        )}
       </div>
 
       {/* Waitlist Modal */}
