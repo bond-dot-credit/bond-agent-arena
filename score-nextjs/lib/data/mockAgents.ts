@@ -39,7 +39,7 @@ export const mockAgents: Agent[] = [
   },
   {
     rank: 4,
-    agent: 'Surf',
+    agent: 'SurfLiquid',
     contractAddress: '0x9876543210987654321098765432109876543210',
     vaultType: 'Stablecoin yield',
     roi: '+3.9%',

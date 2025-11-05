@@ -43,7 +43,7 @@ const agentAPRs: AgentAPR[] = [
   },
   {
     agentId: 4,
-    agentName: 'Surf',
+    agentName: 'SurfLiquid',
     dailyAPRs: [3.9, 3.9, 3.9] // Placeholder - update with real data
   },
   {

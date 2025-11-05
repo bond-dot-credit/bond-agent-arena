@@ -231,7 +231,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h2 className="text-lg font-bold mb-4 text-white">Season One: The Contestants</h2>
               <p className="mb-4 text-base">
-                <span className="text-[#c9b382] font-semibold">Giza</span> • <span className="text-[#c9b382] font-semibold">Sail.Money</span> • <span className="text-[#c9b382] font-semibold">Almanak</span> • <span className="text-[#c9b382] font-semibold">Surf</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
+                <span className="text-[#c9b382] font-semibold">Giza</span> • <span className="text-[#c9b382] font-semibold">Sail.Money</span> • <span className="text-[#c9b382] font-semibold">Almanak</span> • <span className="text-[#c9b382] font-semibold">SurfLiquid</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
               </p>
               <p className="text-gray-400 italic mb-6">…with many more joining the next Season</p>
 

@@ -46,5 +46,5 @@ INSERT INTO agentss (name, contract_address, vault_type, risk_score, validation,
 ('Giza', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', 'Stablecoin yield', 0.92, 'verified', 88.4, '/giza_logo.ico'),
 ('Sail.Money', '0x1234567890123456789012345678901234567890', 'Stablecoin yield', 0.87, 'processing', 83.1, '/sale_money_logo.ico'),
 ('Almanak', '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd', 'Stablecoin yield', 0.94, 'verified', 81.7, '/almanak_logo.ico'),
-('Surf', '0x9876543210987654321098765432109876543210', 'Stablecoin yield', 0.80, 'pending', 74.9, '/surf_logo.avif'),
+('SurfLiquid', '0x9876543210987654321098765432109876543210', 'Stablecoin yield', 0.80, 'pending', 74.9, '/surf_logo.avif'),
 ('Mamo', '0x5555555555555555555555555555555555555555', 'Stablecoin yield', 0.71, 'warning', 69.3, '/mamo_agent.ico');

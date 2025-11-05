@@ -34,7 +34,7 @@ const agentColors = [
   '#64B5F6', // Sail.Money - Bright blue
   '#FFD54F', // Almanak - Mustard yellow
   '#9575CD', // Mamo - Premium purple
-  '#4DB6AC', // Surf - Cool teal
+  '#4DB6AC', // SurfLiquid - Cool teal
 ];
 
 // Simulated yield events showing how agents generate stablecoin returns

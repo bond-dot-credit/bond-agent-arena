@@ -19,7 +19,7 @@ const agentColors = [
   '#64B5F6', // Sail.Money - Bright blue
   '#FFD54F', // Almanak - Mustard yellow
   '#9575CD', // Mamo - Premium purple
-  '#4DB6AC', // Surf - Cool teal
+  '#4DB6AC', // SurfLiquid - Cool teal
 ];
 
 const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimeframe, showDollar }) => {

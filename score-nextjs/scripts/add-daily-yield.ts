@@ -19,7 +19,7 @@ const dailyAPRs = {
   Giza: 8.26,        // Set the APR % for today
   'Sail.Money': 9.15,
   Almanak: 6.40,
-  Surf: 3.9,
+  SurfLiquid: 3.9,
   Mamo: 6.9,
 };
 
@@ -27,7 +27,7 @@ const agents = [
   { agentId: 1, agentName: 'Giza' },
   { agentId: 2, agentName: 'Sail.Money' },
   { agentId: 3, agentName: 'Almanak' },
-  { agentId: 4, agentName: 'Surf' },
+  { agentId: 4, agentName: 'SurfLiquid' },
   { agentId: 5, agentName: 'Mamo' },
 ];
 
