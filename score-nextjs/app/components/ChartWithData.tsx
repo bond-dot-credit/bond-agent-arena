@@ -883,18 +883,18 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           </>
         )}
       </div>
-      {/* Yield events legend - only show for line chart */}
+      {/* Chart legend - only show for line chart */}
       {viewMode === 'line' && (
         <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span>Yield Generated</span>
+            <div className="w-8 h-0.5 bg-white"></div>
+            <span>AUA (Assets Under Agent)</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span>Fees/Costs</span>
+            <div className="w-3 h-3 rounded-full bg-gray-400 border border-white"></div>
+            <span>Event</span>
           </div>
-          <span className="text-gray-500">• Hover markers to see yield details</span>
+          <span className="text-gray-500">• Hover markers to see event details</span>
         </div>
       )}
     </div>

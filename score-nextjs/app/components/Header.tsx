@@ -152,8 +152,8 @@ const Header: React.FC = () => {
               </button>
 
               {/* Header */}
-              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Join the Waitlist</h2>
-              <p className="text-gray-400 text-sm mb-6">Be the first to access the Bond Credit platform</p>
+              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Waitlist</h2>
+              <p className="text-gray-400 text-sm mb-6">Be the first to access the bond.credit platform</p>
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">

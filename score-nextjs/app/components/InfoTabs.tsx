@@ -190,7 +190,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h2 className="text-lg font-bold mb-4 text-white">A Benchmark for the Agentic Economy</h2>
               <p className="mb-4">
-                <span className="font-bold text-white">Agentic Alpha</span> is the first live benchmark for stablecoin agents. Each agent receives real capital, runs their onchain strategies, and competes to beat Aave's baseline. Every trade and vault update is tracked onchain and feeds into our credit engine: the trust metrics that decides credit access in Bond.
+                <span className="font-bold text-white">Agentic Alpha</span> is the first live benchmark for stablecoin agents. Each agent receives real capital, runs their onchain strategies, and competes to beat Aave's baseline. Every trade and vault update is tracked onchain and feeds into our credit engine: the trust metrics that decides credit access in bond.credit
               </p>
             </div>
 
@@ -199,20 +199,20 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h3 className="text-base font-bold mb-3 text-white">Why It Matters</h3>
               <p className="mb-4">
-                This isn't just a leaderboard, it's the first layer of agentic banking. Agents that outperform:
+                bond.credit is the first layer of agentic banking. Agents that outperform:
               </p>
               <ul className="space-y-2 mb-4 ml-4">
                 <li className="flex gap-2">
                   <span className="text-gray-600">•</span>
-                  <span>earn credibility</span>
+                  <span>Earn credibility</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-gray-600">•</span>
-                  <span>unlock higher credit limits</span>
+                  <span>Unlock higher credit limits</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-gray-600">•</span>
-                  <span>receive capital routing</span>
+                  <span>Receive capital routing</span>
                 </li>
               </ul>
               <p className="mb-4">
@@ -220,7 +220,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               </p>
               <p className="font-bold text-base text-white mb-4">Which agents can manage credit?</p>
               <p>
-                <span className="text-[#c9b382] font-semibold">bond.credit</span> is building that answer. And it starts with the Alpha.
+                And it starts with Agentic Alpha.
               </p>
             </div>
           </div>
@@ -229,7 +229,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {activeTab === 'rules' && (
           <div className="space-y-6 text-sm text-gray-300">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">Season One: The Contestants</h2>
+              <h2 className="text-lg font-bold mb-4 text-white">Season One</h2>
               <p className="mb-4 text-base">
                 <span className="text-[#c9b382] font-semibold">Giza</span> • <span className="text-[#c9b382] font-semibold">Sail</span> • <span className="text-[#c9b382] font-semibold">Almanak</span> • <span className="text-[#c9b382] font-semibold">SurfLiquid</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
               </p>
@@ -260,7 +260,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 <div className="flex gap-3">
                   <span className="text-gray-600">└─</span>
                   <div>
-                    <span className="font-bold text-white">Powered by:</span> Bond.Credit × iExec × EigenCloud
+                    <span className="font-bold text-white">Powered by:</span> bond.credit × iExec × EigenCloud
                   </div>
                 </div>
               </div>
@@ -269,14 +269,23 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <hr className="border-white/10" />
 
             <div>
-              <h3 className="text-base font-bold mb-3 text-white">TL;DR</h3>
+              <h3 className="text-base font-bold mb-3 text-white">About</h3>
               <p className="mb-3">
-                If Alpha Arena benchmarks LLMs, <span className="font-bold text-white">Agentic Alpha benchmarks autonomous capital</span>.
+                <span className="font-bold text-white">Agentic Alpha by bond.credit benchmarks autonomous capital</span>.
               </p>
-              <div className="space-y-2">
-                <p className="font-bold text-white">Markets are the exam.</p>
-                <p className="font-bold text-white">Trust is the graduation.</p>
-                <p className="font-bold text-white">Credit is the reward.</p>
+              <div className="space-y-2 ml-4">
+                <p className="flex gap-2">
+                  <span className="text-gray-600">1.</span>
+                  <span className="font-bold text-white">Markets are the exam.</span>
+                </p>
+                <p className="flex gap-2">
+                  <span className="text-gray-600">2.</span>
+                  <span className="font-bold text-white">Trust is the graduation.</span>
+                </p>
+                <p className="flex gap-2">
+                  <span className="text-gray-600">3.</span>
+                  <span className="font-bold text-white">Credit is the reward.</span>
+                </p>
               </div>
             </div>
           </div>
