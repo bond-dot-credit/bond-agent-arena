@@ -740,8 +740,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               %
             </button>
           </div> */}
-          {/* Chart Type Toggle */}
-          <ToggleButtonGroup
+          {/* Chart Type Toggle - Temporarily hidden, showing bar chart only */}
+          {/* <ToggleButtonGroup
             value={viewMode}
             exclusive
             onChange={(event, newMode) => {
@@ -777,7 +777,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <ToggleButton value="line" aria-label="line chart">
               <ShowChartIcon sx={{ fontSize: 20 }} />
             </ToggleButton>
-          </ToggleButtonGroup>
+          </ToggleButtonGroup> */}
         </div>
         <div className="flex gap-2">
           {['ALL', '72H', '24H', '1H'].map((tf) => (
@@ -824,7 +824,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               </button>
             ))}
           </div>
-          <ToggleButtonGroup
+          {/* Chart Type Toggle - Temporarily hidden, showing bar chart only */}
+          {/* <ToggleButtonGroup
             value={viewMode}
             exclusive
             onChange={(event, newMode) => {
@@ -855,7 +856,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <ToggleButton value="line" aria-label="line chart">
               <ShowChartIcon sx={{ fontSize: 16 }} />
             </ToggleButton>
-          </ToggleButtonGroup>
+          </ToggleButtonGroup> */}
         </div>
       </div>
       <div
