@@ -19,7 +19,7 @@ Edit `scripts/add-daily-yield.ts` to change daily APR values:
 const dailyAPRs = {
   Giza: 8.26,
   'Sail.Money': 9.15,
-  Almanak: 6.40,
+  ZyFAI: 6.40,
   Surf: 3.9,
   Mamo: 6.9,
 };

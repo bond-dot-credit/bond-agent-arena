@@ -33,7 +33,7 @@ Each snapshot includes ±0.5% random volatility to simulate realistic market con
 |------------|-------|
 | Arma       | 9.8%  |
 | Sail       | 7.3%  |
-| Almanak    | 5.2%  |
+| ZyFAI      | 5.2%  |
 | SurfLiquid | 3.9%  |
 | Mamo       | 1.1%  |
 

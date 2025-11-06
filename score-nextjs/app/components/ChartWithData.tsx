@@ -32,7 +32,7 @@ interface ChartData {
 const agentColors = [
   '#E57373', // Arma - Pink-red, warm tone
   '#64B5F6', // Sail - Bright blue
-  '#FFD54F', // Almanak - Mustard yellow
+  '#FFD54F', // ZyFAI - Mustard yellow
   '#9575CD', // Mamo - Premium purple
   '#4DB6AC', // SurfLiquid - Cool teal
 ];
@@ -242,29 +242,6 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('stroke', 'rgba(255, 255, 255, 0.1)')
       .attr('stroke-width', '0.5')
       .attr('stroke-dasharray', '1,3');
-
-    // Benchmark line (8% Aave base yield)
-    const benchmarkValue = showDollar ? 2000 * 1.08 : 8;
-    g.append('line')
-      .attr('x1', 0)
-      .attr('y1', yScale(benchmarkValue))
-      .attr('x2', chartWidth)
-      .attr('y2', yScale(benchmarkValue))
-      .attr('stroke', '#c9b382')
-      .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '5,5')
-      .attr('opacity', 0.4);
-
-    g.append('text')
-      .attr('x', chartWidth - 10)
-      .attr('y', yScale(benchmarkValue) - 5)
-      .attr('text-anchor', 'end')
-      .attr('font-size', '11')
-      .attr('fill', '#c9b382')
-      .attr('font-family', 'Courier New, monospace')
-      .attr('font-weight', 'bold')
-      .attr('opacity', 0.6)
-      .text('Aave 8% Benchmark');
 
     // Model lines and trade points
     Object.entries(chartData).forEach(([modelName, data]) => {

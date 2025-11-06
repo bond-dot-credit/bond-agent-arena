@@ -190,29 +190,6 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('stroke-width', '0.5')
       .attr('stroke-dasharray', '1,3');
 
-    // Benchmark line (8% Aave base yield)
-    const benchmarkValue = 2000 * 1.08; // 8% on $2000
-    g.append('line')
-      .attr('x1', 0)
-      .attr('y1', yScale(benchmarkValue))
-      .attr('x2', chartWidth)
-      .attr('y2', yScale(benchmarkValue))
-      .attr('stroke', '#c9b382')
-      .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '5,5')
-      .attr('opacity', 0.6);
-
-    // Benchmark label
-    g.append('text')
-      .attr('x', chartWidth - 10)
-      .attr('y', yScale(benchmarkValue) - 5)
-      .attr('text-anchor', 'end')
-      .attr('font-size', '11')
-      .attr('fill', '#c9b382')
-      .attr('font-family', 'Courier New, monospace')
-      .attr('font-weight', 'bold')
-      .text('Aave 8% Benchmark');
-
     // Model lines
     Object.entries(chartData).forEach(([modelName, data]) => {
       const lineGenerator = d3.line<ChartPoint>()

@@ -38,7 +38,7 @@ const agentAPRs: AgentAPR[] = [
   },
   {
     agentId: 3,
-    agentName: 'Almanak',
+    agentName: 'ZyFAI',
     dailyAPRs: [6.19, 6.15, 6.87]
   },
   {
@@ -107,9 +107,9 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
   const annualROITargets: { [key: string]: number } = {
     'Arma': 9.8,
     'Sail': 7.3,
-    'Almanak': 5.2,
+    'ZyFAI': 5.2,
     'SurfLiquid': 3.9,
-    'Mamo': 1.1,
+    'Mamo': 1.1
   };
 
   // Convert annual ROI to 7-day ROI (more realistic)

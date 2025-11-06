@@ -38,7 +38,7 @@ const agentAPRs: AgentAPR[] = [
   },
   {
     agentId: 3,
-    agentName: 'Almanak',
+    agentName: 'ZyFAI',
     dailyAPRs: [6.19, 6.15, 6.87]
   },
   {

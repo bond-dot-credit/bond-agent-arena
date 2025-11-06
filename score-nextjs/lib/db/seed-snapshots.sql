@@ -18,7 +18,7 @@ BEGIN
     CASE agent_record.name
       WHEN 'Arma' THEN roi_percent := 9.8;
       WHEN 'Sail' THEN roi_percent := 7.3;
-      WHEN 'Almanak' THEN roi_percent := 5.2;
+      WHEN 'ZyFAI' THEN roi_percent := 5.2;
       WHEN 'SurfLiquid' THEN roi_percent := 3.9;
       WHEN 'Mamo' THEN roi_percent := 1.1;
       ELSE roi_percent := 0.0;

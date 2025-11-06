@@ -42,8 +42,8 @@ export async function getAllAgents(): Promise<Agent[]> {
       const roiPercent = ((currentValue - baseValue) / baseValue) * 100;
       const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
 
-      // Calculate bond score (simplified: difference from benchmark)
-      const bondScoreValue = roiPercent - 8; // 8% is benchmark
+      // Calculate bond score
+      const bondScoreValue = roiPercent;
       const bondScore = `${bondScoreValue >= 0 ? '+' : ''}${bondScoreValue.toFixed(1)}`;
 
       return convertAgentRow(agent, index + 1, roi, bondScore);
@@ -75,7 +75,7 @@ export async function getAgentByAddress(address: string): Promise<Agent | null> 
   const currentValue = snapshots?.[0]?.total_value_usd || baseValue;
   const roiPercent = ((currentValue - baseValue) / baseValue) * 100;
   const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
-  const bondScoreValue = roiPercent - 8;
+  const bondScoreValue = roiPercent;
   const bondScore = `${bondScoreValue >= 0 ? '+' : ''}${bondScoreValue.toFixed(1)}`;
 
   return convertAgentRow(agent, 1, roi, bondScore);

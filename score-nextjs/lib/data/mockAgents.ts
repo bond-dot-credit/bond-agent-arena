@@ -27,15 +27,15 @@ export const mockAgents: Agent[] = [
   },
   {
     rank: 3,
-    agent: 'Almanak',
+    agent: 'ZyFAI',
     contractAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
     vaultType: 'Stablecoin yield',
     roi: '+5.2%',
     riskScore: 0.94,
-    validation: 'verified',
+    validation: 'verified' as const,
     performanceScore: 81.7,
-    bondScore: '+1.3',
-    medal: '/almanak_logo.ico'
+    bondScore: '-2.8',
+    medal: '/zyfai_logo.ico'
   },
   {
     rank: 4,

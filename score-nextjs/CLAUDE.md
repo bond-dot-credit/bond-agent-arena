@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Agentic Alpha** - A Next.js 15 application for tracking and benchmarking autonomous yield agent performance. This is NOT a trading system; it tracks stablecoin yield generation from autonomous agents competing against an Aave 8% APR baseline.
+**Agentic Alpha** - A Next.js 15 application for tracking autonomous yield agent performance. This is NOT a trading system; it tracks stablecoin yield generation from autonomous agents competing for the highest returns.
 
 ## Commands
 
@@ -98,11 +98,55 @@ modelName.replace(/[\s.]+/g, '-')  // Replaces spaces AND dots
 
 Located in `scripts/update-snapshots.ts`:
 - Fetches latest snapshot to continue from current capital
+- Generates realistic daily yield with volatility (±0.5%)
+- Inserts snapshots every 30 minutes for 3 days
+
+Current APRs: Giza (9.8%), Sail.Money (7.3%), ZyFAI (5.2%), Surf (3.9%), Mamo (1.1%)
+
+### Component Communication
+
+```
+page.tsx (Server Component)
+  ├─> getAllAgents() from Supabase
+  ├─> AgentCarousel (fetches live values via API)
+  ├─> ChartWithData (fetches snapshots via API, handles D3 rendering)
+  └─> ModelStats (displays leaderboard/info tabs)
+```
+
+### Environment Variables
+
+Required in `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## Critical Implementation Details
+
+### Chart Hover System
+
+The chart implements a sophisticated hover system with multiple layers:
+1. **Overlay rect** (`.lower()` to back) - Captures mouse events
+2. **Crosshair group** - Vertical line + tooltips (`pointer-events: none`)
+3. **Yield markers** - Above overlay with `pointer-events: all`
+4. **Line detection** - Calculates Y-distance to find closest agent line
+
+### CSS Class Escaping
+
+Agent names contain special characters (e.g., "Sail.Money"). Always use:
+```typescript
+modelName.replace(/[\s.]+/g, '-')  // Replaces spaces AND dots
+```
+
+### Snapshot Update Script
+
+Located in `scripts/update-snapshots.ts`:
+- Fetches latest snapshot to continue from current capital
 - Generates 144 half-hourly snapshots (3 days)
 - Inserts in batches of 100 for performance
 - Manual APR configuration in script (Phase 1)
 
-Current APRs: Giza (9.8%), Sail.Money (7.3%), Almanak (5.2%), Surf (3.9%), Mamo (1.1%)
+Current APRs: Giza (9.8%), Sail.Money (7.3%), ZyFAI (5.2%), Surf (3.9%), Mamo (1.1%)
 
 ### Navigation State
 
@@ -134,4 +178,6 @@ Chart colors defined in: `agentColors = ['#c9b382', '#d4a574', '#b89968', '#e0c8
 2. **Lines not highlighting**: Verify CSS class names match the replace pattern
 3. **Yield markers not hovering**: Ensure overlay has `.lower()` and markers have `pointer-events: all`
 4. **Empty snapshots**: Run `npm run update-snapshots` to generate data
-5. **Agent name mismatch**: Database uses "Almanak" (with 'k'), not "Almanac"
+3. **Agent model classes** use `.toLowerCase()` for CSS selectors to avoid case issues
+4. **Viewport dimensions** set to `0 0 1000 550` hardcoded in `createChart()`
+5. **Agent name**: Database uses "ZyFAI"

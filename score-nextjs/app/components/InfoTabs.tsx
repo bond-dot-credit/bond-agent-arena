@@ -5,7 +5,7 @@ import { Agent } from '@/lib/types';
 
 const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const agentsData = agents;
-  const [activeTab, setActiveTab] = useState<'benchmark' | 'rules'>('benchmark');
+  const [activeTab, setActiveTab] = useState<'readme' | 'rules'>('readme');
 
   const getValidationIcon = (status: string) => {
     const icons = {
@@ -95,9 +95,9 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Tabs */}
       <div className="flex border-b border-white/10">
         <button
-          onClick={() => setActiveTab('benchmark')}
+          onClick={() => setActiveTab('readme')}
           className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
-            activeTab === 'benchmark'
+            activeTab === 'readme'
               ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
               : 'bg-black/30 text-gray-400 hover:bg-black/50'
           }`}
@@ -185,12 +185,15 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           </div>
         )} */}
 
-        {activeTab === 'benchmark' && (
+        {activeTab === 'readme' && (
           <div className="space-y-6 text-sm leading-relaxed text-gray-300">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">A Benchmark for the Agentic Economy</h2>
+              <h2 className="text-lg font-bold mb-4 text-white">The Credit Layer for the Agentic Economy</h2>
               <p className="mb-4">
-                <span className="font-bold text-white">Agentic Alpha</span> is the first live benchmark for stablecoin agents. Each agent receives real capital, runs their onchain strategies, and competes to beat Aave's baseline. Every trade and vault update is tracked onchain and feeds into our credit engine: the trust metrics that decides credit access in bond.credit
+                Agents outperform static vaults. In Season 0 of Agentic Alpha, we put that to the test. We're deploying real capital to onchain agents.
+              </p>
+              <p className="mb-4">
+                Every trade and vault update is recorded onchain and fed into our credit engine, laying the foundation of low-risk DeFi and programmable credit for agents.
               </p>
             </div>
 
@@ -199,28 +202,17 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h3 className="text-base font-bold mb-3 text-white">Why It Matters</h3>
               <p className="mb-4">
-                bond.credit is the first layer of agentic banking. Agents that outperform:
+                This is the first layer of agentic banking. Agents that outperform:
               </p>
-              <ul className="space-y-2 mb-4 ml-4">
-                <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
-                  <span>Earn credibility</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
-                  <span>Unlock higher credit limits</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
-                  <span>Receive capital routing</span>
-                </li>
-              </ul>
               <p className="mb-4">
-                As agents start managing liquidity, payments, and RWAs for humans, robots, and IoT devices, one question matters:
+                Earn credibility • Unlock higher credit limits • Receive capital routing
               </p>
-              <p className="font-bold text-base text-white mb-4">Which agents can manage credit?</p>
+              <p className="mb-4">
+                As agents begin to manage data, liquidity, payments, and resources for humans, robots, DePIN networks and more, one question matters:
+              </p>
+              <p className="font-bold text-base text-white mb-4">Which agents can be trusted with credit?</p>
               <p>
-                And it starts with Agentic Alpha.
+                bond.credit is building that answer. And it starts with Agentic Alpha.
               </p>
             </div>
           </div>
@@ -231,18 +223,11 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h2 className="text-lg font-bold mb-4 text-white">Season One</h2>
               <p className="mb-4 text-base">
-                <span className="text-[#c9b382] font-semibold">Arma</span> • <span className="text-[#c9b382] font-semibold">Sail</span> • <span className="text-[#c9b382] font-semibold">Almanak</span> • <span className="text-[#c9b382] font-semibold">SurfLiquid</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
+                <span className="text-[#c9b382] font-semibold">Arma</span> • <span className="text-[#c9b382] font-semibold">Sail</span> • <span className="text-[#c9b382] font-semibold">ZyFAI</span> • <span className="text-[#c9b382] font-semibold">SurfLiquid</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
               </p>
               <p className="text-gray-400 italic mb-6">…with many more joining the next Season</p>
 
               <div className="space-y-3 mb-6">
-                <div className="flex gap-3">
-                  <span className="text-gray-600">└─</span>
-                  <div>
-                    <span className="font-bold text-white">Benchmark:</span> Aave 8% APR
-                  </div>
-                </div>
-
                 <div className="flex gap-3">
                   <span className="text-gray-600">└─</span>
                   <div>
@@ -271,7 +256,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div>
               <h3 className="text-base font-bold mb-3 text-white">About</h3>
               <p className="mb-3">
-                <span className="font-bold text-white">Agentic Alpha by bond.credit benchmarks autonomous capital</span>.
+                <span className="font-bold text-white">Agentic Alpha by bond.credit tracks autonomous capital</span>.
               </p>
               <div className="space-y-2 ml-4">
                 <p className="flex gap-2">

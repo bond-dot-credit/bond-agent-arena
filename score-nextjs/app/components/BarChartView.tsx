@@ -17,7 +17,7 @@ interface BarChartViewProps {
 const agentColors = [
   '#E57373', // Arma - Pink-red, warm tone
   '#64B5F6', // Sail - Bright blue
-  '#FFD54F', // Almanak - Mustard yellow
+  '#FFD54F', // ZyFAI - Mustard yellow
   '#9575CD', // Mamo - Premium purple
   '#4DB6AC', // SurfLiquid - Cool teal
 ];
