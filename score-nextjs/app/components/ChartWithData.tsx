@@ -725,7 +725,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       <div className="hidden md:flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-bold text-white">TOTAL ACCOUNT VALUE</h2>
-          <div className="flex gap-1">
+          {/* Temporarily hidden - showing dollar values only */}
+          {/* <div className="flex gap-1">
             <button
               className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => setShowDollar(true)}
@@ -738,7 +739,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             >
               %
             </button>
-          </div>
+          </div> */}
           {/* Chart Type Toggle */}
           <ToggleButtonGroup
             value={viewMode}
@@ -795,7 +796,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       <div className="md:hidden mb-4 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-white">ACCOUNT VALUE</h2>
-          <div className="flex gap-1">
+          {/* Temporarily hidden - showing dollar values only */}
+          {/* <div className="flex gap-1">
             <button
               className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => setShowDollar(true)}
@@ -808,7 +810,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             >
               %
             </button>
-          </div>
+          </div> */}
         </div>
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-1 flex-1">

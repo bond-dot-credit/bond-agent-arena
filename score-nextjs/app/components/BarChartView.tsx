@@ -45,10 +45,11 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
             const latestValue = data.currentValue;
             const baseValue = data.initialValue;
 
-            // Calculate value to display
-            const displayValue = showDollar
-              ? latestValue
-              : ((latestValue - baseValue) / baseValue) * 100;
+            // Always display dollar values only
+            const displayValue = latestValue;
+            // const displayValue = showDollar
+            //   ? latestValue
+            //   : ((latestValue - baseValue) / baseValue) * 100;
 
             labels.push(agent.agent);
             values.push(displayValue);
@@ -94,11 +95,13 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
           label: function(context: any) {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
-            if (showDollar) {
-              return `${label}: $${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            } else {
-              return `${label}: ${value.toFixed(2)}%`;
-            }
+            // Always show dollar values only
+            return `${label}: $${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // if (showDollar) {
+            //   return `${label}: $${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // } else {
+            //   return `${label}: ${value.toFixed(2)}%`;
+            // }
           }
         }
       },
@@ -130,19 +133,21 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
             family: 'Courier New, monospace',
           },
           callback: function(value: any) {
-            if (showDollar) {
-              return '$' + value.toFixed(2);
-            } else {
-              // Use more decimal places for small percentage values
-              const absValue = Math.abs(value);
-              if (absValue < 1) {
-                return value.toFixed(3) + '%';
-              } else if (absValue < 10) {
-                return value.toFixed(2) + '%';
-              } else {
-                return value.toFixed(1) + '%';
-              }
-            }
+            // Always show dollar values only
+            return '$' + value.toFixed(2);
+            // if (showDollar) {
+            //   return '$' + value.toFixed(2);
+            // } else {
+            //   // Use more decimal places for small percentage values
+            //   const absValue = Math.abs(value);
+            //   if (absValue < 1) {
+            //     return value.toFixed(3) + '%';
+            //   } else if (absValue < 10) {
+            //     return value.toFixed(2) + '%';
+            //   } else {
+            //     return value.toFixed(1) + '%';
+            //   }
+            // }
           }
         },
         grid: {
