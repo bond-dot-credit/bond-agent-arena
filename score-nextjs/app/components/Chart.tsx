@@ -340,7 +340,7 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     <div className="relative">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-white">TOTAL ACCOUNT VALUE</h2>
+          <h2 className="text-xl font-bold text-white">TOTAL AGENT ACCOUNT VALUE</h2>
           <div className="flex gap-1">
             <button
               className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}

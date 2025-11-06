@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           {/* Season End Info */}
           <div className="text-center md:text-left">
             <p className="text-gray-400 text-sm">
-              <span className="font-semibold text-[#c9b382]">Agentic Alpha Season 1</span> ends{' '}
+              <span className="font-semibold text-[#c9b382]">Agentic Alpha Season 0</span> ends{' '}
               <span className="text-white font-semibold">6th December 2025, 5 p.m. EST</span>
             </p>
           </div>

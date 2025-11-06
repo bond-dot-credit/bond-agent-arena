@@ -772,7 +772,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Mobile Header - Stacked Layout */}
       <div className="md:hidden mb-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-white">ACCOUNT VALUE</h2>
+          <h2 className="text-base font-bold text-white">TOTAL AGENT ACCOUNT VALUE</h2>
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
