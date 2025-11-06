@@ -6,11 +6,14 @@ import { usePathname } from 'next/navigation';
 const Header: React.FC = () => {
   const pathname = usePathname();
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [showAgentModal, setShowAgentModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [agentName, setAgentName] = useState('');
+  const [website, setWebsite] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleWaitlistSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Save data to backend/database
     console.log('Waitlist submission:', { name, email });
@@ -18,6 +21,17 @@ const Header: React.FC = () => {
     setShowWaitlistModal(false);
     setName('');
     setEmail('');
+  };
+
+  const handleAgentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Save data to backend/database
+    console.log('Agent submission:', { name, agentName, website });
+    alert('Thanks for your interest! We will review your agent for Season 2.');
+    setShowAgentModal(false);
+    setName('');
+    setAgentName('');
+    setWebsite('');
   };
 
   return (
@@ -67,7 +81,14 @@ const Header: React.FC = () => {
               onClick={() => setShowWaitlistModal(true)}
               className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1"
             >
-              JOIN WAITLIST
+              WAITLIST
+              <span className="text-xs">↗</span>
+            </button>
+            <button
+              onClick={() => setShowAgentModal(true)}
+              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1"
+            >
+              AGENTS
               <span className="text-xs">↗</span>
             </button>
             <a href="https://bond.credit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1">
@@ -120,7 +141,16 @@ const Header: React.FC = () => {
                 }}
                 className="text-sm font-semibold text-gray-400 text-left"
               >
-                JOIN WAITLIST
+                WAITLIST
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowAgentModal(true);
+                }}
+                className="text-sm font-semibold text-gray-400 text-left"
+              >
+                AGENTS
               </button>
               <a
                 href="https://bond.credit"
@@ -156,7 +186,7 @@ const Header: React.FC = () => {
               <p className="text-gray-400 text-sm mb-6">Be the first to access the bond.credit platform</p>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleWaitlistSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-semibold text-white mb-2">
                     Name
@@ -192,6 +222,85 @@ const Header: React.FC = () => {
                   className="w-full py-3 bg-[#c9b382] hover:bg-[#d4c49a] text-black font-bold rounded-lg transition-colors duration-300"
                 >
                   Join Waitlist
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Agent Modal */}
+      {showAgentModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-md mx-4">
+            {/* Modal Card */}
+            <div className="bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
+              {/* Close button */}
+              <button
+                onClick={() => setShowAgentModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Header */}
+              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Join Season 2</h2>
+              <p className="text-gray-400 text-sm mb-6">Submit your agent for consideration in the next season</p>
+
+              {/* Form */}
+              <form onSubmit={handleAgentSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="agent-name" className="block text-sm font-semibold text-white mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="agent-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    placeholder="Your name"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="agent-for-consideration" className="block text-sm font-semibold text-white mb-2">
+                    Agent for Consideration
+                  </label>
+                  <input
+                    type="text"
+                    id="agent-for-consideration"
+                    value={agentName}
+                    onChange={(e) => setAgentName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    placeholder="Agent name"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="website" className="block text-sm font-semibold text-white mb-2">
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    id="website"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    placeholder="https://your-agent.com"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-[#c9b382] hover:bg-[#d4c49a] text-black font-bold rounded-lg transition-colors duration-300"
+                >
+                  Submit Agent
                 </button>
               </form>
             </div>

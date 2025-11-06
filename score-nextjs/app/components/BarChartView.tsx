@@ -15,7 +15,7 @@ interface BarChartViewProps {
 
 // Refined color palette for agents with better readability on dark backgrounds
 const agentColors = [
-  '#E57373', // Giza - Pink-red, warm tone
+  '#E57373', // Arma - Pink-red, warm tone
   '#64B5F6', // Sail - Bright blue
   '#FFD54F', // Almanak - Mustard yellow
   '#9575CD', // Mamo - Premium purple
@@ -133,7 +133,15 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
             if (showDollar) {
               return '$' + value.toFixed(2);
             } else {
-              return value.toFixed(2) + '%';
+              // Use more decimal places for small percentage values
+              const absValue = Math.abs(value);
+              if (absValue < 1) {
+                return value.toFixed(3) + '%';
+              } else if (absValue < 10) {
+                return value.toFixed(2) + '%';
+              } else {
+                return value.toFixed(1) + '%';
+              }
             }
           }
         },

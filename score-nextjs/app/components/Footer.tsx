@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
           {/* Socials */}
           <div className="flex items-center gap-6">
             <a
-              href="https://twitter.com/bondcredit"
+              href="https://x.com/bondoncredit"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 text-sm font-semibold"

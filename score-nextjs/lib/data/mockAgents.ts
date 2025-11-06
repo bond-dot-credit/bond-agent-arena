@@ -3,7 +3,7 @@ import { Agent } from '../types';
 export const mockAgents: Agent[] = [
   {
     rank: 1,
-    agent: 'Giza',
+    agent: 'Arma',
     contractAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
     vaultType: 'Stablecoin yield',
     roi: '+9.8%',

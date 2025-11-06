@@ -16,7 +16,7 @@ BEGIN
   FOR agent_record IN SELECT id, name FROM agentss LOOP
     -- Calculate target ROI based on agent
     CASE agent_record.name
-      WHEN 'Giza' THEN roi_percent := 9.8;
+      WHEN 'Arma' THEN roi_percent := 9.8;
       WHEN 'Sail' THEN roi_percent := 7.3;
       WHEN 'Almanak' THEN roi_percent := 5.2;
       WHEN 'SurfLiquid' THEN roi_percent := 3.9;

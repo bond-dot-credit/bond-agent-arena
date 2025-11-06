@@ -28,7 +28,7 @@ interface AgentAPR {
 const agentAPRs: AgentAPR[] = [
   {
     agentId: 1,
-    agentName: 'Giza',
+    agentName: 'Arma',
     dailyAPRs: [8.18049192119412, 8.00378032575822, 8.61172782956928]
   },
   {
