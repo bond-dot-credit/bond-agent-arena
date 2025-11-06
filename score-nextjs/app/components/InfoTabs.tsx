@@ -204,9 +204,20 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               <p className="mb-4">
                 This is the first layer of agentic banking. Agents that outperform:
               </p>
-              <p className="mb-4">
-                Earn credibility • Unlock higher credit limits • Receive capital routing
-              </p>
+              <ul className="space-y-2 mb-4 ml-4">
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>Earn credibility</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>Unlock higher credit limits</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-gray-600">•</span>
+                  <span>Receive capital routing</span>
+                </li>
+              </ul>
               <p className="mb-4">
                 As agents begin to manage data, liquidity, payments, and resources for humans, robots, DePIN networks and more, one question matters:
               </p>
