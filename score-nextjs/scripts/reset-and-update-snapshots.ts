@@ -68,13 +68,13 @@ function calculateDailyYield(apr: number, capital: number): number {
 }
 
 /**
- * Calculate half-hourly yield from daily yield
+ * Calculate hourly yield from daily yield
  * @param dailyYield Daily yield amount
- * @returns Half-hourly yield amount
+ * @returns Hourly yield amount
  */
-function calculateHalfHourlyYield(dailyYield: number): number {
-  // 48 half-hour periods in a day
-  return dailyYield / 48;
+function calculateHourlyYield(dailyYield: number): number {
+  // 24 hours in a day
+  return dailyYield / 24;
 }
 
 /**
@@ -97,38 +97,44 @@ async function clearAllSnapshots() {
 
 /**
  * Generate new snapshots for an agent starting from $2000
+ * Creates 168 hourly snapshots (7 days) with realistic progression to target ROI
  * @param agent Agent APR configuration
  */
 async function generateSnapshotsForAgent(agent: AgentAPR) {
   console.log(`\nGenerating snapshots for ${agent.agentName}...`);
-  console.log(`Daily APRs: Day 0: ${agent.dailyAPRs[0].toFixed(4)}%, Day 1: ${agent.dailyAPRs[1].toFixed(4)}%, Day 2: ${agent.dailyAPRs[2].toFixed(4)}%`);
 
-  // Always start from BASE_CAPITAL ($2000)
+  // Annual ROI targets based on agent
+  const annualROITargets: { [key: string]: number } = {
+    'Arma': 9.8,
+    'Sail': 7.3,
+    'Almanak': 5.2,
+    'SurfLiquid': 3.9,
+    'Mamo': 1.1,
+  };
+
+  // Convert annual ROI to 7-day ROI (more realistic)
+  // Formula: 7-day ROI = (Annual ROI / 365) * 7
+  const annualROI = annualROITargets[agent.agentName] || 0;
+  const sevenDayROI = (annualROI / 365) * 7;
+  const targetValue = BASE_CAPITAL * (1 + sevenDayROI / 100);
   let currentCapital = BASE_CAPITAL;
+
   console.log(`Starting capital: $${currentCapital.toFixed(2)}`);
+  console.log(`Annual ROI: ${annualROI}%`);
+  console.log(`7-Day ROI Target: ${sevenDayROI.toFixed(4)}% → $${targetValue.toFixed(2)}`);
 
-  // Generate snapshots for the past 3 days (144 half-hour periods going backwards)
+  // Generate 168 hourly snapshots (7 days)
   const snapshots = [];
-  const now = Date.now(); // Use timestamp instead of Date object
+  const now = Date.now();
 
-  for (let i = 0; i < 144; i++) {
-    // Determine which day we're on (2, 1, or 0) - going from oldest to newest
-    const dayIndex = 2 - Math.floor(i / 48);
-    const dailyAPR = agent.dailyAPRs[dayIndex];
+  for (let i = 0; i < 168; i++) {
+    // Calculate timestamp (1 hour apart, going backwards from now)
+    // i=0: 168 hours ago, i=167: current hour
+    const timestamp = new Date(now - (167 - i) * 60 * 60 * 1000);
 
-    // Calculate daily yield based on current day's APR
-    const dailyYield = calculateDailyYield(dailyAPR, currentCapital);
-    const halfHourlyYield = calculateHalfHourlyYield(dailyYield);
-
-    // Calculate timestamp (30 minutes apart, going backwards from now)
-    // i=0: 72 hours ago, i=143: 30 min ago
-    const timestamp = new Date(now - (144 - i - 1) * 30 * 60 * 1000);
-
-    // Add half-hourly yield with high volatility (±15% for dramatic visualization)
-    // But ensure it averages out to the correct APR over time
-    const volatility = (Math.random() - 0.5) * 0.3;
-    const yieldWithVolatility = halfHourlyYield * (1 + volatility);
-    currentCapital += yieldWithVolatility;
+    // Pure linear progression - no volatility
+    const progressRatio = i / 167;
+    currentCapital = BASE_CAPITAL + (targetValue - BASE_CAPITAL) * progressRatio;
 
     snapshots.push({
       agent_id: agent.agentId,
@@ -141,10 +147,9 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
     });
   }
 
-  console.log(`Generated ${snapshots.length} snapshots`);
-  console.log(`Day 0 yield: $${(calculateDailyYield(agent.dailyAPRs[0], BASE_CAPITAL)).toFixed(4)}`);
-  console.log(`Day 1 yield: $${(calculateDailyYield(agent.dailyAPRs[1], BASE_CAPITAL)).toFixed(4)}`);
-  console.log(`Day 2 yield: $${(calculateDailyYield(agent.dailyAPRs[2], BASE_CAPITAL)).toFixed(4)}`);
+  console.log(`Generated ${snapshots.length} snapshots (7 days of hourly data)`);
+  console.log(`Latest snapshot timestamp: ${snapshots[snapshots.length - 1].timestamp}`);
+  console.log(`Final capital: $${currentCapital.toFixed(2)} (Target: $${targetValue.toFixed(2)})`);
 
   // Insert snapshots in batches of 100
   const batchSize = 100;
@@ -161,7 +166,7 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
     }
   }
 
-  console.log(`✓ Completed snapshots for ${agent.agentName}. Final capital: $${currentCapital.toFixed(2)}`);
+  console.log(`✓ Completed snapshots for ${agent.agentName}`);
 }
 
 /**
@@ -170,7 +175,8 @@ async function generateSnapshotsForAgent(agent: AgentAPR) {
 async function resetAndUpdateAllSnapshots() {
   console.log('=== Starting Snapshot Reset & Update ===');
   console.log(`Will reset all data and generate fresh snapshots starting from $${BASE_CAPITAL}`);
-  console.log(`Period: Next 3 days (144 snapshots per agent)\n`);
+  console.log(`Period: Last 7 days (168 hourly snapshots per agent)`);
+  console.log(`Current time: ${new Date().toISOString()}\n`);
 
   // Clear all existing snapshots
   await clearAllSnapshots();
@@ -181,6 +187,7 @@ async function resetAndUpdateAllSnapshots() {
   }
 
   console.log('\n=== Snapshot Reset & Update Complete ===');
+  console.log('Your charts should now show data up to the current time!');
 }
 
 // Run the script
