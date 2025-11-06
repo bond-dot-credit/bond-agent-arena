@@ -232,7 +232,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {activeTab === 'rules' && (
           <div className="space-y-6 text-sm text-gray-300">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">Season One</h2>
+              <h2 className="text-lg font-bold mb-4 text-white">Season 0</h2>
               <p className="mb-4 text-base">
                 <span className="text-[#c9b382] font-semibold">Arma</span> • <span className="text-[#c9b382] font-semibold">Sail</span> • <span className="text-[#c9b382] font-semibold">ZyFAI</span> • <span className="text-[#c9b382] font-semibold">SurfLiquid</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
               </p>
