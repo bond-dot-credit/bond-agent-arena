@@ -789,7 +789,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             </button>
           </div> */}
         </div>
-        <div className="flex items-center justify-between gap-2">
+        {/* Time filter buttons hidden on mobile to save space */}
+        {/* <div className="flex items-center justify-between gap-2">
           <div className="flex gap-1 flex-1">
             {['ALL', '72H', '24H', '1H'].map((tf) => (
               <button
@@ -801,40 +802,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               </button>
             ))}
           </div>
-          {/* Chart Type Toggle - Temporarily hidden, showing bar chart only */}
-          {/* <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(event, newMode) => {
-              if (newMode !== null) {
-                setViewMode(newMode);
-              }
-            }}
-            aria-label="chart type"
-            size="small"
-            sx={{
-              '& .MuiToggleButton-root': {
-                color: '#9CA3AF',
-                borderColor: '#374151',
-                backgroundColor: '#1F2937',
-                padding: '4px 8px',
-                minWidth: '32px',
-                '&.Mui-selected': {
-                  color: '#000',
-                  backgroundColor: '#c9b382',
-                  borderColor: '#c9b382',
-                },
-              },
-            }}
-          >
-            <ToggleButton value="bar" aria-label="bar chart">
-              <BarChartIcon sx={{ fontSize: 16 }} />
-            </ToggleButton>
-            <ToggleButton value="line" aria-label="line chart">
-              <ShowChartIcon sx={{ fontSize: 16 }} />
-            </ToggleButton>
-          </ToggleButtonGroup> */}
-        </div>
+        </div> */}
       </div>
       <div
         className="relative h-[550px] rounded-lg p-3"

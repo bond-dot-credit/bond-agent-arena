@@ -11,6 +11,7 @@ const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, 
       <span
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(!show)}
         className="cursor-help"
       >
         {children}
@@ -52,10 +53,10 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
   return (
     <div className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.01]">
-      <div className="text-white rounded-xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-[#c9b382]/30 overflow-hidden">
+      <div className="text-white rounded-xl border border-white/10 bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-[#c9b382]/30 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9b382]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
+          <div className="absolute inset-0 bg-linear-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-[#c9b382]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
 
         {/* Desktop View - Hidden on mobile */}
@@ -106,7 +107,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
         </div>
 
         {/* Mobile View - Card Layout */}
-        <div className="md:hidden px-4 py-4 relative z-10 space-y-3">
+        <div className="block md:hidden px-4 py-4 relative z-10 space-y-3">
           {/* Rank + Agent Name */}
           <div className="flex items-center gap-3">
             {getRankDisplay(agent.rank)}
@@ -119,22 +120,40 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           </div>
 
           {/* Info Grid */}
-          <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
             <div>
               <p className="text-gray-500 mb-1">Vault Type</p>
               <p className="text-gray-300">{agent.vaultType}</p>
             </div>
             <div>
-              <p className="text-gray-500 mb-1">AUA</p>
+              <p className="text-gray-500 mb-1">
+                <span className="inline-flex items-center gap-1">
+                  AUA
+                  <Tooltip text="AUA means Asset Under Agent - How much is the Agent managing for the individual end user.">
+                    <span className="w-3 h-3 rounded-full bg-gray-700/50 flex items-center justify-center text-[8px] text-gray-400 border border-gray-600/50">
+                      !
+                    </span>
+                  </Tooltip>
+                </span>
+              </p>
               <p className="text-white font-bold">{formatCurrency(agent.aua || 2000.01)}</p>
             </div>
             <div>
-              <p className="text-gray-500 mb-1">AUM</p>
+              <p className="text-gray-500 mb-1">
+                <span className="inline-flex items-center gap-1">
+                  AUM
+                  <Tooltip text="AUM means Asset Under Management - How much is the Agent managing in total.">
+                    <span className="w-3 h-3 rounded-full bg-gray-700/50 flex items-center justify-center text-[8px] text-gray-400 border border-gray-600/50">
+                      !
+                    </span>
+                  </Tooltip>
+                </span>
+              </p>
               <p className="text-white font-bold">{formatCurrency(agent.aum || 50000000)}</p>
             </div>
             <div>
               <p className="text-gray-500 mb-1">Expected Yield</p>
-              <p className="text-gray-500 font-semibold">COMING SOON</p>
+              <p className="text-gray-500 font-semibold text-[10px]">COMING SOON</p>
             </div>
           </div>
         </div>

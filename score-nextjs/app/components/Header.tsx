@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+
+interface TokenPrice {
+  symbol: string;
+  price: number;
+  change24h: number;
+}
 
 const Header: React.FC = () => {
   const pathname = usePathname();
@@ -13,6 +19,37 @@ const Header: React.FC = () => {
   const [userType, setUserType] = useState('');
   const [agentName, setAgentName] = useState('');
   const [website, setWebsite] = useState('');
+  const [tokenPrices, setTokenPrices] = useState<TokenPrice[]>([]);
+
+  useEffect(() => {
+    const fetchTokenPrices = async () => {
+      try {
+        const response = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,mamo,giza&vs_currencies=usd&include_24hr_change=true',
+          { cache: 'no-store' }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
+          const prices: TokenPrice[] = [
+            { symbol: 'BTC', price: data.bitcoin?.usd || 0, change24h: data.bitcoin?.usd_24h_change || 0 },
+            { symbol: 'ETH', price: data.ethereum?.usd || 0, change24h: data.ethereum?.usd_24h_change || 0 },
+            { symbol: 'MAMO', price: data.mamo?.usd || 0, change24h: data.mamo?.usd_24h_change || 0 },
+            { symbol: 'GIZA', price: data.giza?.usd || 0, change24h: data.giza?.usd_24h_change || 0 }
+          ];
+
+          setTokenPrices(prices);
+        }
+      } catch (error) {
+        console.error('Failed to fetch token prices:', error);
+      }
+    };
+
+    fetchTokenPrices();
+    const interval = setInterval(fetchTokenPrices, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,10 +104,77 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 mb-4 py-3 bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] border-b border-white/10">
-      <div className="container mx-auto px-4 max-w-[1600px]">
-        <div className="flex items-center">
-          {/* Logo/Brand */}
+    <header className="sticky top-0 z-50 bg-black border-b border-white/10">
+      <div className="container mx-auto px-3 md:px-4 max-w-[1600px]">
+        {/* Mobile Header - Compact Layout */}
+        <div className="lg:hidden py-2">
+          {/* Logo and Actions */}
+          <div className="flex items-center justify-between mb-2">
+            <a href="/" className="relative">
+              <img
+                src="/bondcredit-logo-white.png"
+                alt="Bond Credit"
+                className="h-4 w-auto"
+              />
+            </a>
+            <div className="flex items-center gap-2 text-[10px]">
+              <button
+                onClick={() => setShowWaitlistModal(true)}
+                className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
+              >
+                WAITLIST
+                <span className="text-[9px]">↗</span>
+              </button>
+              <a 
+                href="https://bond.credit" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
+              >
+                ABOUT
+                <span className="text-[9px]">↗</span>
+              </a>
+            </div>
+          </div>
+          
+          {/* Navigation */}
+          <div className="flex items-center justify-center gap-4 text-[10px] mb-2">
+            <a
+              href="/"
+              className={`transition-colors duration-300 font-semibold ${
+                pathname === '/' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
+              }`}
+            >
+              LIVE
+            </a>
+            <a
+              href="/leaderboard"
+              className={`transition-colors duration-300 font-semibold ${
+                pathname === '/leaderboard' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
+              }`}
+            >
+              LEADERBOARD
+            </a>
+          </div>
+
+          {/* Token Prices - Mobile */}
+          <div className="border-t border-white/10 pt-2">
+            <div className="flex items-center justify-between gap-2">
+              {tokenPrices.map((token) => (
+                <div key={token.symbol} className="flex items-center gap-1">
+                  <span className="text-[#c9b382] font-bold text-[10px]">${token.symbol}</span>
+                  <span className="text-white font-mono text-[10px]">
+                    ${token.price > 1 ? token.price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : token.price.toFixed(3)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Header - Single Row Compact Layout */}
+        <div className="hidden lg:flex items-center justify-between py-2">
+          {/* Logo - Original Size */}
           <div className="flex items-center gap-3">
             <a href="/" className="relative">
               {/* Glow effect */}
@@ -78,13 +182,13 @@ const Header: React.FC = () => {
               <img
                 src="/bondcredit-logo-white.png"
                 alt="Bond Credit"
-                className="h-8 md:h-10 w-auto relative z-10"
+                className="h-10 w-auto relative z-10"
               />
             </a>
           </div>
 
           {/* Desktop Navigation - Centered */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-center">
+          <nav className="flex items-center gap-6 xl:gap-8 flex-1 justify-center">
             <a
               href="/"
               className={`text-sm font-semibold transition-colors duration-300 ${
@@ -108,101 +212,38 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Desktop Right side links */}
-          <div className="hidden lg:flex items-center gap-4 xl:gap-6 text-xs xl:text-sm">
+          <div className="flex items-center gap-4 xl:gap-6 text-xs xl:text-sm">
             <button
               onClick={() => setShowWaitlistModal(true)}
-              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1"
+              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold"
             >
               WAITLIST
               <span className="text-xs">↗</span>
             </button>
             <button
               onClick={() => setShowAgentModal(true)}
-              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1"
+              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold"
             >
               AGENTS
               <span className="text-xs">↗</span>
             </button>
-            <a href="https://bond.credit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1">
+            <a href="https://bond.credit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold">
               ABOUT
               <span className="text-xs">↗</span>
             </a>
           </div>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-white p-2 ml-auto"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden mt-4 pb-4 border-t border-white/10 pt-4">
-            <nav className="flex flex-col gap-4">
-              <a
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`text-sm font-semibold transition-colors duration-300 ${
-                  pathname === '/' ? 'text-[#c9b382]' : 'text-gray-400'
-                }`}
-              >
-                LIVE
-              </a>
-              <a
-                href="/leaderboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`text-sm font-semibold transition-colors duration-300 ${
-                  pathname === '/leaderboard' ? 'text-[#c9b382]' : 'text-gray-400'
-                }`}
-              >
-                LEADERBOARD
-              </a>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setShowWaitlistModal(true);
-                }}
-                className="text-sm font-semibold text-gray-400 text-left"
-              >
-                WAITLIST
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setShowAgentModal(true);
-                }}
-                className="text-sm font-semibold text-gray-400 text-left"
-              >
-                AGENTS
-              </button>
-              <a
-                href="https://bond.credit"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-semibold text-gray-400"
-              >
-                ABOUT BOND.CREDIT
-              </a>
-            </nav>
-          </div>
-        )}
+        {/* Token Prices - Desktop - Separate Row */}
+        {/* Desktop uses AgentCarousel component instead */}
       </div>
 
       {/* Waitlist Modal */}
       {showWaitlistModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="relative w-full max-w-md mx-4">
             {/* Modal Card */}
-            <div className="bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
+            <div className="bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
               {/* Close button */}
               <button
                 onClick={() => setShowWaitlistModal(false)}
@@ -281,10 +322,10 @@ const Header: React.FC = () => {
 
       {/* Agent Modal */}
       {showAgentModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="relative w-full max-w-md mx-4">
             {/* Modal Card */}
-            <div className="bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
+            <div className="bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
               {/* Close button */}
               <button
                 onClick={() => setShowAgentModal(false)}

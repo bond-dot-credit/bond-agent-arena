@@ -24,7 +24,7 @@ export default async function Home() {
         <Header />
 
         <div className="container mx-auto px-4 max-w-[1600px] flex-1">
-          {/* Token Prices */}
+          {/* Token Prices - Desktop only */}
           <AgentCarousel />
 
           {/* Combined Chart and Leaderboard */}

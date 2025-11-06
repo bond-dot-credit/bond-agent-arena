@@ -62,7 +62,7 @@ const AgentCarousel: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="relative overflow-hidden mb-4 py-2 border-y border-[#c9b382]/20 bg-gradient-to-r from-black/50 via-[#c9b382]/5 to-black/50">
+      <div className="relative overflow-hidden mb-4 py-2 border-y border-[#c9b382]/20 bg-gradient-to-r from-black/50 via-[#c9b382]/5 to-black/50 hidden lg:block">
         <div className="container mx-auto px-4 max-w-[1600px]">
           <div className="flex items-center justify-center">
             <span className="text-gray-400 text-sm">Loading token prices...</span>
@@ -73,7 +73,7 @@ const AgentCarousel: React.FC = () => {
   }
 
   return (
-    <div className="relative overflow-hidden mb-4 py-3 border-y border-[#c9b382]/20 bg-gradient-to-r from-black/50 via-[#c9b382]/5 to-black/50">
+    <div className="relative overflow-hidden mb-4 py-3 border-y border-[#c9b382]/20 bg-gradient-to-r from-black/50 via-[#c9b382]/5 to-black/50 hidden lg:block">
       <div className="container mx-auto px-4 max-w-[1600px]">
         <div className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-4 md:gap-12">
           {tokenPrices.map((token) => (
