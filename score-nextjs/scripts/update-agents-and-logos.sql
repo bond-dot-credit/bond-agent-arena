@@ -3,31 +3,36 @@
 -- Update Arma (formerly using Giza logo)
 UPDATE agentss 
 SET medal_url = '/arma_logo.png',
-    name = 'Arma'
+    name = 'Arma',
+    vault_type = 'Yield farming'
 WHERE contract_address = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb';
 
 -- Update Sail
 UPDATE agentss 
 SET medal_url = '/sale_money_logo.ico',
-    name = 'Sail'
+    name = 'Sail',
+    vault_type = 'Yield farming'
 WHERE contract_address = '0x1234567890123456789012345678901234567890';
 
 -- Update ZyFAI (changed from Almanak, using new logo)
 UPDATE agentss 
 SET medal_url = '/Zyfai_icon.svg',
-    name = 'ZyFAI'
+    name = 'ZyFAI',
+    vault_type = 'Yield farming'
 WHERE contract_address = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd';
 
 -- Update SurfLiquid
 UPDATE agentss 
 SET medal_url = '/surf_logo.avif',
-    name = 'SurfLiquid'
+    name = 'SurfLiquid',
+    vault_type = 'Yield farming'
 WHERE contract_address = '0x9876543210987654321098765432109876543210';
 
 -- Update Mamo
 UPDATE agentss 
 SET medal_url = '/mamo_agent.ico',
-    name = 'Mamo'
+    name = 'Mamo',
+    vault_type = 'Yield farming'
 WHERE contract_address = '0x5555555555555555555555555555555555555555';
 
 -- If you want to add a website column (optional - only if you want to store this in the database)

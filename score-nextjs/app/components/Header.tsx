@@ -220,6 +220,13 @@ const Header: React.FC = () => {
               WAITLIST
               <span className="text-xs">↗</span>
             </button>
+            <button
+              onClick={() => setShowAgentModal(true)}
+              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold"
+            >
+              AGENTS
+              <span className="text-xs">↗</span>
+            </button>
             <a href="https://bond.credit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold">
               ABOUT
               <span className="text-xs">↗</span>
