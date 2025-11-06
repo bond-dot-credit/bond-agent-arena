@@ -11,7 +11,8 @@ export const mockAgents: Agent[] = [
     validation: 'verified',
     performanceScore: 88.4,
     bondScore: '+4.2',
-    medal: '/giza_logo.ico'
+    medal: '/giza_logo.ico',
+    website: 'https://arma.xyz/'
   },
   {
     rank: 2,
@@ -23,7 +24,8 @@ export const mockAgents: Agent[] = [
     validation: 'processing',
     performanceScore: 83.1,
     bondScore: '+2.1',
-    medal: '/sale_money_logo.ico'
+    medal: '/sale_money_logo.ico',
+    website: 'http://sail.money/'
   },
   {
     rank: 3,
@@ -35,7 +37,8 @@ export const mockAgents: Agent[] = [
     validation: 'verified' as const,
     performanceScore: 81.7,
     bondScore: '-2.8',
-    medal: '/zyfai_logo.ico'
+    medal: '/Zyfai_icon.svg',
+    website: 'https://www.zyf.ai/'
   },
   {
     rank: 4,
@@ -47,7 +50,8 @@ export const mockAgents: Agent[] = [
     validation: 'pending',
     performanceScore: 74.9,
     bondScore: '+0.8',
-    medal: '/surf_logo.avif'
+    medal: '/surf_logo.avif',
+    website: 'https://surfliquid.com/'
   },
   {
     rank: 5,
@@ -59,6 +63,7 @@ export const mockAgents: Agent[] = [
     validation: 'warning',
     performanceScore: 69.3,
     bondScore: '-2.4',
-    medal: '/mamo_agent.ico'
+    medal: '/mamo_agent.ico',
+    website: 'https://mamo.bot/'
   },
 ];

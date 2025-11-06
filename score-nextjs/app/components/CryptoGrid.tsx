@@ -69,9 +69,21 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           {/* Agent Name + Logo */}
           <div className="flex items-center gap-3">
             {agent.medal && (
-              <div className="w-8 h-8 rounded-full bg-white border border-white/10 flex items-center justify-center p-1 overflow-hidden shrink-0">
-                <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-              </div>
+              agent.website ? (
+                <a 
+                  href={agent.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white border border-white/10 hover:border-[#c9b382]/50 flex items-center justify-center p-1 overflow-hidden shrink-0 transition-all duration-300 hover:scale-110"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+                </a>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-white border border-white/10 flex items-center justify-center p-1 overflow-hidden shrink-0">
+                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+                </div>
+              )
             )}
             <p className="font-bold text-white group-hover:text-[#c9b382] transition-colors duration-300 text-base">{agent.agent}</p>
           </div>
@@ -112,9 +124,21 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           <div className="flex items-center gap-3">
             {getRankDisplay(agent.rank)}
             {agent.medal && (
-              <div className="w-6 h-6 rounded-full bg-white border border-white/10 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
-                <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-              </div>
+              agent.website ? (
+                <a 
+                  href={agent.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-6 h-6 rounded-full bg-white border border-white/10 hover:border-[#c9b382]/50 flex items-center justify-center p-0.5 overflow-hidden shrink-0 transition-all duration-300"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+                </a>
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-white border border-white/10 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
+                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+                </div>
+              )
             )}
             <p className="font-bold text-white group-hover:text-[#c9b382] transition-colors duration-300 text-sm">{agent.agent}</p>
           </div>
