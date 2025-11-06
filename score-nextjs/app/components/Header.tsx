@@ -138,23 +138,32 @@ const Header: React.FC = () => {
           </div>
           
           {/* Navigation */}
-          <div className="flex items-center justify-center gap-4 text-[10px] mb-2">
-            <a
-              href="/"
-              className={`transition-colors duration-300 font-semibold ${
-                pathname === '/' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
-              }`}
-            >
-              LIVE
-            </a>
-            <a
-              href="/leaderboard"
-              className={`transition-colors duration-300 font-semibold ${
-                pathname === '/leaderboard' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
-              }`}
-            >
-              LEADERBOARD
-            </a>
+          <div className="flex items-center justify-between text-[10px] mb-2">
+            {/* Left - Agentic Alpha */}
+            <span className="text-[#c9b382] font-bold text-[10px]">Agentic Alpha</span>
+            
+            {/* Center - Navigation Links */}
+            <div className="flex items-center gap-4">
+              <a
+                href="/"
+                className={`transition-colors duration-300 font-semibold ${
+                  pathname === '/' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
+                }`}
+              >
+                LIVE
+              </a>
+              <a
+                href="/leaderboard"
+                className={`transition-colors duration-300 font-semibold ${
+                  pathname === '/leaderboard' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
+                }`}
+              >
+                LEADERBOARD
+              </a>
+            </div>
+
+            {/* Right - Agentic Alpha */}
+            <span className="text-[#c9b382] font-bold text-[10px]">Agentic Alpha</span>
           </div>
 
           {/* Token Prices - Mobile */}

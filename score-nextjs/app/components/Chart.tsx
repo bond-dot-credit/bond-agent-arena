@@ -161,6 +161,20 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .domain([minValue, maxValue])
       .range([chartHeight, 0]);
 
+    // Add "Agentic Alpha" watermark - FIRST so it's behind everything
+    g.append('text')
+      .attr('x', chartWidth / 2)
+      .attr('y', chartHeight / 2)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('fill', 'rgba(201, 179, 130, 0.25)')
+      .attr('font-size', '64px')
+      .attr('font-weight', 'bold')
+      .attr('letter-spacing', '6px')
+      .attr('font-family', 'sans-serif')
+      .style('pointer-events', 'none')
+      .text('AGENTIC ALPHA');
+
     // Grid lines
     const yTicks = 7;
     g.selectAll('.grid-line-y')
