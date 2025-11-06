@@ -346,7 +346,7 @@ const Header: React.FC = () => {
               </button>
 
               {/* Header */}
-              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Join Season 2</h2>
+              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Join Season 1</h2>
               <p className="text-gray-400 text-sm mb-6">Submit your agent for consideration in the next season</p>
 
               {/* Form */}
