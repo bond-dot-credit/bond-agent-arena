@@ -161,19 +161,19 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .domain([minValue, maxValue])
       .range([chartHeight, 0]);
 
-    // Add "Agentic Alpha" watermark - FIRST so it's behind everything
+    // Add "Agentic Alpha by bond.credit" watermark - Top right
     g.append('text')
-      .attr('x', chartWidth / 2)
-      .attr('y', chartHeight / 2)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', 'rgba(201, 179, 130, 0.25)')
-      .attr('font-size', '64px')
+      .attr('x', chartWidth - 15)
+      .attr('y', 20)
+      .attr('text-anchor', 'end')
+      .attr('dominant-baseline', 'hanging')
+      .attr('fill', 'rgba(201, 179, 130, 0.15)')
+      .attr('font-size', '32px')
       .attr('font-weight', 'bold')
-      .attr('letter-spacing', '6px')
+      .attr('letter-spacing', '2px')
       .attr('font-family', 'sans-serif')
       .style('pointer-events', 'none')
-      .text('AGENTIC ALPHA');
+      .text('Agentic Alpha by bond.credit');
 
     // Grid lines
     const yTicks = 7;

@@ -25,6 +25,27 @@ const agentColors = [
 const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimeframe, showDollar }) => {
   const [chartData, setChartData] = React.useState<any>(null);
 
+  // Watermark plugin for Chart.js
+  const watermarkPlugin = {
+    id: 'watermark',
+    beforeDraw: (chart: any) => {
+      const ctx = chart.ctx;
+      const chartArea = chart.chartArea;
+      const rightX = chartArea.right - 15; // Position near the right edge
+      const topY = chartArea.top + 20; // Position near the top
+
+      ctx.save();
+      ctx.globalAlpha = 0.15;
+      ctx.fillStyle = '#c9b382';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('Agentic Alpha by bond.credit', rightX, topY);
+      ctx.restore();
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const labels: string[] = [];
@@ -171,7 +192,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
 
   return (
     <div className="relative h-full w-full">
-      <Bar data={chartData} options={options} />
+      <Bar data={chartData} options={options} plugins={[watermarkPlugin]} />
     </div>
   );
 };
