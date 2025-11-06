@@ -126,7 +126,7 @@ const Header: React.FC = () => {
                 <span className="text-[9px]">↗</span>
               </button>
               <a 
-                href="https://bond.credit" 
+                href="https://x.com/bondoncredit?s=21" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
@@ -236,7 +236,7 @@ const Header: React.FC = () => {
               AGENTS
               <span className="text-xs">↗</span>
             </button>
-            <a href="https://bond.credit" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold">
+            <a href="https://x.com/bondoncredit?s=21" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold">
               ABOUT
               <span className="text-xs">↗</span>
             </a>

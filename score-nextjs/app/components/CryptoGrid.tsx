@@ -44,11 +44,31 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
   };
 
   const formatCurrency = (value?: number) => {
-    if (!value) return 'N/A';
+    if (value === undefined || value === null) return 'N/A';
     if (value >= 1000000) {
       return `$${(value / 1000000).toFixed(1)}M`;
     }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(1)}K`;
+    }
     return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  // Hardcoded AUM and AUA values
+  const getAUM = (agentName: string) => {
+    const aumValues: { [key: string]: string } = {
+      'Arma': '$20.6M',
+      'Mamo': '$8.9M',
+      'ZyFAI': '$7.1M',
+      'Zyfai': '$7.1M',
+      'Sail': '$271.0K',
+      'SurfLiquid': '$39.0K'
+    };
+    return aumValues[agentName] || 'N/A';
+  };
+
+  const getAUA = () => {
+    return '$2,000.00';
   };
 
   return (
@@ -96,14 +116,14 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           {/* AUA */}
           <div className="text-center">
             <p className="font-bold text-white text-base">
-              {formatCurrency(agent.aua || 2000.01)}
+              {getAUA()}
             </p>
           </div>
 
           {/* AUM */}
           <div className="text-center">
             <p className="font-bold text-white text-base">
-              {formatCurrency(agent.aum || 50000000)}
+              {getAUM(agent.agent)}
             </p>
           </div>
 
@@ -160,7 +180,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
                   </Tooltip>
                 </span>
               </p>
-              <p className="text-white font-bold">{formatCurrency(agent.aua || 2000.01)}</p>
+              <p className="text-white font-bold">{getAUA()}</p>
             </div>
             <div>
               <p className="text-gray-500 mb-1">
@@ -173,7 +193,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
                   </Tooltip>
                 </span>
               </p>
-              <p className="text-white font-bold">{formatCurrency(agent.aum || 50000000)}</p>
+              <p className="text-white font-bold">{getAUM(agent.agent)}</p>
             </div>
             <div>
               <p className="text-gray-500 mb-1">Expected Yield</p>

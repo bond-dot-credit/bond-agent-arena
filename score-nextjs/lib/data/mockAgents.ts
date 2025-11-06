@@ -12,7 +12,9 @@ export const mockAgents: Agent[] = [
     performanceScore: 88.4,
     bondScore: '+4.2',
     medal: '/giza_logo.ico',
-    website: 'https://arma.xyz/'
+    website: 'https://arma.xyz/',
+    aum: 20560000,
+    aua: 2000
   },
   {
     rank: 2,
@@ -25,7 +27,9 @@ export const mockAgents: Agent[] = [
     performanceScore: 83.1,
     bondScore: '+2.1',
     medal: '/sale_money_logo.ico',
-    website: 'http://sail.money/'
+    website: 'http://sail.money/',
+    aum: 271000,
+    aua: 2000
   },
   {
     rank: 3,
@@ -38,7 +42,9 @@ export const mockAgents: Agent[] = [
     performanceScore: 81.7,
     bondScore: '-2.8',
     medal: '/Zyfai_icon.svg',
-    website: 'https://www.zyf.ai/'
+    website: 'https://www.zyf.ai/',
+    aum: 7050000,
+    aua: 2000
   },
   {
     rank: 4,
@@ -51,7 +57,9 @@ export const mockAgents: Agent[] = [
     performanceScore: 74.9,
     bondScore: '+0.8',
     medal: '/surf_logo.avif',
-    website: 'https://surfliquid.com/'
+    website: 'https://surfliquid.com/',
+    aum: 39000,
+    aua: 2000
   },
   {
     rank: 5,
@@ -64,6 +72,8 @@ export const mockAgents: Agent[] = [
     performanceScore: 69.3,
     bondScore: '-2.4',
     medal: '/mamo_agent.ico',
-    website: 'https://mamo.bot/'
+    website: 'https://mamo.bot/',
+    aum: 8850000,
+    aua: 2000
   },
 ];
