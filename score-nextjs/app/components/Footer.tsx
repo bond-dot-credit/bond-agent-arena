@@ -26,12 +26,12 @@ const Footer: React.FC = () => {
               X
             </a>
             <a
-              href="https://discord.gg/bondcredit"
+              href="https://t.me/+HYosKAFQmJU3OWQ0"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 text-sm font-semibold"
             >
-              DISCORD
+              TELEGRAM
             </a>
             <a
               href="mailto:team@bond.credit"
