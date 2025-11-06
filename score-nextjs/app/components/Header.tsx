@@ -10,28 +10,60 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [userType, setUserType] = useState('');
   const [agentName, setAgentName] = useState('');
   const [website, setWebsite] = useState('');
 
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Save data to backend/database
-    console.log('Waitlist submission:', { name, email });
-    alert('Thanks for joining the waitlist!');
-    setShowWaitlistModal(false);
-    setName('');
-    setEmail('');
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, userType }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Thanks for joining the waitlist!');
+        setShowWaitlistModal(false);
+        setName('');
+        setEmail('');
+        setUserType('');
+      } else {
+        alert(data.error || 'Failed to join waitlist');
+      }
+    } catch (error) {
+      console.error('Waitlist submission error:', error);
+      alert('Failed to join waitlist. Please try again.');
+    }
   };
 
-  const handleAgentSubmit = (e: React.FormEvent) => {
+  const handleAgentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Save data to backend/database
-    console.log('Agent submission:', { name, agentName, website });
-    alert('Thanks for your interest! We will review your agent for Season 2.');
-    setShowAgentModal(false);
-    setName('');
-    setAgentName('');
-    setWebsite('');
+    try {
+      const response = await fetch('/api/agent-submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, agentName, website }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Thanks for your interest! We will review your agent for Season 2.');
+        setShowAgentModal(false);
+        setName('');
+        setAgentName('');
+        setWebsite('');
+      } else {
+        alert(data.error || 'Failed to submit agent');
+      }
+    } catch (error) {
+      console.error('Agent submission error:', error);
+      alert('Failed to submit agent. Please try again.');
+    }
   };
 
   return (
@@ -215,6 +247,24 @@ const Header: React.FC = () => {
                     className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
                     placeholder="Enter your email"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="user-type" className="block text-sm font-semibold text-white mb-2">
+                    I am a
+                  </label>
+                  <select
+                    id="user-type"
+                    value={userType}
+                    onChange={(e) => setUserType(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-[#c9b382] transition-colors"
+                  >
+                    <option value="" disabled>Select your role</option>
+                    <option value="agent-builder">Agent Builder</option>
+                    <option value="researcher">Researcher</option>
+                    <option value="allocator">Allocator</option>
+                  </select>
                 </div>
 
                 <button

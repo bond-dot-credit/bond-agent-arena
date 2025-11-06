@@ -48,3 +48,22 @@ INSERT INTO agentss (name, contract_address, vault_type, risk_score, validation,
 ('Almanak', '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd', 'Stablecoin yield', 0.94, 'verified', 81.7, '/almanak_logo.ico'),
 ('SurfLiquid', '0x9876543210987654321098765432109876543210', 'Stablecoin yield', 0.80, 'pending', 74.9, '/surf_logo.avif'),
 ('Mamo', '0x5555555555555555555555555555555555555555', 'Stablecoin yield', 0.71, 'warning', 69.3, '/mamo_agent.ico');
+
+-- Waitlist table
+CREATE TABLE waitlist (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  user_type VARCHAR(50),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Agent submissions table
+CREATE TABLE agent_submissions (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  agent_name VARCHAR(255) NOT NULL,
+  website VARCHAR(500) NOT NULL,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
