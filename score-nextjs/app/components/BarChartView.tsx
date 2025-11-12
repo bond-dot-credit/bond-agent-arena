@@ -48,12 +48,8 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
 
   useEffect(() => {
     const fetchData = async () => {
-      const labels: string[] = [];
-      const values: number[] = [];
-      const backgroundColors: string[] = [];
-      const borderColors: string[] = [];
-
-      await Promise.all(
+      // Create arrays to store results in order
+      const results = await Promise.all(
         agentsData.map(async (agent, index) => {
           const response = await fetch(
             `/api/agents/${agent.contractAddress}/performance?interval=${currentTimeframe}`,
@@ -62,24 +58,28 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
 
           if (response.ok) {
             const data = await response.json();
-
             const latestValue = data.currentValue;
-            const baseValue = data.initialValue;
-
-            // Always display dollar values only
             const displayValue = latestValue;
-            // const displayValue = showDollar
-            //   ? latestValue
-            //   : ((latestValue - baseValue) / baseValue) * 100;
 
-            labels.push(agent.agent);
-            values.push(displayValue);
-            // Use 85% opacity (D9 in hex) for bars so background gradients peek through
-            backgroundColors.push(agentColors[index % agentColors.length] + 'D9');
-            borderColors.push(agentColors[index % agentColors.length]);
+            return {
+              label: agent.agent,
+              value: displayValue,
+              backgroundColor: agentColors[index % agentColors.length] + 'D9',
+              borderColor: agentColors[index % agentColors.length],
+              rank: agent.rank
+            };
           }
+          return null;
         })
       );
+
+      // Filter out null results and sort by rank to maintain consistent order
+      const validResults = results.filter(r => r !== null).sort((a, b) => a!.rank - b!.rank);
+
+      const labels = validResults.map(r => r!.label);
+      const values = validResults.map(r => r!.value);
+      const backgroundColors = validResults.map(r => r!.backgroundColor);
+      const borderColors = validResults.map(r => r!.borderColor);
 
       setChartData({
         labels: labels,
