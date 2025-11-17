@@ -370,7 +370,8 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             </button>
           </div>
         </div>
-        <div className="flex gap-2">
+        {/* Timeframe buttons temporarily hidden */}
+        {/* <div className="flex gap-2">
           {['ALL', '72H', '24H', '1H'].map((tf) => (
             <button
               key={tf}
@@ -380,7 +381,7 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               {tf}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
       <div className="relative h-[550px] bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3">
         <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>

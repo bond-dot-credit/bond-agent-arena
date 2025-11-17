@@ -756,7 +756,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             </ToggleButton>
           </ToggleButtonGroup> */}
         </div>
-        <div className="flex gap-2">
+        {/* Timeframe buttons temporarily hidden */}
+        {/* <div className="flex gap-2">
           {['ALL', '72H', '24H', '1H'].map((tf) => (
             <button
               key={tf}
@@ -766,7 +767,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               {tf}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* Mobile Header - Stacked Layout */}
