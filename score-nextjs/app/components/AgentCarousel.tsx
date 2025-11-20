@@ -17,11 +17,21 @@ const AgentCarousel: React.FC = () => {
       try {
         const response = await fetch(
           'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,mamo,giza&vs_currencies=usd&include_24hr_change=true',
-          { cache: 'no-store' }
+          { 
+            cache: 'force-cache',
+            next: { revalidate: 300 } // Cache for 5 minutes
+          }
         );
 
         if (response.ok) {
           const data = await response.json();
+
+          // Check if we got rate limited
+          if (data.status?.error_code === 429) {
+            console.warn('CoinGecko API rate limit reached');
+            setLoading(false);
+            return;
+          }
 
           const prices: TokenPrice[] = [
             {
@@ -47,6 +57,8 @@ const AgentCarousel: React.FC = () => {
           ];
 
           setTokenPrices(prices);
+        } else if (response.status === 429) {
+          console.warn('CoinGecko API rate limit reached');
         }
       } catch (error) {
         console.error('Failed to fetch token prices:', error);
@@ -56,7 +68,7 @@ const AgentCarousel: React.FC = () => {
     };
 
     fetchTokenPrices();
-    const interval = setInterval(fetchTokenPrices, 60000); // Update every 60 seconds
+    const interval = setInterval(fetchTokenPrices, 300000); // Update every 5 minutes instead of 1 minute
     return () => clearInterval(interval);
   }, []);
 
