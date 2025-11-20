@@ -134,7 +134,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             const data = await response.json();
             const points: ChartPoint[] = data.snapshots.map((snap: any) => ({
               time: snap.timestamp,
-              value: snap.totalValueUsd,
+              value: snap.balance,
             }));
 
             // Add yield event annotations
@@ -185,20 +185,12 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     let maxValue: number;
 
     if (showDollar) {
-      // Dollar view: use logarithmic-like scaling to amplify small changes
+      // Dollar view: Fixed range starting at $2000
       const allValues = Object.values(chartData).flat().map(d => d.value);
-      const minVal = Math.min(...allValues);
       const maxVal = Math.max(...allValues);
-      const range = maxVal - minVal;
-
-      // Use exponential scaling to amplify view of small changes
-      // This makes $0.50 changes look more dramatic
-      const amplificationFactor = 5;
-      const centerValue = (minVal + maxVal) / 2;
-      const amplifiedRange = range * amplificationFactor;
-
-      minValue = centerValue - amplifiedRange / 2;
-      maxValue = centerValue + amplifiedRange / 2;
+      
+      minValue = 2000;
+      maxValue = Math.max(maxVal * 1.02, 2015); // Add 2% padding or minimum $2015
 
       yScale = d3.scaleLinear()
         .domain([minValue, maxValue])
@@ -207,8 +199,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       // Percentage view: calculate ROI %
       const baseValue = 2000;
       const allRoiPercents = Object.values(chartData).flat().map(d => ((d.value - baseValue) / baseValue) * 100);
-      minValue = Math.min(...allRoiPercents) * 0.95;
-      maxValue = Math.max(...allRoiPercents) * 1.05;
+      minValue = Math.min(...allRoiPercents, 0) * 1.1; // Include 0 and add padding
+      maxValue = Math.max(...allRoiPercents) * 1.1;
       yScale = d3.scaleLinear()
         .domain([minValue, maxValue])
         .range([chartHeight, 0]);

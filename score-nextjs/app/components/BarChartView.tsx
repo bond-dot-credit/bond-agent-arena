@@ -147,6 +147,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       },
       y: {
         beginAtZero: false,
+        min: 2000,
         ticks: {
           color: '#000',
           font: {

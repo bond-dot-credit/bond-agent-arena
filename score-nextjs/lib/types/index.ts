@@ -9,19 +9,16 @@ export interface Agent {
   performanceScore: number;
   bondScore: string;
   medal?: string;
-  website?: string; // Agent's website URL
-  aua?: number; // Asset Under Agent - how much the agent manages for individual end user
-  aum?: number; // Asset Under Management - how much the agent manages in total
-  expectedYield?: string; // Expected yield percentage
+  website?: string;
+  aua?: number; // Asset Under Agent - balance (individual allocation)
+  aum?: number; // Asset Under Management - total_aum
+  expectedYield?: string;
 }
 
 export interface PerformanceSnapshot {
   timestamp: number;
-  usdcAmount: number;
-  rewardTokenAmount?: number;
-  rewardTokenSymbol?: string;
-  rewardPriceUsd?: number;
-  totalValueUsd: number;
+  balance: number;
+  totalAum: number;
 }
 
 export interface AgentPerformance {

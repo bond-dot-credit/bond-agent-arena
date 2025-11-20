@@ -1,84 +1,90 @@
-import { supabase, AgentRow, PerformanceSnapshotRow } from '../db/supabase';
+import { supabaseFetch, AgentAumRow, AgentAumHistoricalRow } from '../db/supabase';
 import { Agent, PerformanceSnapshot } from '../types';
+import { agentMetadata } from '../data/agentMetadata';
 
-// Convert database row to Agent type
-function convertAgentRow(row: AgentRow, rank: number, roi: string, bondScore: string): Agent {
-  return {
-    rank,
-    agent: row.name,
-    contractAddress: row.contract_address,
-    vaultType: row.vault_type,
-    roi,
-    riskScore: row.risk_score,
-    validation: row.validation,
-    performanceScore: row.performance_score,
-    bondScore,
-    medal: row.medal_url || undefined,
-  };
-}
+const BASE_VALUE = 2000;
 
 // Get all agents with calculated metrics
 export async function getAllAgents(): Promise<Agent[]> {
-  const { data: agents, error } = await supabase
-    .from('agentss')
-    .select('*')
-    .order('performance_score', { ascending: false });
-
-  if (error) throw error;
-  if (!agents) return [];
-
-  // Get latest snapshot for each agent to calculate ROI and bond score
-  const agentsWithMetrics = await Promise.all(
-    agents.map(async (agent, index) => {
-      const { data: snapshots } = await supabase
-        .from('performance_snapshots')
-        .select('total_value_usd')
-        .eq('agent_id', agent.id)
-        .order('timestamp', { ascending: false })
-        .limit(2);
-
-      const baseValue = 2000;
-      const currentValue = snapshots?.[0]?.total_value_usd || baseValue;
-      const roiPercent = ((currentValue - baseValue) / baseValue) * 100;
-      const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
-
-      // Calculate bond score
-      const bondScoreValue = roiPercent;
-      const bondScore = `${bondScoreValue >= 0 ? '+' : ''}${bondScoreValue.toFixed(1)}`;
-
-      return convertAgentRow(agent, index + 1, roi, bondScore);
-    })
+  const data: AgentAumRow[] = await supabaseFetch(
+    '/rest/v1/agent_aum?select=agent_name,smart_account_address,token_symbol,balance,total_aum,tx_time,run_ts&order=agent_name.asc'
   );
 
-  return agentsWithMetrics;
+  if (!data || data.length === 0) return [];
+
+  // Convert to Agent type with calculated metrics
+  const agents = data.map((row, index) => {
+    const metadata = agentMetadata[row.agent_name] || {
+      vaultType: 'Yield Optimizers',
+      riskScore: 0.80,
+      validation: 'pending' as const,
+      performanceScore: 70.0,
+      medal: '',
+      website: '',
+    };
+
+    // Calculate ROI: (balance - 2000) / 2000 * 100
+    const roiPercent = ((row.balance - BASE_VALUE) / BASE_VALUE) * 100;
+    const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
+
+    return {
+      rank: index + 1,
+      agent: row.agent_name,
+      contractAddress: row.smart_account_address,
+      vaultType: metadata.vaultType,
+      roi,
+      riskScore: metadata.riskScore,
+      validation: metadata.validation,
+      performanceScore: metadata.performanceScore,
+      bondScore: 'Coming Soon',
+      medal: metadata.medal,
+      website: metadata.website,
+      aua: row.balance,
+      aum: row.total_aum,
+    } as Agent;
+  });
+
+  // Sort by performance score (descending)
+  return agents.sort((a, b) => b.performanceScore - a.performanceScore)
+    .map((agent, index) => ({ ...agent, rank: index + 1 }));
 }
 
 // Get agent by contract address
 export async function getAgentByAddress(address: string): Promise<Agent | null> {
-  const { data: agent, error } = await supabase
-    .from('agentss')
-    .select('*')
-    .eq('contract_address', address)
-    .single();
+  const data: AgentAumRow[] = await supabaseFetch(
+    `/rest/v1/agent_aum?smart_account_address=eq.${address}&select=agent_name,smart_account_address,token_symbol,balance,total_aum,tx_time,run_ts`
+  );
 
-  if (error || !agent) return null;
+  if (!data || data.length === 0) return null;
 
-  // Calculate metrics
-  const { data: snapshots } = await supabase
-    .from('performance_snapshots')
-    .select('total_value_usd')
-    .eq('agent_id', agent.id)
-    .order('timestamp', { ascending: false })
-    .limit(1);
+  const row = data[0];
+  const metadata = agentMetadata[row.agent_name] || {
+    vaultType: 'Yield Optimizers',
+    riskScore: 0.80,
+    validation: 'pending' as const,
+    performanceScore: 70.0,
+    medal: '',
+    website: '',
+  };
 
-  const baseValue = 2000;
-  const currentValue = snapshots?.[0]?.total_value_usd || baseValue;
-  const roiPercent = ((currentValue - baseValue) / baseValue) * 100;
+  const roiPercent = ((row.balance - BASE_VALUE) / BASE_VALUE) * 100;
   const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
-  const bondScoreValue = roiPercent;
-  const bondScore = `${bondScoreValue >= 0 ? '+' : ''}${bondScoreValue.toFixed(1)}`;
 
-  return convertAgentRow(agent, 1, roi, bondScore);
+  return {
+    rank: 1,
+    agent: row.agent_name,
+    contractAddress: row.smart_account_address,
+    vaultType: metadata.vaultType,
+    roi,
+    riskScore: metadata.riskScore,
+    validation: metadata.validation,
+    performanceScore: metadata.performanceScore,
+    bondScore: 'Coming Soon',
+    medal: metadata.medal,
+    website: metadata.website,
+    aua: row.balance,
+    aum: row.total_aum,
+  };
 }
 
 // Get performance snapshots for an agent
@@ -88,65 +94,27 @@ export async function getAgentPerformance(
   to?: number,
   limit?: number
 ): Promise<PerformanceSnapshot[]> {
-  // First get agent ID
-  const { data: agent } = await supabase
-    .from('agentss')
-    .select('id')
-    .eq('contract_address', address)
-    .single();
-
+  // First get agent name from address
+  const agent = await getAgentByAddress(address);
   if (!agent) return [];
 
-  let query = supabase
-    .from('performance_snapshots')
-    .select('*')
-    .eq('agent_id', agent.id)
-    .order('timestamp', { ascending: false }); // Get latest first
+  const agentName = agent.agent;
 
-  // Apply time filtering if provided
-  if (from) {
-    query = query.gte('timestamp', new Date(from).toISOString());
-  }
-  if (to) {
-    query = query.lte('timestamp', new Date(to).toISOString());
-  }
+  // Fetch historical data
+  const data: AgentAumHistoricalRow[] = await supabaseFetch(
+    `/rest/v1/agent_aum_historical?agent_name=eq.${agentName}&select=run_ts,balance,total_aum&order=run_ts.asc`
+  );
 
-  // Apply limit if provided
-  if (limit) {
-    query = query.limit(limit);
-  }
+  if (!data || data.length === 0) return [];
 
-  const { data: snapshots, error } = await query;
-
-  if (error) throw error;
-  if (!snapshots) return [];
-
-  // Reverse to get chronological order (oldest to newest)
-  const orderedSnapshots = snapshots.reverse();
-
-  return orderedSnapshots.map((snapshot: PerformanceSnapshotRow) => ({
-    timestamp: new Date(snapshot.timestamp).getTime(),
-    usdcAmount: snapshot.usdc_amount,
-    rewardTokenAmount: snapshot.reward_token_amount || undefined,
-    rewardTokenSymbol: snapshot.reward_token_symbol || undefined,
-    rewardPriceUsd: snapshot.reward_price_usd || undefined,
-    totalValueUsd: snapshot.total_value_usd,
+  return data.map((snapshot) => ({
+    timestamp: new Date(snapshot.run_ts).getTime(),
+    balance: snapshot.balance,
+    totalAum: snapshot.total_aum,
   }));
 }
 
-// Get leaderboard (agents sorted by total value)
+// Get leaderboard (agents sorted by performance score)
 export async function getLeaderboard() {
-  const agents = await getAllAgents();
-
-  // Sort by ROI
-  const sorted = agents.sort((a, b) => {
-    const roiA = parseFloat(a.roi.replace('%', '').replace('+', ''));
-    const roiB = parseFloat(b.roi.replace('%', '').replace('+', ''));
-    return roiB - roiA;
-  });
-
-  return sorted.map((agent, index) => ({
-    ...agent,
-    rank: index + 1,
-  }));
+  return getAllAgents();
 }
