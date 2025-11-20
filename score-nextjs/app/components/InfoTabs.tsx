@@ -102,7 +102,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               : 'bg-white text-gray-600 hover:bg-gray-50'
           }`}
         >
-          README.TXT
+          ABOUT
         </button>
         <button
           onClick={() => setActiveTab('rules')}

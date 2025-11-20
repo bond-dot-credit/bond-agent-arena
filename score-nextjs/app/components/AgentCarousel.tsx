@@ -94,7 +94,7 @@ const AgentCarousel: React.FC = () => {
           </div>
 
           {/* Center - Token Prices */}
-          <div className="flex items-center justify-center gap-12">
+          <div className="flex items-center justify-center gap-12 flex-1">
             {tokenPrices.length > 0 ? (
               tokenPrices.map((token) => (
                 <div key={token.symbol} className="flex items-center gap-3">
@@ -117,8 +117,8 @@ const AgentCarousel: React.FC = () => {
             )}
           </div>
 
-          {/* Right - Agentic Alpha */}
-          <div className="text-xl font-bold text-[#2727A5]">
+          {/* Right - Empty spacer for balance */}
+          <div className="text-xl font-bold text-transparent">
             Agentic Alpha
           </div>
         </div>
