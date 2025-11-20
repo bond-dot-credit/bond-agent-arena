@@ -63,6 +63,17 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
     return formatCurrency(agent.aua);
   };
 
+  const getExpectedYield = () => {
+    const yieldMap: Record<string, string> = {
+      'Arma': '15% APY',
+      'Mamo': '9.6% APY',
+      'SurfLiquid': '14% APY',
+      'ZyFAI': '11.5% APY',
+      'Sail': '7.17% APY',
+    };
+    return yieldMap[agent.agent] || 'N/A';
+  };
+
   return (
     <div className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.01]">
       <div className="text-black rounded-xl border border-gray-200 bg-white shadow-md duration-500 relative hover:border-[#2727A5] overflow-hidden hover:shadow-lg">
@@ -121,7 +132,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
           {/* Expected Yield */}
           <div className="text-center">
-            <p className="text-sm text-gray-400 font-semibold">COMING SOON</p>
+            <p className="text-sm text-black font-semibold">{getExpectedYield()}</p>
           </div>
 
           {/* Bond Score */}
@@ -189,7 +200,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
             </div>
             <div>
               <p className="text-gray-500 mb-1">Expected Yield</p>
-              <p className="text-gray-400 font-semibold text-[10px]">COMING SOON</p>
+              <p className="text-black font-bold">{getExpectedYield()}</p>
             </div>
           </div>
         </div>

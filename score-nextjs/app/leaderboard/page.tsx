@@ -5,6 +5,8 @@ import Footer from '../components/Footer';
 import { Component as EtheralShadow } from '../components/ui/etheral-shadow';
 import { getAllAgents } from '@/lib/services/agentService';
 
+export const runtime = 'edge';
+
 export default async function LeaderboardPage() {
   const agents = await getAllAgents();
 
