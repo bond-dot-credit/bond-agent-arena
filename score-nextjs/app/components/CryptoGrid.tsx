@@ -51,24 +51,16 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
     if (value >= 1000) {
       return `$${(value / 1000).toFixed(1)}K`;
     }
-    return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `$${value.toFixed(2)}`;
   };
 
-  // Hardcoded AUM and AUA values
-  const getAUM = (agentName: string) => {
-    const aumValues: { [key: string]: string } = {
-      'Arma': '$20.6M',
-      'Mamo': '$8.9M',
-      'ZyFAI': '$7.1M',
-      'Zyfai': '$7.1M',
-      'Sail': '$271.0K',
-      'SurfLiquid': '$39.0K'
-    };
-    return aumValues[agentName] || 'N/A';
+  // Get AUM and AUA from agent data
+  const getAUM = () => {
+    return formatCurrency(agent.aum);
   };
 
   const getAUA = () => {
-    return '$2,000.00';
+    return formatCurrency(agent.aua);
   };
 
   return (
@@ -123,7 +115,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           {/* AUM */}
           <div className="text-center">
             <p className="font-bold text-black text-base">
-              {getAUM(agent.agent)}
+              {getAUM()}
             </p>
           </div>
 
@@ -193,7 +185,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
                   </Tooltip>
                 </span>
               </p>
-              <p className="text-black font-bold">{getAUM(agent.agent)}</p>
+              <p className="text-black font-bold">{getAUM()}</p>
             </div>
             <div>
               <p className="text-gray-500 mb-1">Expected Yield</p>
