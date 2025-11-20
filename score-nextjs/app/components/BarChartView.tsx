@@ -35,8 +35,8 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       const topY = chartArea.top + 20; // Position near the top
 
       ctx.save();
-      ctx.globalAlpha = 0.15;
-      ctx.fillStyle = '#c9b382';
+      ctx.globalAlpha = 0.08;
+      ctx.fillStyle = '#2727A5';
       ctx.font = 'bold 32px sans-serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
@@ -105,10 +105,10 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
         display: false, // Hide legend since bars are labeled on X-axis
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        titleColor: '#c9b382',
-        bodyColor: '#fff',
-        borderColor: '#c9b382',
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        titleColor: '#2727A5',
+        bodyColor: '#000',
+        borderColor: '#2727A5',
         borderWidth: 1,
         padding: 12,
         displayColors: true,
@@ -131,7 +131,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       x: {
         display: true,
         ticks: {
-          color: '#fff',
+          color: '#000',
           font: {
             size: 12,
             family: 'Courier New, monospace',
@@ -148,7 +148,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       y: {
         beginAtZero: false,
         ticks: {
-          color: '#fff',
+          color: '#000',
           font: {
             size: 11,
             family: 'Courier New, monospace',
@@ -172,7 +172,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
           }
         },
         grid: {
-          color: '#333333', // Subtle grid lines
+          color: '#e5e7eb', // Light gray grid lines
           lineWidth: 0.5,
         },
         border: {
@@ -185,7 +185,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
   if (!chartData) {
     return (
       <div className="flex items-center justify-center h-[550px]">
-        <div className="text-white font-mono">Loading chart data...</div>
+        <div className="text-black font-mono">Loading chart data...</div>
       </div>
     );
   }
