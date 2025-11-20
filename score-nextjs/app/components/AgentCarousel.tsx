@@ -47,10 +47,10 @@ const AgentCarousel: React.FC = () => {
           ];
 
           setTokenPrices(prices);
-          setLoading(false);
         }
       } catch (error) {
         console.error('Failed to fetch token prices:', error);
+      } finally {
         setLoading(false);
       }
     };
@@ -83,17 +83,26 @@ const AgentCarousel: React.FC = () => {
 
           {/* Center - Token Prices */}
           <div className="flex items-center justify-center gap-12">
-            {tokenPrices.map((token) => (
-              <div key={token.symbol} className="flex items-center gap-3">
-                <span className="text-[#2727A5] font-bold text-sm">${token.symbol}</span>
-                <span className="text-black font-mono text-sm">
-                  ${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-                <span className={`text-xs font-semibold ${token.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
-                </span>
-              </div>
-            ))}
+            {tokenPrices.length > 0 ? (
+              tokenPrices.map((token) => (
+                <div key={token.symbol} className="flex items-center gap-3">
+                  <span className="text-[#2727A5] font-bold text-sm">${token.symbol}</span>
+                  <span className="text-black font-mono text-sm">
+                    {token.price > 0 
+                      ? `$${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : 'N/A'
+                    }
+                  </span>
+                  {token.price > 0 && (
+                    <span className={`text-xs font-semibold ${token.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+                    </span>
+                  )}
+                </div>
+              ))
+            ) : (
+              <span className="text-gray-600 text-sm">Unable to load prices</span>
+            )}
           </div>
 
           {/* Right - Agentic Alpha */}
