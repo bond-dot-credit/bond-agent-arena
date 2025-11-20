@@ -48,7 +48,7 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
     if (value >= 1000000) {
       return `$${(value / 1000000).toFixed(1)}M`;
     }
-    if (value >= 1000) {
+    if (value >= 10000) {
       return `$${(value / 1000).toFixed(1)}K`;
     }
     return `$${value.toFixed(2)}`;
