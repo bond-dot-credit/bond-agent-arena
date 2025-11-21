@@ -14,7 +14,7 @@ export const agentMetadata: Record<string, AgentMetadata> = {
     riskScore: 0.92,
     validation: 'verified',
     performanceScore: 88.4,
-    medal: '/giza_logo.ico',
+    medal: '/arma_logo.png',
     website: 'https://arma.xyz/',
   },
   'Sail': {

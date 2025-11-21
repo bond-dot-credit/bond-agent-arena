@@ -242,7 +242,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 <div className="flex gap-3">
                   <span className="text-gray-400">└─</span>
                   <div>
-                    <span className="font-bold text-black">Metrics:</span> Yield, Volatility, Sharpe-like risk, Fees, BondScore <span className="text-gray-500">(coming soon)</span>
+                    <span className="font-bold text-black">Metrics:</span> Yield, Volatility, <span className="font-bold text-black">Sharpe-like risk</span>, Fees, BondScore <span className="text-gray-500">(coming soon)</span>
                   </div>
                 </div>
 

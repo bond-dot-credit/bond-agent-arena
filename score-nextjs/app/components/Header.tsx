@@ -114,7 +114,7 @@ const Header: React.FC = () => {
               <img
                 src="/bond-credit-logo-512h.png"
                 alt="Bond Credit"
-                className="h-5 w-auto"
+                className="h-4 w-auto"
               />
             </a>
             <div className="flex items-center gap-2 text-[10px]">
@@ -189,7 +189,7 @@ const Header: React.FC = () => {
               <img
                 src="/bond-credit-logo-512h.png"
                 alt="Bond Credit"
-                className="h-12 w-auto relative z-10"
+                className="h-10 w-auto relative z-10"
               />
             </a>
           </div>
