@@ -1,31 +1,40 @@
-import { createClient } from '@supabase/supabase-js';
-
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Direct fetch function for Supabase REST API
+async function supabaseFetch(endpoint: string) {
+  const url = `${supabaseUrl}${endpoint}`;
+  const response = await fetch(url, {
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+    },
+    cache: 'no-store',
+  });
 
-// Types based on our schema
-export interface AgentRow {
-  id: number;
-  name: string;
-  contract_address: string;
-  vault_type: string;
-  risk_score: number;
-  validation: 'verified' | 'processing' | 'pending' | 'warning';
-  performance_score: number;
-  medal_url: string | null;
-  created_at: string;
-  updated_at: string;
+  if (!response.ok) {
+    throw new Error(`Supabase fetch failed: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
-export interface PerformanceSnapshotRow {
-  id: number;
-  agent_id: number;
-  usdc_amount: number;
-  reward_token_amount: number | null;
-  reward_token_symbol: string | null;
-  reward_price_usd: number | null;
-  total_value_usd: number;
-  timestamp: string;
+export { supabaseFetch };
+
+// Types based on new API schema
+export interface AgentAumRow {
+  agent_name: string;
+  smart_account_address: string;
+  token_symbol: string;
+  balance: number;
+  total_aum: number;
+  tx_time: string;
+  run_ts: string;
+}
+
+export interface AgentAumHistoricalRow {
+  run_ts: string;
+  agent_name: string;
+  balance: number;
+  total_aum: number;
 }

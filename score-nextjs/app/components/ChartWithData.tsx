@@ -134,7 +134,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             const data = await response.json();
             const points: ChartPoint[] = data.snapshots.map((snap: any) => ({
               time: snap.timestamp,
-              value: snap.totalValueUsd,
+              value: snap.balance,
             }));
 
             // Add yield event annotations
@@ -185,20 +185,12 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     let maxValue: number;
 
     if (showDollar) {
-      // Dollar view: use logarithmic-like scaling to amplify small changes
+      // Dollar view: Fixed range starting at $2000
       const allValues = Object.values(chartData).flat().map(d => d.value);
-      const minVal = Math.min(...allValues);
       const maxVal = Math.max(...allValues);
-      const range = maxVal - minVal;
-
-      // Use exponential scaling to amplify view of small changes
-      // This makes $0.50 changes look more dramatic
-      const amplificationFactor = 5;
-      const centerValue = (minVal + maxVal) / 2;
-      const amplifiedRange = range * amplificationFactor;
-
-      minValue = centerValue - amplifiedRange / 2;
-      maxValue = centerValue + amplifiedRange / 2;
+      
+      minValue = 2000;
+      maxValue = Math.max(maxVal * 1.02, 2015); // Add 2% padding or minimum $2015
 
       yScale = d3.scaleLinear()
         .domain([minValue, maxValue])
@@ -207,8 +199,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       // Percentage view: calculate ROI %
       const baseValue = 2000;
       const allRoiPercents = Object.values(chartData).flat().map(d => ((d.value - baseValue) / baseValue) * 100);
-      minValue = Math.min(...allRoiPercents) * 0.95;
-      maxValue = Math.max(...allRoiPercents) * 1.05;
+      minValue = Math.min(...allRoiPercents, 0) * 1.1; // Include 0 and add padding
+      maxValue = Math.max(...allRoiPercents) * 1.1;
       yScale = d3.scaleLinear()
         .domain([minValue, maxValue])
         .range([chartHeight, 0]);
@@ -701,18 +693,18 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Desktop Header */}
       <div className="hidden md:flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-white">TOTAL ACCOUNT VALUE</h2>
+          <h2 className="text-xl font-bold text-black">TOTAL AGENT ACCOUNT VALUE</h2>
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
-              onClick={() => setShowDollar(true)}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#2727A5] text-white' : 'bg-gray-200 text-gray-600'}`}
+              onClick={() => handleValueToggle(true)}
             >
               $
             </button>
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
-              onClick={() => setShowDollar(false)}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#2727A5] text-white' : 'bg-gray-200 text-gray-600'}`}
+              onClick={() => handleValueToggle(false)}
             >
               %
             </button>
@@ -773,7 +765,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Mobile Header - Stacked Layout */}
       <div className="md:hidden mb-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-white">TOTAL AGENT ACCOUNT VALUE</h2>
+          <h2 className="text-base font-bold text-black">TOTAL AGENT ACCOUNT VALUE</h2>
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
@@ -806,11 +798,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         </div> */}
       </div>
       <div
-        className="relative h-[550px] rounded-lg p-3"
-        style={{
-          backgroundColor: '#1A1A1A',
-          boxShadow: '0 0 10px rgba(255,255,255,0.05)',
-        }}
+        className="relative h-[550px] rounded-lg p-3 bg-white border border-gray-200"
       >
         {viewMode === 'bar' ? (
           <BarChartView
@@ -822,10 +810,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           <>
             <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
             {loading && (
-              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
+              <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9b382]"></div>
-                  <div className="text-[#c9b382] text-base font-semibold">Fetching {currentTimeframe} data...</div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2727A5]"></div>
+                  <div className="text-[#2727A5] text-base font-semibold">Fetching {currentTimeframe} data...</div>
                 </div>
               </div>
             )}
@@ -834,13 +822,13 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       </div>
       {/* Chart legend - only show for line chart */}
       {viewMode === 'line' && (
-        <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
+        <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
           <div className="flex items-center gap-1">
-            <div className="w-8 h-0.5 bg-white"></div>
+            <div className="w-8 h-0.5 bg-black"></div>
             <span>AUA (Assets Under Agent)</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-gray-400 border border-white"></div>
+            <div className="w-3 h-3 rounded-full bg-gray-400 border border-black"></div>
             <span>Event</span>
           </div>
           <span className="text-gray-500">• Hover markers to see event details</span>

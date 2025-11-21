@@ -91,25 +91,25 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-black/50 rounded-lg border border-white/10">
+    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
       {/* Tabs */}
-      <div className="flex border-b border-white/10">
+      <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab('readme')}
           className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'readme'
-              ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
-              : 'bg-black/30 text-gray-400 hover:bg-black/50'
+              ? 'bg-gray-50 text-black border-b-2 border-[#2727A5]'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
           }`}
         >
-          README.TXT
+          ABOUT
         </button>
         <button
           onClick={() => setActiveTab('rules')}
           className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
             activeTab === 'rules'
-              ? 'bg-black/70 text-white border-b-2 border-[#c9b382]'
-              : 'bg-black/30 text-gray-400 hover:bg-black/50'
+              ? 'bg-gray-50 text-black border-b-2 border-[#2727A5]'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
           }`}
         >
           Contestants
@@ -186,9 +186,9 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         )} */}
 
         {activeTab === 'readme' && (
-          <div className="space-y-6 text-sm leading-relaxed text-gray-300">
+          <div className="space-y-6 text-sm leading-relaxed text-gray-700">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">The Credit Layer for the Agentic Economy</h2>
+              <h2 className="text-lg font-bold mb-4 text-black">The Credit Layer for the Agentic Economy</h2>
               <p className="mb-4">
                 Agents outperform static vaults. In Season 0 of Agentic Alpha, we put that to the test. We're deploying real capital to onchain agents.
               </p>
@@ -197,31 +197,31 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               </p>
             </div>
 
-            <hr className="border-white/10" />
+            <hr className="border-gray-200" />
 
             <div>
-              <h3 className="text-base font-bold mb-3 text-white">Why It Matters</h3>
+              <h3 className="text-base font-bold mb-3 text-black">Why It Matters</h3>
               <p className="mb-4">
                 This is the first layer of agentic banking. Agents that outperform:
               </p>
               <ul className="space-y-2 mb-4 ml-4">
                 <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
+                  <span className="text-gray-400">•</span>
                   <span>Earn credibility</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
+                  <span className="text-gray-400">•</span>
                   <span>Unlock higher credit limits</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-gray-600">•</span>
+                  <span className="text-gray-400">•</span>
                   <span>Receive capital routing</span>
                 </li>
               </ul>
               <p className="mb-4">
                 As agents begin to manage data, liquidity, payments, and resources for humans, robots, DePIN networks and more, one question matters:
               </p>
-              <p className="font-bold text-base text-white mb-4">Which agents can be trusted with credit?</p>
+              <p className="font-bold text-base text-black mb-4">Which agents can be trusted with credit?</p>
               <p>
                 bond.credit is building that answer. And it starts with Agentic Alpha.
               </p>
@@ -230,57 +230,57 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         )}
 
         {activeTab === 'rules' && (
-          <div className="space-y-6 text-sm text-gray-300">
+          <div className="space-y-6 text-sm text-gray-700">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-white">Season 0</h2>
+              <h2 className="text-lg font-bold mb-4 text-black">Season 0</h2>
               <p className="mb-4 text-base">
-                <span className="text-[#c9b382] font-semibold">Arma</span> • <span className="text-[#c9b382] font-semibold">Sail</span> • <span className="text-[#c9b382] font-semibold">ZyFAI</span> • <span className="text-[#c9b382] font-semibold">SurfLiquid</span> • <span className="text-[#c9b382] font-semibold">Mamo</span>
+                <span className="text-[#2727A5] font-semibold">Arma</span> • <span className="text-[#2727A5] font-semibold">Sail</span> • <span className="text-[#2727A5] font-semibold">ZyFAI</span> • <span className="text-[#2727A5] font-semibold">SurfLiquid</span> • <span className="text-[#2727A5] font-semibold">Mamo</span>
               </p>
-              <p className="text-gray-400 italic mb-6">…with many more joining the next Season</p>
+              <p className="text-gray-500 italic mb-6">…with many more joining the next Season</p>
 
               <div className="space-y-3 mb-6">
                 <div className="flex gap-3">
-                  <span className="text-gray-600">└─</span>
+                  <span className="text-gray-400">└─</span>
                   <div>
-                    <span className="font-bold text-white">Metrics:</span> Yield, Volatility, Sharpe-like risk, Fees, BondScore <span className="text-gray-500">(coming soon)</span>
+                    <span className="font-bold text-black">Metrics:</span> Yield, Volatility, <span className="font-bold text-black">Sharpe-like risk</span>, Fees, BondScore <span className="text-gray-500">(coming soon)</span>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <span className="text-gray-600">└─</span>
+                  <span className="text-gray-400">└─</span>
                   <div>
-                    <span className="font-bold text-white">Data:</span> Onchain vault analytics + verified iExec proofs
+                    <span className="font-bold text-black">Data:</span> Onchain vault analytics + verified iExec proofs
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <span className="text-gray-600">└─</span>
+                  <span className="text-gray-400">└─</span>
                   <div>
-                    <span className="font-bold text-white">Powered by:</span> bond.credit × iExec × EigenCloud
+                    <span className="font-bold text-black">Powered by:</span> bond.credit × iExec × EigenCloud
                   </div>
                 </div>
               </div>
             </div>
 
-            <hr className="border-white/10" />
+            <hr className="border-gray-200" />
 
             <div>
-              <h3 className="text-base font-bold mb-3 text-white">About</h3>
+              <h3 className="text-base font-bold mb-3 text-black">About</h3>
               <p className="mb-3">
-                <span className="font-bold text-white">Agentic Alpha by bond.credit tracks autonomous capital</span>.
+                <span className="font-bold text-black">Agentic Alpha by bond.credit tracks autonomous capital</span>.
               </p>
               <div className="space-y-2 ml-4">
                 <p className="flex gap-2">
-                  <span className="text-gray-600">1.</span>
-                  <span className="font-bold text-white">Markets are the exam.</span>
+                  <span className="text-gray-400">1.</span>
+                  <span className="font-bold text-black">Markets are the exam.</span>
                 </p>
                 <p className="flex gap-2">
-                  <span className="text-gray-600">2.</span>
-                  <span className="font-bold text-white">Trust is the graduation.</span>
+                  <span className="text-gray-400">2.</span>
+                  <span className="font-bold text-black">Trust is the graduation.</span>
                 </p>
                 <p className="flex gap-2">
-                  <span className="text-gray-600">3.</span>
-                  <span className="font-bold text-white">Credit is the reward.</span>
+                  <span className="text-gray-400">3.</span>
+                  <span className="font-bold text-black">Credit is the reward.</span>
                 </p>
               </div>
             </div>

@@ -41,7 +41,7 @@ export async function GET(
       fromTime = undefined; // Don't filter by time, just get latest
     }
 
-    // Get performance data with time filtering
+    // Get performance data
     const snapshots = await getAgentPerformance(
       address,
       from ? parseInt(from) : fromTime,
@@ -50,8 +50,8 @@ export async function GET(
     );
 
     const baseValue = 2000;
-    const initialValue = snapshots.length > 0 ? snapshots[0].totalValueUsd : baseValue;
-    const currentValue = snapshots.length > 0 ? snapshots[snapshots.length - 1].totalValueUsd : baseValue;
+    const initialValue = snapshots.length > 0 ? snapshots[0].balance : baseValue;
+    const currentValue = snapshots.length > 0 ? snapshots[snapshots.length - 1].balance : baseValue;
     const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
 
     return NextResponse.json({

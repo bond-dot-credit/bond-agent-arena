@@ -104,7 +104,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-black border-b border-white/10">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="container mx-auto px-3 md:px-4 max-w-[1600px]">
         {/* Mobile Header - Compact Layout */}
         <div className="lg:hidden py-2">
@@ -112,7 +112,7 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between mb-2">
             <a href="/" className="relative">
               <img
-                src="/bondcredit-logo-white.png"
+                src="/bond-credit-logo-512h.png"
                 alt="Bond Credit"
                 className="h-4 w-auto"
               />
@@ -120,7 +120,7 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-2 text-[10px]">
               <button
                 onClick={() => setShowWaitlistModal(true)}
-                className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
+                className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
               >
                 WAITLIST
                 <span className="text-[9px]">↗</span>
@@ -129,7 +129,7 @@ const Header: React.FC = () => {
                 href="https://x.com/bondoncredit?s=21" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
+                className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
               >
                 ABOUT
                 <span className="text-[9px]">↗</span>
@@ -140,14 +140,14 @@ const Header: React.FC = () => {
           {/* Navigation */}
           <div className="flex items-center justify-between text-[10px] mb-2">
             {/* Left - Agentic Alpha */}
-            <span className="text-[#c9b382] font-bold text-[10px]">Agentic Alpha</span>
+            <span className="text-[#2727A5] font-bold text-[10px]">Agentic Alpha</span>
             
             {/* Center - Navigation Links */}
             <div className="flex items-center gap-4">
               <a
                 href="/"
                 className={`transition-colors duration-300 font-semibold ${
-                  pathname === '/' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
+                  pathname === '/' ? 'text-black' : 'text-gray-600 hover:text-[#2727A5]'
                 }`}
               >
                 LIVE
@@ -155,7 +155,7 @@ const Header: React.FC = () => {
               <a
                 href="/leaderboard"
                 className={`transition-colors duration-300 font-semibold ${
-                  pathname === '/leaderboard' ? 'text-white' : 'text-gray-400 hover:text-[#c9b382]'
+                  pathname === '/leaderboard' ? 'text-black' : 'text-gray-600 hover:text-[#2727A5]'
                 }`}
               >
                 LEADERBOARD
@@ -163,16 +163,16 @@ const Header: React.FC = () => {
             </div>
 
             {/* Right - Agentic Alpha */}
-            <span className="text-[#c9b382] font-bold text-[10px]">Agentic Alpha</span>
+            <span className="text-[#2727A5] font-bold text-[10px]">Agentic Alpha</span>
           </div>
 
           {/* Token Prices - Mobile */}
-          <div className="border-t border-white/10 pt-2">
+          <div className="border-t border-gray-200 pt-2">
             <div className="flex items-center justify-between gap-2">
               {tokenPrices.map((token) => (
                 <div key={token.symbol} className="flex items-center gap-1">
-                  <span className="text-[#c9b382] font-bold text-[10px]">${token.symbol}</span>
-                  <span className="text-white font-mono text-[10px]">
+                  <span className="text-[#2727A5] font-bold text-[10px]">${token.symbol}</span>
+                  <span className="text-black font-mono text-[10px]">
                     ${token.price > 1 ? token.price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : token.price.toFixed(3)}
                   </span>
                 </div>
@@ -186,10 +186,8 @@ const Header: React.FC = () => {
           {/* Logo - Original Size */}
           <div className="flex items-center gap-3">
             <a href="/" className="relative">
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-[#c9b382] blur-xl opacity-50 animate-pulse rounded-full"></div>
               <img
-                src="/bondcredit-logo-white.png"
+                src="/bond-credit-logo-512h.png"
                 alt="Bond Credit"
                 className="h-10 w-auto relative z-10"
               />
@@ -202,8 +200,8 @@ const Header: React.FC = () => {
               href="/"
               className={`text-sm font-semibold transition-colors duration-300 ${
                 pathname === '/'
-                  ? 'text-white border-b-2 border-[#c9b382] pb-1'
-                  : 'text-gray-400 hover:text-[#c9b382]'
+                  ? 'text-black border-b-2 border-[#2727A5] pb-1'
+                  : 'text-gray-600 hover:text-[#2727A5]'
               }`}
             >
               LIVE
@@ -212,8 +210,8 @@ const Header: React.FC = () => {
               href="/leaderboard"
               className={`text-sm font-semibold transition-colors duration-300 ${
                 pathname === '/leaderboard'
-                  ? 'text-white border-b-2 border-[#c9b382] pb-1'
-                  : 'text-gray-400 hover:text-[#c9b382]'
+                  ? 'text-black border-b-2 border-[#2727A5] pb-1'
+                  : 'text-gray-600 hover:text-[#2727A5]'
               }`}
             >
               LEADERBOARD
@@ -224,19 +222,19 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-4 xl:gap-6 text-xs xl:text-sm">
             <button
               onClick={() => setShowWaitlistModal(true)}
-              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold"
+              className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-1 font-semibold"
             >
               WAITLIST
               <span className="text-xs">↗</span>
             </button>
             <button
               onClick={() => setShowAgentModal(true)}
-              className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold"
+              className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-1 font-semibold"
             >
               AGENTS
               <span className="text-xs">↗</span>
             </button>
-            <a href="https://x.com/bondoncredit?s=21" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#c9b382] transition-colors duration-300 flex items-center gap-1 font-semibold">
+            <a href="https://x.com/bondoncredit?s=21" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-1 font-semibold">
               ABOUT
               <span className="text-xs">↗</span>
             </a>
@@ -249,14 +247,14 @@ const Header: React.FC = () => {
 
       {/* Waitlist Modal */}
       {showWaitlistModal && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="relative w-full max-w-md mx-4">
             {/* Modal Card */}
-            <div className="bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
+            <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-2xl">
               {/* Close button */}
               <button
                 onClick={() => setShowWaitlistModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                className="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -264,13 +262,13 @@ const Header: React.FC = () => {
               </button>
 
               {/* Header */}
-              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Waitlist</h2>
-              <p className="text-gray-400 text-sm mb-6">Be the first to access the bond.credit platform</p>
+              <h2 className="text-2xl font-bold text-[#2727A5] mb-2">Waitlist</h2>
+              <p className="text-gray-600 text-sm mb-6">Be the first to access the bond.credit platform</p>
 
               {/* Form */}
               <form onSubmit={handleWaitlistSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="name" className="block text-sm font-semibold text-black mb-2">
                     Name
                   </label>
                   <input
@@ -279,13 +277,13 @@ const Header: React.FC = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-400 focus:outline-none focus:border-[#2727A5] transition-colors"
                     placeholder="Enter your name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="email" className="block text-sm font-semibold text-black mb-2">
                     Email
                   </label>
                   <input
@@ -294,13 +292,13 @@ const Header: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-400 focus:outline-none focus:border-[#2727A5] transition-colors"
                     placeholder="Enter your email"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="user-type" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="user-type" className="block text-sm font-semibold text-black mb-2">
                     I am a
                   </label>
                   <select
@@ -308,7 +306,7 @@ const Header: React.FC = () => {
                     value={userType}
                     onChange={(e) => setUserType(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-[#c9b382] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black focus:outline-none focus:border-[#2727A5] transition-colors"
                   >
                     <option value="" disabled>Select your role</option>
                     <option value="agent-builder">Agent Builder</option>
@@ -319,7 +317,7 @@ const Header: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#c9b382] hover:bg-[#d4c49a] text-black font-bold rounded-lg transition-colors duration-300"
+                  className="w-full py-3 bg-[#2727A5] hover:bg-[#3d3db8] text-white font-bold rounded-lg transition-colors duration-300"
                 >
                   Join Waitlist
                 </button>
@@ -331,14 +329,14 @@ const Header: React.FC = () => {
 
       {/* Agent Modal */}
       {showAgentModal && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="relative w-full max-w-md mx-4">
             {/* Modal Card */}
-            <div className="bg-linear-to-br from-[#010101] via-[#090909] to-[#010101] border border-white/10 rounded-xl p-8 shadow-2xl">
+            <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-2xl">
               {/* Close button */}
               <button
                 onClick={() => setShowAgentModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                className="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -346,13 +344,13 @@ const Header: React.FC = () => {
               </button>
 
               {/* Header */}
-              <h2 className="text-2xl font-bold text-[#c9b382] mb-2">Join Season 1</h2>
-              <p className="text-gray-400 text-sm mb-6">Submit your agent for consideration in the next season</p>
+              <h2 className="text-2xl font-bold text-[#2727A5] mb-2">Join Season 1</h2>
+              <p className="text-gray-600 text-sm mb-6">Submit your agent for consideration in the next season</p>
 
               {/* Form */}
               <form onSubmit={handleAgentSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="agent-name" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="agent-name" className="block text-sm font-semibold text-black mb-2">
                     Name
                   </label>
                   <input
@@ -361,13 +359,13 @@ const Header: React.FC = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-400 focus:outline-none focus:border-[#2727A5] transition-colors"
                     placeholder="Your name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="agent-for-consideration" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="agent-for-consideration" className="block text-sm font-semibold text-black mb-2">
                     Agent for Consideration
                   </label>
                   <input
@@ -376,13 +374,13 @@ const Header: React.FC = () => {
                     value={agentName}
                     onChange={(e) => setAgentName(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-400 focus:outline-none focus:border-[#2727A5] transition-colors"
                     placeholder="Agent name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="website" className="block text-sm font-semibold text-white mb-2">
+                  <label htmlFor="website" className="block text-sm font-semibold text-black mb-2">
                     Website
                   </label>
                   <input
@@ -391,14 +389,14 @@ const Header: React.FC = () => {
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c9b382] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-400 focus:outline-none focus:border-[#2727A5] transition-colors"
                     placeholder="https://your-agent.com"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#c9b382] hover:bg-[#d4c49a] text-black font-bold rounded-lg transition-colors duration-300"
+                  className="w-full py-3 bg-[#2727A5] hover:bg-[#3d3db8] text-white font-bold rounded-lg transition-colors duration-300"
                 >
                   Submit Agent
                 </button>

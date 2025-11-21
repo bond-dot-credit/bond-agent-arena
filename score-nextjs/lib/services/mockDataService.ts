@@ -38,8 +38,8 @@ export function initializeMockData() {
 
       snapshots.push({
         timestamp,
-        usdcAmount: value,
-        totalValueUsd: value,
+        balance: value,
+        totalAum: value,
       });
     }
 
@@ -110,16 +110,16 @@ export function simulateDataCollection() {
 
     // Add some volatility
     const volatility = 0.01;
-    const change = (Math.random() - 0.5) * lastSnapshot.totalValueUsd * volatility;
+    const change = (Math.random() - 0.5) * lastSnapshot.balance * volatility;
     const newValue = Math.max(
-      lastSnapshot.totalValueUsd + change,
+      lastSnapshot.balance + change,
       baseValue * 0.8
     );
 
     addSnapshot(agent.contractAddress, {
       timestamp: now,
-      usdcAmount: newValue,
-      totalValueUsd: newValue,
+      balance: newValue,
+      totalAum: newValue,
     });
   });
 }
