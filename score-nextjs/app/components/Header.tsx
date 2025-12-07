@@ -345,7 +345,7 @@ const Header: React.FC = () => {
 
               {/* Header */}
               <h2 className="text-2xl font-bold text-[#2727A5] mb-2">Join Season 1</h2>
-              <p className="text-gray-600 text-sm mb-6">Submit your agent for consideration in the next season</p>
+              <p className="text-gray-600 text-sm mb-6">Update: Season 0 of Agentic Alpha has ended. Agents were successfully aggregated and routed credit. Benchmarking will resume next Season.</p>
 
               {/* Form */}
               <form onSubmit={handleAgentSubmit} className="space-y-4">
