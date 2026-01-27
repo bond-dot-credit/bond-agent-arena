@@ -2,6 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import { client, chain } from '@/lib/thirdweb';
+
+const ConnectButton = dynamic(() => import('thirdweb/react').then(mod => mod.ConnectButton), {
+  ssr: false,
+});
 
 interface TokenPrice {
   symbol: string;
@@ -118,6 +124,7 @@ const Header: React.FC = () => {
               />
             </a>
             <div className="flex items-center gap-2 text-[10px]">
+              <ConnectButton client={client} chain={chain} />
               <button
                 onClick={() => setShowWaitlistModal(true)}
                 className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-0.5 font-semibold"
@@ -220,6 +227,7 @@ const Header: React.FC = () => {
 
           {/* Desktop Right side links */}
           <div className="flex items-center gap-4 xl:gap-6 text-xs xl:text-sm">
+            <ConnectButton client={client} chain={chain} />
             <button
               onClick={() => setShowWaitlistModal(true)}
               className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 flex items-center gap-1 font-semibold"

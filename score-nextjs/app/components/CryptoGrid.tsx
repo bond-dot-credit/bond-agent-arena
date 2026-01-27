@@ -2,6 +2,12 @@
 
 import React, { useState } from 'react';
 import { Agent } from '@/lib/types';
+import dynamic from 'next/dynamic';
+
+const ScorePanel = dynamic(() => import('@/app/components/iexec/ScorePanel'), {
+  ssr: false,
+  loading: () => <div className="p-6 text-center text-gray-500">Loading TEE Interface...</div>
+});
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [show, setShow] = useState(false);
@@ -26,7 +32,14 @@ const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, 
   );
 };
 
-const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, index }) => {
+const LeaderboardRow: React.FC<{ 
+  agent: Agent; 
+  index: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  calculatedScore?: number;
+  onScoreCalculated: (score: number) => void;
+}> = ({ agent, index, isExpanded, onToggle, calculatedScore, onScoreCalculated }) => {
   const getRankDisplay = (rank: number) => {
     const rankStyles = {
       1: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40',
@@ -75,9 +88,16 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
   };
 
   return (
-    <div className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.01]">
-      <div className="text-black rounded-xl border border-gray-200 bg-white shadow-md duration-500 relative hover:border-[#2727A5] overflow-hidden hover:shadow-lg">
-        <div className="absolute inset-0 z-0 overflow-hidden">
+    <div className="group cursor-pointer transform transition-all duration-300">
+      <div 
+        className={`text-black rounded-xl border transition-all duration-300 relative overflow-hidden
+          ${isExpanded 
+            ? 'border-[#2727A5] shadow-lg scale-[1.01] bg-blue-50/30' 
+            : 'border-gray-200 bg-white shadow-md hover:border-[#2727A5] hover:shadow-lg hover:scale-[1.01]'
+          }`}
+        onClick={onToggle}
+      >
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-tr from-gray-50 to-white opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2727A5]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
@@ -93,15 +113,15 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
           <div className="flex items-center gap-3">
             {agent.medal && (
               agent.website ? (
-                <a 
-                  href={agent.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <div 
                   className="w-8 h-8 rounded-full bg-white border border-gray-200 hover:border-[#2727A5] flex items-center justify-center p-1 overflow-hidden shrink-0 transition-all duration-300 hover:scale-110"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(agent.website, '_blank');
+                  }}
                 >
                   <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-                </a>
+                </div>
               ) : (
                 <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center p-1 overflow-hidden shrink-0">
                   <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
@@ -137,33 +157,41 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
 
           {/* Bond Score */}
           <div className="text-center">
-            <p className="text-sm text-gray-400 font-semibold">COMING SOON</p>
+            {calculatedScore ? (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                {calculatedScore}/100
+              </span>
+            ) : (
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors
+                ${isExpanded 
+                  ? 'bg-[#2727A5] text-white border-[#2727A5]' 
+                  : 'bg-gray-100 text-gray-600 border-gray-200 group-hover:border-[#2727A5] group-hover:text-[#2727A5]'}`}>
+                {isExpanded ? 'Verifying...' : 'Verify'}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Mobile View - Card Layout */}
         <div className="block md:hidden px-4 py-4 relative z-10 space-y-3">
           {/* Rank + Agent Name */}
-          <div className="flex items-center gap-3">
-            {getRankDisplay(agent.rank)}
-            {agent.medal && (
-              agent.website ? (
-                <a 
-                  href={agent.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-6 h-6 rounded-full bg-white border border-gray-200 hover:border-[#2727A5] flex items-center justify-center p-0.5 overflow-hidden shrink-0 transition-all duration-300"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-                </a>
-              ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {getRankDisplay(agent.rank)}
+              {agent.medal && (
                 <div className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
                   <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
                 </div>
-              )
-            )}
-            <p className="font-bold text-black group-hover:text-[#2727A5] transition-colors duration-300 text-sm">{agent.agent}</p>
+              )}
+              <p className="font-bold text-black group-hover:text-[#2727A5] transition-colors duration-300 text-sm">{agent.agent}</p>
+            </div>
+            
+            {/* Mobile Expand Indicator */}
+            <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+               </svg>
+            </div>
           </div>
 
           {/* Info Grid */}
@@ -199,17 +227,42 @@ const LeaderboardRow: React.FC<{ agent: Agent; index: number }> = ({ agent, inde
               <p className="text-black font-bold">{getAUM()}</p>
             </div>
             <div>
-              <p className="text-gray-500 mb-1">Expected Yield</p>
-              <p className="text-black font-bold">{getExpectedYield()}</p>
+              <p className="text-gray-500 mb-1">Bond Score</p>
+              <p className="font-bold text-[#2727A5]">
+                {calculatedScore ? `${calculatedScore}/100` : 'Tap to Verify'}
+              </p>
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Expanded Score Panel */}
+      <div 
+        className={`overflow-hidden transition-all duration-500 ease-in-out px-4 md:px-6
+          ${isExpanded ? 'max-h-[800px] opacity-100 mb-6' : 'max-h-0 opacity-0 mb-0'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <ScorePanel 
+          agent={agent} 
+          onScoreCalculated={onScoreCalculated}
+        />
       </div>
     </div>
   );
 };
 
 const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
+  const [expandedAgentId, setExpandedAgentId] = useState<string | null>(null);
+  const [scores, setScores] = useState<Record<string, number>>({});
+
+  const toggleExpand = (agentId: string) => {
+    setExpandedAgentId(prev => prev === agentId ? null : agentId);
+  };
+
+  const handleScoreCalculated = (agentId: string, score: number) => {
+    setScores(prev => ({ ...prev, [agentId]: score }));
+  };
+
   return (
     <div className="mb-10">
       {/* Table Header - Hidden on mobile */}
@@ -246,7 +299,15 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Table Rows */}
       <div className="space-y-3">
         {agents.map((agent, index) => (
-          <LeaderboardRow key={agent.rank} agent={agent} index={index} />
+          <LeaderboardRow 
+            key={agent.rank} 
+            agent={agent} 
+            index={index}
+            isExpanded={expandedAgentId === agent.agent}
+            onToggle={() => toggleExpand(agent.agent)}
+            calculatedScore={scores[agent.agent]}
+            onScoreCalculated={(score) => handleScoreCalculated(agent.agent, score)}
+          />
         ))}
       </div>
     </div>
