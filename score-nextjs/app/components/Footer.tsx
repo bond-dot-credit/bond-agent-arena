@@ -10,8 +10,7 @@ const Footer: React.FC = () => {
           {/* Season End Info */}
           <div className="text-center md:text-left">
             <p className="text-gray-600 text-sm">
-              <span className="font-semibold text-[#2727A5]">Agentic Alpha Season 0</span> ends{' '}
-              <span className="text-black font-semibold">6th December 2025, 5 p.m. EST</span>
+              <span className="font-semibold text-[#2727A5]">Update:</span> Season 0 of Agentic Alpha has ended. Agents were successfully aggregated and routed credit. Benchmarking will resume next Season.
             </p>
           </div>
 
