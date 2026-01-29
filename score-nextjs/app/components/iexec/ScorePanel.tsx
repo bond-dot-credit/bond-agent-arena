@@ -27,12 +27,17 @@ interface ScorePanelProps {
   onScoreCalculated?: (score: number) => void;
 }
 
+// Admin Configuration
+const ADMIN_WALLET_ADDRESS = '0x44a3D4b120F7D4f403e99062934A788C61F1AEC6'; // Your Deployer Wallet
+const OFFICIAL_DATASET_ADDRESS = ''; // Update this after Admin creates a dataset!
+
 export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps) {
   // Web3 State
   const activeAccount = useActiveAccount();
   const activeChain = useActiveWalletChain();
   const address = activeAccount?.address;
   const isConnected = !!address;
+  const isAdmin = address?.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase();
   
   const [networkStatus, setNetworkStatus] = useState<'checking' | 'arbitrum' | 'wrong' | 'unknown'>('unknown');
   
@@ -45,7 +50,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
   
   // Config State
   const [showOverrides, setShowOverrides] = useState(false);
-  const [iAppAddress] = useState<string>('0x52D5F0F41c37F65C9356019B1C2a8bFc90184d05');
+  const [iAppAddress] = useState<string>('0x50A9258eDc1606d5bc9a24316916f6040A38CFAD');
   
   // Overrides
   const [metricOverrides, setMetricOverrides] = useState<Record<string, string>>({
@@ -165,75 +170,88 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       const { IExecDataProtectorCore } = await import('@iexec/dataprotector');
       const { IExec, utils } = await import('iexec');
 
-      // Initialize DataProtector with the now-switched provider
-      const dataProtector = new IExecDataProtectorCore(window.ethereum);
+      const iexec = new IExec({ ethProvider: window.ethereum! });
+      let protectedDataAddr = OFFICIAL_DATASET_ADDRESS;
 
-      // 2. Create Protected Data & Grant Access
-      setTaskStatus('encrypting');
-      
-      let agentId = 'custom';
-      if (agent.agent.toLowerCase().includes('giza')) agentId = 'arma-giza';
-      else if (agent.agent.toLowerCase().includes('fungi')) agentId = 'fungi-agent';
-      
-      const agentData = {
-        agent_selection: agentId,
-        use_sample_data: true,
-        
-        // Performance
-        performance_roi_30d: metricOverrides.performance_roi_30d ? parseFloat(metricOverrides.performance_roi_30d) : -1.0,
-        performance_roi_90d: metricOverrides.performance_roi_90d ? parseFloat(metricOverrides.performance_roi_90d) : -1.0,
-        performance_sharpe_90d: metricOverrides.performance_sharpe_90d ? parseFloat(metricOverrides.performance_sharpe_90d) : -1.0,
-        performance_vol_90d_ann: metricOverrides.performance_vol_90d_ann ? parseFloat(metricOverrides.performance_vol_90d_ann) : -1.0,
-        performance_trend_30d: metricOverrides.performance_trend_30d ? parseFloat(metricOverrides.performance_trend_30d) : -1.0,
-        performance_capital_efficiency_90d: metricOverrides.performance_capital_efficiency_90d ? parseFloat(metricOverrides.performance_capital_efficiency_90d) : -1.0,
-        performance_success_rate_90d: metricOverrides.performance_success_rate_90d ? parseFloat(metricOverrides.performance_success_rate_90d) : -1.0,
+      // 2. Data Management (Admin vs User)
+      if (isAdmin) {
+          // Admin Flow: Create New Data
+          setTaskStatus('encrypting');
+          const dataProtector = new IExecDataProtectorCore(window.ethereum);
+          
+          let agentId = 'custom';
+          if (agent.agent.toLowerCase().includes('giza')) agentId = 'arma-giza';
+          else if (agent.agent.toLowerCase().includes('fungi')) agentId = 'fungi-agent';
+          
+          const agentData = {
+            agent_selection: agentId,
+            use_sample_data: true,
+            
+            // Performance
+            performance_roi_30d: (metricOverrides.performance_roi_30d ? parseFloat(metricOverrides.performance_roi_30d) : -1.0).toString(),
+            performance_roi_90d: (metricOverrides.performance_roi_90d ? parseFloat(metricOverrides.performance_roi_90d) : -1.0).toString(),
+            performance_sharpe_90d: (metricOverrides.performance_sharpe_90d ? parseFloat(metricOverrides.performance_sharpe_90d) : -1.0).toString(),
+            performance_vol_90d_ann: (metricOverrides.performance_vol_90d_ann ? parseFloat(metricOverrides.performance_vol_90d_ann) : -1.0).toString(),
+            performance_trend_30d: (metricOverrides.performance_trend_30d ? parseFloat(metricOverrides.performance_trend_30d) : -1.0).toString(),
+            performance_capital_efficiency_90d: (metricOverrides.performance_capital_efficiency_90d ? parseFloat(metricOverrides.performance_capital_efficiency_90d) : -1.0).toString(),
+            performance_success_rate_90d: (metricOverrides.performance_success_rate_90d ? parseFloat(metricOverrides.performance_success_rate_90d) : -1.0).toString(),
 
-        // Risk
-        risk_incident_score: metricOverrides.risk_incident_score ? parseFloat(metricOverrides.risk_incident_score) : -1.0,
-        risk_audits_norm: metricOverrides.risk_audits_norm ? parseFloat(metricOverrides.risk_audits_norm) : -1.0,
-        risk_credshield_norm: metricOverrides.risk_credshield_norm ? parseFloat(metricOverrides.risk_credshield_norm) : -1.0,
-        risk_mdd_90d: metricOverrides.risk_mdd_90d ? parseFloat(metricOverrides.risk_mdd_90d) : -1.0,
-        risk_risk_adj_tvl: metricOverrides.risk_risk_adj_tvl ? parseFloat(metricOverrides.risk_risk_adj_tvl) : -1.0,
-        risk_vol_90d_ann: metricOverrides.risk_vol_90d_ann ? parseFloat(metricOverrides.risk_vol_90d_ann) : -1.0,
+            // Risk
+            risk_incident_score: (metricOverrides.risk_incident_score ? parseFloat(metricOverrides.risk_incident_score) : -1.0).toString(),
+            risk_audits_norm: (metricOverrides.risk_audits_norm ? parseFloat(metricOverrides.risk_audits_norm) : -1.0).toString(),
+            risk_credshield_norm: (metricOverrides.risk_credshield_norm ? parseFloat(metricOverrides.risk_credshield_norm) : -1.0).toString(),
+            risk_mdd_90d: (metricOverrides.risk_mdd_90d ? parseFloat(metricOverrides.risk_mdd_90d) : -1.0).toString(),
+            risk_risk_adj_tvl: (metricOverrides.risk_risk_adj_tvl ? parseFloat(metricOverrides.risk_risk_adj_tvl) : -1.0).toString(),
+            risk_vol_90d_ann: (metricOverrides.risk_vol_90d_ann ? parseFloat(metricOverrides.risk_vol_90d_ann) : -1.0).toString(),
 
-        // Stability
-        stability_asset_norm: metricOverrides.stability_asset_norm ? parseFloat(metricOverrides.stability_asset_norm) : -1.0,
-        stability_lindy_norm: metricOverrides.stability_lindy_norm ? parseFloat(metricOverrides.stability_lindy_norm) : -1.0,
-        stability_tvl_growth_90d: metricOverrides.stability_tvl_growth_90d ? parseFloat(metricOverrides.stability_tvl_growth_90d) : -1.0,
-        stability_liquidity_depth_ratio: metricOverrides.stability_liquidity_depth_ratio ? parseFloat(metricOverrides.stability_liquidity_depth_ratio) : -1.0,
+            // Stability
+            stability_asset_norm: (metricOverrides.stability_asset_norm ? parseFloat(metricOverrides.stability_asset_norm) : -1.0).toString(),
+            stability_lindy_norm: (metricOverrides.stability_lindy_norm ? parseFloat(metricOverrides.stability_lindy_norm) : -1.0).toString(),
+            stability_tvl_growth_90d: (metricOverrides.stability_tvl_growth_90d ? parseFloat(metricOverrides.stability_tvl_growth_90d) : -1.0).toString(),
+            stability_liquidity_depth_ratio: (metricOverrides.stability_liquidity_depth_ratio ? parseFloat(metricOverrides.stability_liquidity_depth_ratio) : -1.0).toString(),
 
-        // Sentiments
-        sentiments_users_norm: metricOverrides.sentiments_users_norm ? parseFloat(metricOverrides.sentiments_users_norm) : -1.0,
-        sentiments_mau_norm: metricOverrides.sentiments_mau_norm ? parseFloat(metricOverrides.sentiments_mau_norm) : -1.0,
-        sentiments_community_sentiment_0_100: metricOverrides.sentiments_community_sentiment_0_100 ? parseFloat(metricOverrides.sentiments_community_sentiment_0_100) : -1.0,
-        sentiments_market_fng_0_100: metricOverrides.sentiments_market_fng_0_100 ? parseFloat(metricOverrides.sentiments_market_fng_0_100) : -1.0,
+            // Sentiments
+            sentiments_users_norm: (metricOverrides.sentiments_users_norm ? parseFloat(metricOverrides.sentiments_users_norm) : -1.0).toString(),
+            sentiments_mau_norm: (metricOverrides.sentiments_mau_norm ? parseFloat(metricOverrides.sentiments_mau_norm) : -1.0).toString(),
+            sentiments_community_sentiment_0_100: (metricOverrides.sentiments_community_sentiment_0_100 ? parseFloat(metricOverrides.sentiments_community_sentiment_0_100) : -1.0).toString(),
+            sentiments_market_fng_0_100: (metricOverrides.sentiments_market_fng_0_100 ? parseFloat(metricOverrides.sentiments_market_fng_0_100) : -1.0).toString(),
 
-        // Weights
-        weight_performance: weightOverrides.performance / 100,
-        weight_risk: weightOverrides.risk / 100,
-        weight_stability: weightOverrides.stability / 100,
-        weight_techprov: weightOverrides.techprov / 100,
-        weight_sentiments: weightOverrides.sentiments / 100
-      };
+            // Weights
+            weight_performance: (weightOverrides.performance / 100).toString(),
+            weight_risk: (weightOverrides.risk / 100).toString(),
+            weight_stability: (weightOverrides.stability / 100).toString(),
+            weight_techprov: (weightOverrides.techprov / 100).toString(),
+            weight_sentiments: (weightOverrides.sentiments / 100).toString()
+          };
 
-      const protectedData = await dataProtector.protectData({
-        data: agentData,
-        name: `Agent Score - ${agent.agent} - ${new Date().toISOString()}`
-      });
-      
-      const protectedDataAddr = protectedData.address;
-      
-      setTaskStatus('granting-access');
-      await dataProtector.grantAccess({
-        protectedData: protectedDataAddr,
-        authorizedApp: iAppAddress,
-        authorizedUser: address!,
-        numberOfAccess: 10,
-        pricePerAccess: 0
-      });
+          const protectedData = await dataProtector.protectData({
+            data: agentData,
+            name: `Agent Score - ${agent.agent} - ${new Date().toISOString()}`
+          });
+          
+          protectedDataAddr = protectedData.address;
+          console.log("Created NEW Protected Data:", protectedDataAddr);
+          console.log("IMPORTANT: Update OFFICIAL_DATASET_ADDRESS in ScorePanel.tsx with this address!");
+          alert(`New Dataset Created: ${protectedDataAddr}\nPlease copy this address and update the code if you want users to use it.`);
+          
+          setTaskStatus('granting-access');
+          await dataProtector.grantAccess({
+            protectedData: protectedDataAddr,
+            authorizedApp: iAppAddress,
+            authorizedUser: address!, // Grant to self
+            numberOfAccess: 100,
+            pricePerAccess: 0
+          });
+      } else {
+          // User Flow: Use Official Dataset
+          if (!OFFICIAL_DATASET_ADDRESS) {
+              throw new Error("No Official Dataset configured. Please ask the Admin to publish one.");
+          }
+          console.log("Using Official Dataset:", OFFICIAL_DATASET_ADDRESS);
+          protectedDataAddr = OFFICIAL_DATASET_ADDRESS;
+      }
       
       setTaskStatus('initializing-sdk');
-      const iexec = new IExec({ ethProvider: window.ethereum! });
       
       // 3a. App Order
       const { app } = await iexec.app.showApp(iAppAddress);
@@ -284,10 +302,22 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
 
       // 3c. Dataset Order
       setTaskStatus('signing-orders');
-      const datasetorderTemplate = await iexec.order.createDatasetorder({
-        dataset: protectedDataAddr, datasetprice: 0, volume: 1000000, tag: ['tee', teeFramework]
-      });
-      const datasetorder = await iexec.order.signDatasetorder(datasetorderTemplate);
+      let datasetorder;
+      if (isAdmin) {
+          // Admin creates a fresh dataset order for the new data
+          const datasetorderTemplate = await iexec.order.createDatasetorder({
+            dataset: protectedDataAddr, datasetprice: 0, volume: 1000000, tag: ['tee', teeFramework]
+          });
+          datasetorder = await iexec.order.signDatasetorder(datasetorderTemplate);
+      } else {
+          // User fetches existing dataset order
+          const datasetOrderbook = await iexec.orderbook.fetchDatasetOrderbook(protectedDataAddr, { app: iAppAddress, minVolume: 1 });
+          if (datasetOrderbook.orders.length > 0) {
+              datasetorder = datasetOrderbook.orders[0].order;
+          } else {
+              throw new Error("No dataset order found. Admin needs to publish one.");
+          }
+      }
       
       // 3d. Request Order
       const requestorderTemplate = await iexec.order.createRequestorder({
@@ -322,6 +352,9 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       }
       
       console.log(`Deal created: ${dealid}`);
+      console.log(`Transaction Hash: ${txHash}`);
+      console.log(`Explorer: https://explorer.iex.ec/arbitrum-mainnet/deal/${dealid}`);
+      
       setTaskStatus('processing');
       
       let deal = null;
@@ -435,7 +468,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
                View on Explorer
              </a>
              <span>|</span>
-             <a href={`https://ipfs-gateway.arbitrum-mainnet.iex.ec/ipfs/${result.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#2727A5] underline flex items-center gap-1">
+             <a href={`https://ipfs.gateway.iex.ec/ipfs/${result.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#2727A5] underline flex items-center gap-1">
                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" /></svg>
                View Raw Result (IPFS)
              </a>
@@ -445,16 +478,22 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       ) : (
         <>
           <div className="mb-6">
-             <button 
-               onClick={() => setShowOverrides(!showOverrides)}
-               className="text-xs font-semibold text-[#2727A5] hover:underline flex items-center gap-1"
-             >
-               {showOverrides ? 'Hide' : 'Show'} Simulation Parameters
-               <svg className={`w-4 h-4 transform ${showOverrides ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-             </button>
+             {/* Only show parameters toggle for Admin */}
+             {isAdmin ? (
+               <button 
+                 onClick={() => setShowOverrides(!showOverrides)}
+                 className="text-xs font-semibold text-[#2727A5] hover:underline flex items-center gap-1"
+               >
+                 {showOverrides ? 'Hide' : 'Show'} Simulation Parameters (Admin Only)
+                 <svg className={`w-4 h-4 transform ${showOverrides ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+               </button>
+             ) : (
+               <p className="text-xs text-gray-500 italic">Using official parameters set by Bond Credit Protocol</p>
+             )}
              
-             {showOverrides && (
+             {showOverrides && isAdmin && (
                <div className="mt-4 space-y-6 bg-white p-4 rounded-lg border border-gray-100 max-h-[60vh] overflow-y-auto">
+                 {/* ... (Existing input grids) ... */}
                  <div>
                    <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Category Weights</h4>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -499,10 +538,10 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
 
           <button
             onClick={handleCalculateScore}
-            disabled={!isConnected || isLoading || networkStatus === 'wrong'}
-            className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!isConnected || isLoading || networkStatus === 'wrong' ? 'bg-gray-300' : 'bg-[#2727A5] hover:bg-[#3d3db8]'}`}
+            disabled={!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !OFFICIAL_DATASET_ADDRESS)}
+            className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !OFFICIAL_DATASET_ADDRESS) ? 'bg-gray-300' : 'bg-[#2727A5] hover:bg-[#3d3db8]'}`}
           >
-            {isLoading ? `Processing (${taskStatus})...` : networkStatus === 'wrong' ? 'Switch to Arbitrum One' : 'Verify Score On-Chain'}
+            {isLoading ? `Processing (${taskStatus})...` : networkStatus === 'wrong' ? 'Switch to Arbitrum One' : (!isAdmin && !OFFICIAL_DATASET_ADDRESS) ? 'Waiting for Admin Setup' : 'Verify Score On-Chain'}
           </button>
           
           {currentTaskId && (
