@@ -34,7 +34,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
   const isConnected = !!address;
   
   const [dataProtectorCore, setDataProtectorCore] = useState<DataProtectorType | null>(null);
-  const [networkStatus, setNetworkStatus] = useState<'checking' | 'bellecour' | 'wrong' | 'unknown'>('unknown');
+  const [networkStatus, setNetworkStatus] = useState<'checking' | 'arbitrum' | 'wrong' | 'unknown'>('unknown');
   
   // Task State
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +45,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
   
   // Config State
   const [showOverrides, setShowOverrides] = useState(false);
-  const [iAppAddress] = useState<string>('0x2d1003f88B918828ca2377020d218e8ED6092367');
+  const [iAppAddress] = useState<string>('0xc0462733d558708A554EeF7D33EA4c6F205578a2');
   
   // Overrides
   const [metricOverrides, setMetricOverrides] = useState({
@@ -69,8 +69,8 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       
       const initializeNetwork = async () => {
         try {
-          if (activeChain.id === 134) {
-            setNetworkStatus('bellecour');
+          if (activeChain.id === 42161) {
+            setNetworkStatus('arbitrum');
           } else {
             setNetworkStatus('wrong');
           }
@@ -102,12 +102,12 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
       console.log("Current Chain ID:", currentChainId);
 
-      if (currentChainId !== '0x86' && parseInt(currentChainId as string, 16) !== 134) {
-        console.log("Switching to Bellecour...");
+      if (currentChainId !== '0xa4b1' && parseInt(currentChainId as string, 16) !== 42161) {
+        console.log("Switching to Arbitrum One...");
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x86' }], // 134 in hex
+            params: [{ chainId: '0xa4b1' }], // 42161 in hex
           });
         } catch (switchError: any) {
           // This error code indicates that the chain has not been added to MetaMask.
@@ -117,21 +117,21 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
                 method: 'wallet_addEthereumChain',
                 params: [
                   {
-                    chainId: '0x86',
-                    chainName: 'iExec Bellecour',
-                    rpcUrls: ['https://bellecour.iex.ec'],
+                    chainId: '0xa4b1',
+                    chainName: 'Arbitrum One',
+                    rpcUrls: ['https://arb1.arbitrum.io/rpc'],
                     nativeCurrency: {
-                      name: 'xRLC',
-                      symbol: 'xRLC', // 18 decimals
+                      name: 'Ether',
+                      symbol: 'ETH',
                       decimals: 18,
                     },
-                    blockExplorerUrls: ['https://blockscout-bellecour.iex.ec'],
+                    blockExplorerUrls: ['https://arbiscan.io'],
                   },
                 ],
               });
             } catch (addError) {
               console.error("Add chain error:", addError);
-              throw new Error("Failed to add iExec Bellecour network");
+              throw new Error("Failed to add Arbitrum One network");
             }
           } else {
             console.error("Switch chain error:", switchError);
@@ -139,7 +139,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           }
         }
       } else {
-        console.log("Already on Bellecour, skipping switch.");
+        console.log("Already on Arbitrum One, skipping switch.");
       }
 
       // Lazy load libraries
@@ -186,14 +186,40 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
         pricePerAccess: 0
       });
       
+      
       setTaskStatus('initializing-sdk');
       const iexec = new IExec({ ethProvider: window.ethereum! });
       
       // 3a. App Order
+      console.log('Fetching app info for:', iAppAddress);
       const { app } = await iexec.app.showApp(iAppAddress);
+      console.log('App found:', app);
+
       const appOrderbook = await iexec.orderbook.fetchAppOrderbook(iAppAddress, { minVolume: 1, pageSize: 10 });
-      if (!appOrderbook.orders.length) throw new Error("App not available");
-      const apporder = appOrderbook.orders[0].order;
+      console.log('App orders found:', appOrderbook.orders.length);
+      
+      let apporder;
+      if (appOrderbook.orders.length > 0) {
+        apporder = appOrderbook.orders[0].order;
+        console.log('Using existing app order from marketplace');
+      } else {
+        // Fallback: If no order exists, try to create one (only works if user is owner)
+        console.log('No app order found, attempting to create one...');
+        try {
+          const teeFramework = 'scone'; // We know this app uses scone
+          const appOrderTemplate = await iexec.order.createApporder({
+            app: iAppAddress,
+            appprice: 0,
+            volume: 1000000,
+            tag: ['tee', teeFramework]
+          });
+          apporder = await iexec.order.signApporder(appOrderTemplate);
+          console.log('Successfully created and signed on-the-fly app order');
+        } catch (orderError: any) {
+          console.error('Failed to create app order:', orderError);
+          throw new Error("App not available - No sell orders found and could not create one. Did you publish the app order?");
+        }
+      }
       
       // 3b. Workerpool Order
       setTaskStatus('finding-workerpool');
@@ -211,31 +237,54 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       });
       
       if (!workerpoolOrderbook.orders || workerpoolOrderbook.orders.length === 0) {
-        throw new Error("No compatible workerpools found");
+        throw new Error("No compatible workerpools found on this network");
       }
 
-      // Filter and sort workerpools (Legacy Logic)
-      const activeWorkerpool = '0x0975bfce90f4748dab6d6729c96b33a2cd5491f5';
-      const oldWorkerpool = '0x8b270a4f7cdb54e9da086ef919bf1f030071afa7';
+      let workerpoolorder;
+      if (currentChainId === '0x86' || parseInt(currentChainId as string, 16) === 134) {
+        // Bellecour specific filtering
+        const activeWorkerpool = '0x0975bfce90f4748dab6d6729c96b33a2cd5491f5';
+        const oldWorkerpool = '0x8b270a4f7cdb54e9da086ef919bf1f030071afa7';
 
-      const filteredWorkerpools = workerpoolOrderbook.orders
-        .filter(order => order.order.workerpool.toLowerCase() !== oldWorkerpool.toLowerCase())
-        .sort((a, b) => {
-          // Prioritize active workerpool
-          if (a.order.workerpool.toLowerCase() === activeWorkerpool.toLowerCase()) return -1;
-          if (b.order.workerpool.toLowerCase() === activeWorkerpool.toLowerCase()) return 1;
-          // Sort by price
-          const priceA = parseFloat(a.order.workerpoolprice.toString());
-          const priceB = parseFloat(b.order.workerpoolprice.toString());
-          return priceA - priceB;
-        });
+        const filteredWorkerpools = workerpoolOrderbook.orders
+          .filter(order => order.order.workerpool.toLowerCase() !== oldWorkerpool.toLowerCase())
+          .sort((a, b) => {
+            if (a.order.workerpool.toLowerCase() === activeWorkerpool.toLowerCase()) return -1;
+            if (b.order.workerpool.toLowerCase() === activeWorkerpool.toLowerCase()) return 1;
+            return parseFloat(a.order.workerpoolprice.toString()) - parseFloat(b.order.workerpoolprice.toString());
+          });
+        workerpoolorder = filteredWorkerpools[0]?.order;
+      } else {
+        // Arbitrum or other: Use specific workerpool if available, otherwise cheapest
+        const preferredWorkerpool = '0x2c06263943180cc024daffeee15612db6e5fd248';
+        const badWorkerpools = [
+          '0xAaA90d37034fD1ea27D5eF2879f217fB6fD7F7Ca' // Known unresponsive pool
+        ];
+        
+        const filteredOrders = workerpoolOrderbook.orders.filter(order => !badWorkerpools.includes(order.order.workerpool));
+        const preferredOrder = filteredOrders.find(order => order.order.workerpool.toLowerCase() === preferredWorkerpool.toLowerCase());
 
-      if (filteredWorkerpools.length === 0) {
+        if (preferredOrder) {
+          console.log('Using preferred workerpool:', preferredWorkerpool);
+          workerpoolorder = preferredOrder.order;
+        } else {
+          const sortedWorkerpools = filteredOrders
+            .sort((a, b) => parseFloat(a.order.workerpoolprice.toString()) - parseFloat(b.order.workerpoolprice.toString()));
+          
+          if (sortedWorkerpools.length === 0) {
+             console.warn("All available workerpools were filtered out! Fallback to any...");
+             workerpoolorder = workerpoolOrderbook.orders[0].order;
+          } else {
+             workerpoolorder = sortedWorkerpools[0].order;
+          }
+        }
+      }
+
+      if (!workerpoolorder) {
         throw new Error('No active workerpools available');
       }
 
-      const workerpoolorder = filteredWorkerpools[0].order;
-      console.log('Selected workerpool:', workerpoolorder.workerpool);
+      console.log('Selected workerpool:', workerpoolorder.workerpool, 'Price:', workerpoolorder.workerpoolprice);
       
       // 3c. Dataset Order
       setTaskStatus('signing-orders');
@@ -253,35 +302,85 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       
       // 3e. Match
       setTaskStatus('submitting-deal');
-      const { dealid, txHash } = await iexec.order.matchOrders({
-        apporder, workerpoolorder, requestorder, datasetorder
-      });
+      let dealid, txHash;
+      
+      try {
+        const matchResult = await iexec.order.matchOrders({
+          apporder, workerpoolorder, requestorder, datasetorder
+        });
+        dealid = matchResult.dealid;
+        txHash = matchResult.txHash;
+      } catch (matchError: any) {
+        // Handle insufficient stake error
+        if (matchError.message && matchError.message.includes("greater than requester account stake")) {
+           console.log("Insufficient stake detected. Attempting deposit...");
+           setTaskStatus('depositing-rlc');
+           
+           // Calculate needed amount (simplified: deposit price)
+           // We can't easily get the exact gap without account.show, so we deposit the task price
+           const taskPrice = workerpoolorder.workerpoolprice;
+           
+           try {
+             await iexec.account.deposit(taskPrice);
+             console.log('Deposit successful, retrying match...');
+             
+             // Retry match
+             setTaskStatus('submitting-deal');
+             const retryResult = await iexec.order.matchOrders({
+               apporder, workerpoolorder, requestorder, datasetorder
+             });
+             dealid = retryResult.dealid;
+             txHash = retryResult.txHash;
+           } catch (depositError: any) {
+             throw new Error(`Deposit/Match failed: ${depositError.message}`);
+           }
+        } else {
+           throw matchError;
+        }
+      }
       
       console.log(`Deal created: ${dealid}`);
       console.log(`Transaction Hash: ${txHash}`);
+      
+      console.log(`Deal created: ${dealid}`);
+      console.log(`Transaction Hash: ${txHash}`);
+      console.log(`Explorer: https://explorer.iex.ec/arbitrum-mainnet/deal/${dealid}`);
       
       // Wait for deal to be indexed
       setTaskStatus('processing');
       let deal = null;
       let dealAttempts = 0;
-      while (!deal && dealAttempts < 10) {
+      while (!deal && dealAttempts < 20) { // Increased retries
         try {
           deal = await iexec.deal.show(dealid);
         } catch (e) {
-          console.log(`Deal not yet indexed, retrying (${dealAttempts + 1}/10)...`);
+          console.log(`Deal not yet indexed, retrying (${dealAttempts + 1}/20)...`);
           await new Promise(resolve => setTimeout(resolve, 3000));
           dealAttempts++;
         }
       }
       
-      if (!deal) throw new Error(`Deal ${dealid} not indexed after 30s. Please check explorer.`);
+      if (!deal) {
+         console.warn("Deal not found in graph, but proceeding with deterministic Task ID...");
+         // Task ID is technically deterministically derivable, but deal.tasks[0] is the safe way.
+         // If deal.show fails, we might be stuck. But usually matchOrders returns dealid.
+      }
       
-      const taskId = deal.tasks[0];
+      // Task ID is typically dealid + index 0 (if single task)
+      // Actually dealid is 32 bytes, taskid is 32 bytes.
+      // If deal.show failed, we can't get task ID easily without calculating it.
+      // Let's assume deal.show eventually works or we use the explorer link.
       
-      setCurrentTaskId(taskId);
-      
-      // 4. Poll for Result
-      monitorTask(taskId, iexec);
+      if (deal) {
+        const taskId = deal.tasks[0];
+        console.log(`Task ID: ${taskId}`);
+        console.log(`Explorer: https://explorer.iex.ec/arbitrum-mainnet/task/${taskId}`);
+        setCurrentTaskId(taskId);
+        monitorTask(taskId, iexec);
+      } else {
+        setError(`Deal created but not indexed. Check explorer: https://explorer.iex.ec/arbitrum-mainnet/deal/${dealid}`);
+        setIsLoading(false);
+      }
       
     } catch (e: any) {
       console.error(e);
@@ -444,7 +543,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
                  {!taskStatus && 'Processing...'}
                </span>
             ) : networkStatus === 'wrong' ? (
-              'Switch to iExec Bellecour Network'
+              'Switch to Arbitrum One Network'
             ) : (
               'Verify Score On-Chain'
             )}
