@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     // Initialize iExec SDK
     const ethProvider = utils.getSignerFromPrivateKey(
-      'https://bellecour.iex.ec', // Bellecour RPC
+      'https://arb1.arbitrum.io/rpc', // Arbitrum One RPC
       process.env.WALLET_PRIVATE_KEY || '' // Need to set this in environment
     )
     const iexec = new IExec({ ethProvider })

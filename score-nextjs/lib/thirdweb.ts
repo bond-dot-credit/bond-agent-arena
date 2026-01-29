@@ -13,13 +13,13 @@ export const client = createThirdwebClient({
 });
 
 export const chain = {
-  id: 134,
-  name: "iExec Bellecour",
-  rpc: "https://bellecour.iex.ec",
+  id: 42161,
+  name: "Arbitrum One",
+  rpc: "https://arb1.arbitrum.io/rpc",
   testnet: false,
   nativeCurrency: {
-    name: "xRLC",
-    symbol: "xRLC",
+    name: "Ether",
+    symbol: "ETH",
     decimals: 18,
   },
 };

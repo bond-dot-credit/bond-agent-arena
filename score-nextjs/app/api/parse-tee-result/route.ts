@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Initialize iExec SDK
     const ethProvider = utils.getSignerFromPrivateKey(
-      'https://bellecour.iex.ec',
+      'https://arb1.arbitrum.io/rpc',
       process.env.WALLET_PRIVATE_KEY || ''
     );
     const iexec = new IExec({ ethProvider });
@@ -52,10 +52,13 @@ export async function POST(request: NextRequest) {
 
     // Try common file patterns
     const possibleFiles = [
+      'agent_score_result.json',
+      'giza_score_result.json',
       'result.json',
       'result.txt',
       'computed.json',
       'output.json',
+      'iexec_out/agent_score_result.json',
       'iexec_out/result.json',
       'iexec_out/computed.json'
     ];
@@ -149,9 +152,10 @@ function extractScore(data: any): number | null {
   const scoreFields = [
     'final_score',
     'score',
+    'agentScore',
+    'gizaScore',
     'result',
     'value',
-    'gizaScore',
     'creditScore',
     'overallScore'
   ];
