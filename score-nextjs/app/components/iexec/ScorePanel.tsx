@@ -29,7 +29,7 @@ interface ScorePanelProps {
 
 // Admin Configuration
 const ADMIN_WALLET_ADDRESS = '0x44a3D4b120F7D4f403e99062934A788C61F1AEC6'; // Your Deployer Wallet
-const OFFICIAL_DATASET_ADDRESS = ''; // Update this after Admin creates a dataset!
+const OFFICIAL_DATASET_ADDRESS = '0x2b1136bd80b90312d8464c8ea947534d571b3a5f'; // Update this after Admin creates a dataset!
 
 export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps) {
   // Web3 State
