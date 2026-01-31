@@ -201,7 +201,7 @@ const LeaderboardRow: React.FC<{
               <p className="text-gray-700">{agent.vaultType}</p>
             </div>
             <div>
-              <p className="text-gray-500 mb-1">
+              <div className="text-gray-500 mb-1">
                 <span className="inline-flex items-center gap-1">
                   AUA
                   <Tooltip text="AUA means Asset Under Agent - How much is the Agent managing for the individual end user.">
@@ -210,11 +210,11 @@ const LeaderboardRow: React.FC<{
                     </span>
                   </Tooltip>
                 </span>
-              </p>
+              </div>
               <p className="text-black font-bold">{getAUA()}</p>
             </div>
             <div>
-              <p className="text-gray-500 mb-1">
+              <div className="text-gray-500 mb-1">
                 <span className="inline-flex items-center gap-1">
                   AUM
                   <Tooltip text="AUM means Asset Under Management - How much is the Agent managing in total.">
@@ -223,7 +223,7 @@ const LeaderboardRow: React.FC<{
                     </span>
                   </Tooltip>
                 </span>
-              </p>
+              </div>
               <p className="text-black font-bold">{getAUM()}</p>
             </div>
             <div>

@@ -29,7 +29,27 @@ interface ScorePanelProps {
 
 // Admin Configuration
 const ADMIN_WALLET_ADDRESS = '0x44a3D4b120F7D4f403e99062934A788C61F1AEC6'; // Your Deployer Wallet
-const OFFICIAL_DATASET_ADDRESS = '0x2b1136bd80b90312d8464c8ea947534d571b3a5f'; // Update this after Admin creates a dataset!
+
+// Dataset Mapping for Public Users
+const AGENT_DATASETS: Record<string, string> = {
+  'arma-giza': '0xcc46b93c220efbe864fb4b2876b6fc1d870974ab', // ARMA Golden Dataset
+  'fungi-agent': '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448',  //change to fungi official dataset when available
+  'zyfai': '0x2b1136bd80b90312d8464c8ea947534d571b3a5f',
+  'surf-liquid': '0xca38ed4e2fa9ea78bd64a708938431b556a7b1a2', //change to surf official dataset when available
+  'mamo': '0x2b1136bd80b90312d8464c8ea947534d571b3a5f',       //change to mamo official dataset when available
+  'sail': '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448'        //change to sail official dataset when available
+};
+
+const getAgentKey = (name: string) => {
+  const n = name.toLowerCase();
+  if (n.includes('arma') || n.includes('giza')) return 'arma-giza';
+  if (n.includes('fungi')) return 'fungi-agent';
+  if (n.includes('zyfai')) return 'zyfai';
+  if (n.includes('surf')) return 'surf-liquid';
+  if (n.includes('mamo')) return 'mamo';
+  if (n.includes('sail')) return 'sail';
+  return 'custom';
+};
 
 export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps) {
   // Web3 State
@@ -171,7 +191,10 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       const { IExec, utils } = await import('iexec');
 
       const iexec = new IExec({ ethProvider: window.ethereum! });
-      let protectedDataAddr = OFFICIAL_DATASET_ADDRESS;
+      let protectedDataAddr = '';
+
+      // Determine Agent ID
+      const agentKey = getAgentKey(agent.agent);
 
       // 2. Data Management (Admin vs User)
       if (isAdmin) {
@@ -179,12 +202,8 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           setTaskStatus('encrypting');
           const dataProtector = new IExecDataProtectorCore(window.ethereum);
           
-          let agentId = 'custom';
-          if (agent.agent.toLowerCase().includes('giza')) agentId = 'arma-giza';
-          else if (agent.agent.toLowerCase().includes('fungi')) agentId = 'fungi-agent';
-          
           const agentData = {
-            agent_selection: agentId,
+            agent_selection: agentKey,
             use_sample_data: true,
             
             // Performance
@@ -231,8 +250,8 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           
           protectedDataAddr = protectedData.address;
           console.log("Created NEW Protected Data:", protectedDataAddr);
-          console.log("IMPORTANT: Update OFFICIAL_DATASET_ADDRESS in ScorePanel.tsx with this address!");
-          alert(`New Dataset Created: ${protectedDataAddr}\nPlease copy this address and update the code if you want users to use it.`);
+          console.log(`IMPORTANT: Update AGENT_DATASETS['${agentKey}'] in ScorePanel.tsx with this address!`);
+          alert(`New Dataset Created: ${protectedDataAddr}\nPlease update AGENT_DATASETS['${agentKey}'] in ScorePanel.tsx`);
           
           setTaskStatus('granting-access');
           await dataProtector.grantAccess({
@@ -244,11 +263,13 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           });
       } else {
           // User Flow: Use Official Dataset
-          if (!OFFICIAL_DATASET_ADDRESS) {
-              throw new Error("No Official Dataset configured. Please ask the Admin to publish one.");
+          const targetDataset = AGENT_DATASETS[agentKey];
+
+          if (!targetDataset) {
+              throw new Error(`No Official Dataset configured for ${agent.agent}. Admin needs to publish one.`);
           }
-          console.log("Using Official Dataset:", OFFICIAL_DATASET_ADDRESS);
-          protectedDataAddr = OFFICIAL_DATASET_ADDRESS;
+          console.log(`Using Official Dataset for ${agent.agent}:`, targetDataset);
+          protectedDataAddr = targetDataset;
       }
       
       setTaskStatus('initializing-sdk');
@@ -434,12 +455,28 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
     check();
   };
 
+  const currentAgentKey = getAgentKey(agent.agent);
+  const currentOfficialDataset = AGENT_DATASETS[currentAgentKey];
+
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mt-4 shadow-inner text-black">
+    <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mt-4 shadow-inner text-black text-left">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
           <h3 className="text-lg font-bold text-[#2727A5]">Verify Bond Score</h3>
           <p className="text-sm text-gray-500">Run a confidential TEE computation to verify this agent&apos;s score.</p>
+          
+          {/* Dataset Explorer Link */}
+          {currentOfficialDataset && (
+            <a 
+              href={`https://explorer.iex.ec/arbitrum-mainnet/dataset/${currentOfficialDataset}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[10px] text-[#2727A5] hover:underline mt-1 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-100"
+            >
+              Dataset: {currentOfficialDataset.substring(0, 10)}...{currentOfficialDataset.substring(38)}
+              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+          )}
         </div>
         
         {!isConnected ? (
@@ -538,10 +575,10 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
 
           <button
             onClick={handleCalculateScore}
-            disabled={!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !OFFICIAL_DATASET_ADDRESS)}
-            className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !OFFICIAL_DATASET_ADDRESS) ? 'bg-gray-300' : 'bg-[#2727A5] hover:bg-[#3d3db8]'}`}
+            disabled={!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !currentOfficialDataset)}
+            className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !currentOfficialDataset) ? 'bg-gray-300' : 'bg-[#2727A5] hover:bg-[#3d3db8]'}`}
           >
-            {isLoading ? `Processing (${taskStatus})...` : networkStatus === 'wrong' ? 'Switch to Arbitrum One' : (!isAdmin && !OFFICIAL_DATASET_ADDRESS) ? 'Waiting for Admin Setup' : 'Verify Score On-Chain'}
+            {isLoading ? `Processing (${taskStatus})...` : networkStatus === 'wrong' ? 'Switch to Arbitrum One' : (!isAdmin && !currentOfficialDataset) ? 'Waiting for Admin Setup' : 'Verify Score On-Chain'}
           </button>
           
           {currentTaskId && (
@@ -552,6 +589,21 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
               </a>
             </div>
           )}
+
+          {/* Information Section */}
+          <div className="mt-6 p-4 bg-white border border-gray-100 rounded-lg text-xs leading-relaxed text-gray-600 shadow-sm">
+            <div className="flex items-center gap-2 font-bold text-[#2727A5] mb-2 uppercase tracking-tight">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              Why verify with existing data?
+            </div>
+            You are verifying the score using official metrics collected in-house by <strong>bond.credit</strong>. The algorithm runs entirely within an <strong>iExec TEE (Trusted Execution Environment)</strong>, which ensures that the calculation is performed exactly as defined, without any possibility of data manipulation or external interference.
+          </div>
+
+          {/* Footer Branding */}
+          <div className="mt-8 pt-4 border-t border-gray-100 flex items-center justify-center gap-2 text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            TEE Computation powered by iExec on Arbitrum Mainnet
+          </div>
         </>
       )}
     </div>
