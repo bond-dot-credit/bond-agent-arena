@@ -467,7 +467,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           {/* Dataset Explorer Link */}
           {currentOfficialDataset ? (
             <a 
-              href={`https://arbiscan.io/address/${currentOfficialDataset}`}
+              href={`https://explorer.iex.ec/arbitrum-mainnet/dataset/${currentOfficialDataset}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[10px] text-[#2727A5] hover:underline mt-1 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-100"
