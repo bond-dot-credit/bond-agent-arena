@@ -1,4 +1,4 @@
-import { createThirdwebClient } from "thirdweb";
+import { createThirdwebClient, defineChain } from "thirdweb";
 
 // Replace this with your client ID string
 // refer to https://portal.thirdweb.com/typescript/v5/client on how to get a client ID
@@ -12,14 +12,4 @@ export const client = createThirdwebClient({
   clientId: clientId,
 });
 
-export const chain = {
-  id: 42161,
-  name: "Arbitrum One",
-  rpc: "https://arb1.arbitrum.io/rpc",
-  testnet: false,
-  nativeCurrency: {
-    name: "Ether",
-    symbol: "ETH",
-    decimals: 18,
-  },
-};
+export const chain = defineChain(42161);

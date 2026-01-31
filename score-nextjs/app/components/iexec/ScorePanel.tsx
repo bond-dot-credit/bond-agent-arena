@@ -32,12 +32,12 @@ const ADMIN_WALLET_ADDRESS = '0x44a3D4b120F7D4f403e99062934A788C61F1AEC6'; // Yo
 
 // Dataset Mapping for Public Users
 const AGENT_DATASETS: Record<string, string> = {
-  'arma-giza': '0xcc46b93c220efbe864fb4b2876b6fc1d870974ab', // ARMA Golden Dataset
-  'fungi-agent': '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448',  //change to fungi official dataset when available
+  'arma-giza': '0xcc46b93c220efbe864fb4b2876b6fc1d870974ab', 
+  'fungi-agent': '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448',
   'zyfai': '0x2b1136bd80b90312d8464c8ea947534d571b3a5f',
-  'surf-liquid': '0xca38ed4e2fa9ea78bd64a708938431b556a7b1a2', //change to surf official dataset when available
-  'mamo': '0x2b1136bd80b90312d8464c8ea947534d571b3a5f',       //change to mamo official dataset when available
-  'sail': '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448'        //change to sail official dataset when available
+  'surf-liquid': '0xca38ed4e2fa9ea78bd64a708938431b556a7b1a2',
+  'mamo': '0xee07f6d9d9c8aa25bbc68a54b6ad1c4065cc9609',
+  'sail': '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448'
 };
 
 const getAgentKey = (name: string) => {
@@ -141,27 +141,29 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       setError(null);
       setResult(null);
       
+      const ethereum = (window as any).ethereum;
+
       // 1. Check Network & Force Switch
-      if (!window.ethereum) throw new Error("Ethereum provider not found");
+      if (!ethereum) throw new Error("Ethereum provider not found");
 
       // Request accounts first to ensure permissions
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await ethereum.request({ method: 'eth_requestAccounts' });
 
       // Check current chain ID first
-      const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const currentChainId = await ethereum.request({ method: 'eth_chainId' });
       console.log("Current Chain ID:", currentChainId);
 
       if (currentChainId !== '0xa4b1' && parseInt(currentChainId as string, 16) !== 42161) {
         console.log("Switching to Arbitrum One...");
         try {
-          await window.ethereum.request({
+          await ethereum.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0xa4b1' }], // 42161 in hex
           });
         } catch (switchError: any) {
           if (switchError.code === 4902) {
             try {
-              await window.ethereum.request({
+              await ethereum.request({
                 method: 'wallet_addEthereumChain',
                 params: [
                   {
@@ -190,7 +192,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       const { IExecDataProtectorCore } = await import('@iexec/dataprotector');
       const { IExec, utils } = await import('iexec');
 
-      const iexec = new IExec({ ethProvider: window.ethereum! });
+      const iexec = new IExec({ ethProvider: ethereum });
       let protectedDataAddr = '';
 
       // Determine Agent ID
@@ -200,7 +202,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       if (isAdmin) {
           // Admin Flow: Create New Data
           setTaskStatus('encrypting');
-          const dataProtector = new IExecDataProtectorCore(window.ethereum);
+          const dataProtector = new IExecDataProtectorCore(ethereum);
           
           const agentData = {
             agent_selection: agentKey,
@@ -257,7 +259,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           await dataProtector.grantAccess({
             protectedData: protectedDataAddr,
             authorizedApp: iAppAddress,
-            authorizedUser: address!, // Grant to self
+            authorizedUser: address!,
             numberOfAccess: 100,
             pricePerAccess: 0
           });
@@ -304,7 +306,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       
       const workerpoolOrderbook = await iexec.orderbook.fetchWorkerpoolOrderbook({
         category: 0, minVolume: 1, minTag: ['tee', teeFramework], maxWorkerpoolPrice: 0.5
-      });
+      } as any);
       
       let workerpoolorder;
       const preferredWorkerpool = '0x2c06263943180cc024daffeee15612db6e5fd248';
@@ -373,9 +375,6 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       }
       
       console.log(`Deal created: ${dealid}`);
-      console.log(`Transaction Hash: ${txHash}`);
-      console.log(`Explorer: https://explorer.iex.ec/arbitrum-mainnet/deal/${dealid}`);
-      
       setTaskStatus('processing');
       
       let deal = null;
@@ -466,9 +465,9 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
           <p className="text-sm text-gray-500">Run a confidential TEE computation to verify this agent&apos;s score.</p>
           
           {/* Dataset Explorer Link */}
-          {currentOfficialDataset && (
+          {currentOfficialDataset ? (
             <a 
-              href={`https://explorer.iex.ec/arbitrum-mainnet/dataset/${currentOfficialDataset}`}
+              href={`https://arbiscan.io/address/${currentOfficialDataset}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[10px] text-[#2727A5] hover:underline mt-1 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-100"
@@ -476,6 +475,10 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
               Dataset: {currentOfficialDataset.substring(0, 10)}...{currentOfficialDataset.substring(38)}
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
             </a>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[10px] text-gray-400 mt-1 font-mono bg-gray-100 px-2 py-0.5 rounded border border-gray-200 italic">
+              Dataset: Pending Admin Setup
+            </span>
           )}
         </div>
         
@@ -505,7 +508,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
                View on Explorer
              </a>
              <span>|</span>
-             <a href={`https://ipfs.gateway.iex.ec/ipfs/${result.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#2727A5] underline flex items-center gap-1">
+             <a href={`https://ipfs-gateway.arbitrum-mainnet.iex.ec/ipfs/${result.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#2727A5] underline flex items-center gap-1">
                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" /></svg>
                View Raw Result (IPFS)
              </a>
@@ -530,7 +533,6 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
              
              {showOverrides && isAdmin && (
                <div className="mt-4 space-y-6 bg-white p-4 rounded-lg border border-gray-100 max-h-[60vh] overflow-y-auto">
-                 {/* ... (Existing input grids) ... */}
                  <div>
                    <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Category Weights</h4>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -573,6 +575,12 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
              )}
           </div>
 
+          {/* Prerequisites Notice */}
+          <div className="mb-4 flex items-center justify-center gap-2 text-[10px] text-gray-500 font-medium">
+            <svg className="w-3 h-3 text-[#2727A5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Requires <span className="font-bold text-black">0.1 RLC</span> and <span className="font-bold text-black">ETH (gas)</span> on Arbitrum One
+          </div>
+
           <button
             onClick={handleCalculateScore}
             disabled={!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !currentOfficialDataset)}
@@ -596,7 +604,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               Why verify with existing data?
             </div>
-            You are verifying the score using official metrics collected in-house by <strong>bond.credit</strong>. The algorithm runs entirely within an <strong>iExec TEE (Trusted Execution Environment)</strong>, which ensures that the calculation is performed exactly as defined, without any possibility of data manipulation or external interference.
+            You are verifying the score using official metrics collected by <strong>bond.credit</strong>. The algorithm runs entirely within an <strong>iExec TEE (Trusted Execution Environment)</strong>, which ensures that the calculation is performed exactly as defined, without any possibility of data manipulation or external interference.
           </div>
 
           {/* Footer Branding */}
