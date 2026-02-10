@@ -77,14 +77,15 @@ const LeaderboardRow: React.FC<{
   };
 
   const getExpectedYield = () => {
-    const yieldMap: Record<string, string> = {
-      'Arma': '15% APY',
-      'Mamo': '9.6% APY',
-      'SurfLiquid': '14% APY',
-      'ZyFAI': '11.5% APY',
-      'Sail': '7.17% APY',
-    };
-    return yieldMap[agent.agent] || 'N/A';
+    return agent.expectedYield || 'N/A';
+  };
+
+  const getNativeYield = () => {
+    return formatCurrency(agent.nativeYield);
+  };
+
+  const getRewards = () => {
+    return formatCurrency(agent.rewards);
   };
 
   return (
@@ -103,7 +104,7 @@ const LeaderboardRow: React.FC<{
         </div>
 
         {/* Desktop View - Hidden on mobile */}
-        <div className="hidden md:grid px-6 py-4 relative z-10 grid-cols-7 gap-6 items-center">
+        <div className="hidden md:grid px-6 py-4 relative z-10 grid-cols-8 gap-4 items-center">
           {/* Rank */}
           <div className="flex items-center justify-start">
             {getRankDisplay(agent.rank)}
@@ -128,26 +129,31 @@ const LeaderboardRow: React.FC<{
                 </div>
               )
             )}
-            <p className="font-bold text-black group-hover:text-[#2727A5] transition-colors duration-300 text-base">{agent.agent}</p>
-          </div>
-
-          {/* Vault Type */}
-          <div>
-            <p className="text-sm text-gray-600">{agent.vaultType}</p>
+            <p className="font-bold text-black group-hover:text-[#2727A5] transition-colors duration-300 text-sm truncate">{agent.agent}</p>
           </div>
 
           {/* AUA */}
           <div className="text-center">
-            <p className="font-bold text-black text-base">
+            <p className="font-bold text-black text-sm">
               {getAUA()}
             </p>
           </div>
 
           {/* AUM */}
           <div className="text-center">
-            <p className="font-bold text-black text-base">
+            <p className="font-bold text-black text-sm">
               {getAUM()}
             </p>
+          </div>
+
+          {/* Native Yield */}
+          <div className="text-center">
+            <p className="text-sm text-black font-semibold">{getNativeYield()}</p>
+          </div>
+
+          {/* Rewards */}
+          <div className="text-center">
+            <p className="text-sm text-black font-semibold">{getRewards()}</p>
           </div>
 
           {/* Expected Yield */}
@@ -197,14 +203,10 @@ const LeaderboardRow: React.FC<{
           {/* Info Grid */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
             <div>
-              <p className="text-gray-500 mb-1">Vault Type</p>
-              <p className="text-gray-700">{agent.vaultType}</p>
-            </div>
-            <div>
               <div className="text-gray-500 mb-1">
                 <span className="inline-flex items-center gap-1">
                   AUA
-                  <Tooltip text="AUA means Asset Under Agent - How much is the Agent managing for the individual end user.">
+                  <Tooltip text="AUA means Asset Under Agent - The total balance managed by the agent.">
                     <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600 border border-gray-300">
                       !
                     </span>
@@ -217,7 +219,7 @@ const LeaderboardRow: React.FC<{
               <div className="text-gray-500 mb-1">
                 <span className="inline-flex items-center gap-1">
                   AUM
-                  <Tooltip text="AUM means Asset Under Management - How much is the Agent managing in total.">
+                  <Tooltip text="AUM means Asset Under Management - The native USDC balance of the agent.">
                     <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600 border border-gray-300">
                       !
                     </span>
@@ -225,6 +227,18 @@ const LeaderboardRow: React.FC<{
                 </span>
               </div>
               <p className="text-black font-bold">{getAUM()}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Native Yield</p>
+              <p className="text-black font-semibold">{getNativeYield()}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Rewards</p>
+              <p className="text-black font-semibold">{getRewards()}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Expected Yield</p>
+              <p className="text-black font-semibold">{getExpectedYield()}</p>
             </div>
             <div>
               <p className="text-gray-500 mb-1">Bond Score</p>
@@ -267,14 +281,13 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     <div className="mb-10">
       {/* Table Header - Hidden on mobile */}
       <div className="hidden md:block mb-4 px-6">
-        <div className="grid grid-cols-7 gap-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+        <div className="grid grid-cols-8 gap-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
           <div className="text-left">Rank</div>
           <div>Agent</div>
-          <div>Vault Type</div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
               AUA
-              <Tooltip text="AUA means Asset Under Agent - How much is the Agent managing for the individual end user.">
+              <Tooltip text="AUA means Asset Under Agent - The total balance managed by the agent.">
                 <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#2727A5]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#2727A5] transition-all cursor-help border border-gray-300 hover:border-[#2727A5]">
                   !
                 </span>
@@ -284,13 +297,15 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           <div className="text-center">
             <div className="flex items-center justify-center gap-1">
               AUM
-              <Tooltip text="AUM means Asset Under Management - How much is the Agent managing in total.">
+              <Tooltip text="AUM means Asset Under Management - The native USDC balance of the agent.">
                 <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#2727A5]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#2727A5] transition-all cursor-help border border-gray-300 hover:border-[#2727A5]">
                   !
                 </span>
               </Tooltip>
             </div>
           </div>
+          <div className="text-center">Native Yield</div>
+          <div className="text-center">Rewards</div>
           <div className="text-center">Expected Yield</div>
           <div className="text-center">Bond Score</div>
         </div>
@@ -300,7 +315,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       <div className="space-y-3">
         {agents.map((agent, index) => (
           <LeaderboardRow 
-            key={agent.rank} 
+            key={agent.agent} 
             agent={agent} 
             index={index}
             isExpanded={expandedAgentId === agent.agent}

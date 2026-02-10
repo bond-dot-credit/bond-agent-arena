@@ -1,13 +1,14 @@
-import { supabaseFetch, AgentAumRow, AgentAumHistoricalRow } from '../db/supabase';
+import { supabaseFetch, AgentSeason1Row, AgentAumHistoricalRow } from '../db/supabase';
 import { Agent, PerformanceSnapshot } from '../types';
 import { agentMetadata } from '../data/agentMetadata';
 
 const BASE_VALUE = 2000;
 
-// Get all agents with calculated metrics
+// Get all agents with calculated metrics from Season 1 schema
 export async function getAllAgents(): Promise<Agent[]> {
-  const data: AgentAumRow[] = await supabaseFetch(
-    '/rest/v1/agent_aum?select=agent_name,smart_account_address,token_symbol,balance,total_aum,tx_time,run_ts&order=agent_name.asc'
+  const data: AgentSeason1Row[] = await supabaseFetch(
+    '/rest/v1/agents?select=*&order=agent_name.asc',
+    'scoringframeworkseason1'
   );
 
   if (!data || data.length === 0) return [];
@@ -15,7 +16,6 @@ export async function getAllAgents(): Promise<Agent[]> {
   // Convert to Agent type with calculated metrics
   const agents = data.map((row, index) => {
     const metadata = agentMetadata[row.agent_name] || {
-      vaultType: 'Yield Optimizers',
       riskScore: 0.80,
       validation: 'pending' as const,
       performanceScore: 70.0,
@@ -23,15 +23,17 @@ export async function getAllAgents(): Promise<Agent[]> {
       website: '',
     };
 
-    // Calculate ROI: (balance - 2000) / 2000 * 100
-    const roiPercent = ((row.balance - BASE_VALUE) / BASE_VALUE) * 100;
-    const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
+    // Calculate Rewards: total_yield_usd - usdc_native_yield
+    const rewards = (row.total_yield_usd || 0) - (row.usdc_native_yield || 0);
+    
+    // Use APY from row if available, otherwise calculate ROI
+    const apyPercent = row.apy_percent || 0;
+    const roi = `${apyPercent >= 0 ? '+' : ''}${apyPercent.toFixed(1)}%`;
 
     return {
       rank: index + 1,
       agent: row.agent_name,
-      contractAddress: row.smart_account_address,
-      vaultType: metadata.vaultType,
+      contractAddress: row.agent_smart_wallet_address,
       roi,
       riskScore: metadata.riskScore,
       validation: metadata.validation,
@@ -39,8 +41,13 @@ export async function getAllAgents(): Promise<Agent[]> {
       bondScore: 'Coming Soon',
       medal: metadata.medal,
       website: metadata.website,
-      aua: row.balance,
-      aum: row.total_aum,
+      aua: row.total_balance_usd,
+      aum: row.usdc_native_balance,
+      nativeYield: row.usdc_native_yield,
+      rewards: rewards,
+      totalYieldUsd: row.total_yield_usd,
+      apyPercent: apyPercent,
+      expectedYield: `${apyPercent.toFixed(1)}% APY`,
     } as Agent;
   });
 
@@ -51,15 +58,15 @@ export async function getAllAgents(): Promise<Agent[]> {
 
 // Get agent by contract address
 export async function getAgentByAddress(address: string): Promise<Agent | null> {
-  const data: AgentAumRow[] = await supabaseFetch(
-    `/rest/v1/agent_aum?smart_account_address=eq.${address}&select=agent_name,smart_account_address,token_symbol,balance,total_aum,tx_time,run_ts`
+  const data: AgentSeason1Row[] = await supabaseFetch(
+    `/rest/v1/agents?agent_smart_wallet_address=eq.${address}&select=*`,
+    'scoringframeworkseason1'
   );
 
   if (!data || data.length === 0) return null;
 
   const row = data[0];
   const metadata = agentMetadata[row.agent_name] || {
-    vaultType: 'Yield Optimizers',
     riskScore: 0.80,
     validation: 'pending' as const,
     performanceScore: 70.0,
@@ -67,14 +74,14 @@ export async function getAgentByAddress(address: string): Promise<Agent | null> 
     website: '',
   };
 
-  const roiPercent = ((row.balance - BASE_VALUE) / BASE_VALUE) * 100;
-  const roi = `${roiPercent >= 0 ? '+' : ''}${roiPercent.toFixed(1)}%`;
+  const rewards = (row.total_yield_usd || 0) - (row.usdc_native_yield || 0);
+  const apyPercent = row.apy_percent || 0;
+  const roi = `${apyPercent >= 0 ? '+' : ''}${apyPercent.toFixed(1)}%`;
 
   return {
     rank: 1,
     agent: row.agent_name,
-    contractAddress: row.smart_account_address,
-    vaultType: metadata.vaultType,
+    contractAddress: row.agent_smart_wallet_address,
     roi,
     riskScore: metadata.riskScore,
     validation: metadata.validation,
@@ -82,8 +89,13 @@ export async function getAgentByAddress(address: string): Promise<Agent | null> 
     bondScore: 'Coming Soon',
     medal: metadata.medal,
     website: metadata.website,
-    aua: row.balance,
-    aum: row.total_aum,
+    aua: row.total_balance_usd,
+    aum: row.usdc_native_balance,
+    nativeYield: row.usdc_native_yield,
+    rewards: rewards,
+    totalYieldUsd: row.total_yield_usd,
+    apyPercent: apyPercent,
+    expectedYield: `${apyPercent.toFixed(1)}% APY`,
   };
 }
 
@@ -100,17 +112,19 @@ export async function getAgentPerformance(
 
   const agentName = agent.agent;
 
-  // Fetch historical data
-  const data: AgentAumHistoricalRow[] = await supabaseFetch(
-    `/rest/v1/agent_aum_historical?agent_name=eq.${agentName}&select=run_ts,balance,total_aum&order=run_ts.asc`
+  // Fetch historical data from Season 1 schema
+  // Note: we use yield_summation_historical table
+  const data: any[] = await supabaseFetch(
+    `/rest/v1/yield_summation_historical?agent_name=eq.${agentName}&select=run_timestamp,usdc_native_balance,total_balance_usd&order=run_timestamp.asc`,
+    'scoringframeworkseason1'
   );
 
   if (!data || data.length === 0) return [];
 
   return data.map((snapshot) => ({
-    timestamp: new Date(snapshot.run_ts).getTime(),
-    balance: snapshot.balance,
-    totalAum: snapshot.total_aum,
+    timestamp: new Date(snapshot.run_timestamp).getTime(),
+    balance: snapshot.usdc_native_balance || 0,
+    totalAum: snapshot.total_balance_usd || snapshot.usdc_native_balance || 0,
   }));
 }
 

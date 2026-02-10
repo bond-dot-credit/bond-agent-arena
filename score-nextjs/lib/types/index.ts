@@ -2,7 +2,6 @@ export interface Agent {
   rank: number;
   agent: string;
   contractAddress: string;
-  vaultType: string;
   roi: string;
   riskScore: number;
   validation: 'verified' | 'processing' | 'pending' | 'warning';
@@ -10,8 +9,12 @@ export interface Agent {
   bondScore: string;
   medal?: string;
   website?: string;
-  aua?: number; // Asset Under Agent - balance (individual allocation)
-  aum?: number; // Asset Under Management - total_aum
+  aua?: number; // Asset Under Agent - total_balance_usd
+  aum?: number; // Asset Under Management - usdc_native_balance
+  nativeYield?: number;
+  rewards?: number;
+  totalYieldUsd?: number;
+  apyPercent?: number;
   expectedYield?: string;
 }
 
