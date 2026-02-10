@@ -15,13 +15,7 @@ const AgentCarousel: React.FC = () => {
   useEffect(() => {
     const fetchTokenPrices = async () => {
       try {
-        const response = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,mamo,giza&vs_currencies=usd&include_24hr_change=true',
-          { 
-            cache: 'force-cache',
-            next: { revalidate: 300 } // Cache for 5 minutes
-          }
-        );
+        const response = await fetch('/api/token-prices');
 
         if (response.ok) {
           const data = await response.json();

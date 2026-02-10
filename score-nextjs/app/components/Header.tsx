@@ -30,10 +30,7 @@ const Header: React.FC = () => {
   useEffect(() => {
     const fetchTokenPrices = async () => {
       try {
-        const response = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,mamo,giza&vs_currencies=usd&include_24hr_change=true',
-          { cache: 'no-store' }
-        );
+        const response = await fetch('/api/token-prices');
 
         if (response.ok) {
           const data = await response.json();

@@ -1,22 +1,15 @@
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// Use a server-side only key (no NEXT_PUBLIC_ prefix) to resolve security warnings
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
-                    process.env.SUPABASE_ANON_KEY || 
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-                    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!;
+const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                    process.env.SUPABASE_URL || '').trim();
 
-if (!supabaseKey) {
-  console.error("CRITICAL: No Supabase key found in environment variables!");
-} else {
-  const keyName = process.env.SUPABASE_SERVICE_ROLE_KEY ? "SERVICE_ROLE" : 
-                  process.env.SUPABASE_ANON_KEY ? "ANON_KEY" : "NEXT_PUBLIC_KEY";
-  console.log(`Supabase Key loaded: ${keyName} (Length: ${supabaseKey.length})`);
-  console.log(`Supabase URL: ${supabaseUrl}`);
-}
+const supabaseKey = (process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY || 
+                    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+                    process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                    process.env.SUPABASE_ANON_KEY || '').trim();
 
 // Direct fetch function for Supabase REST API
 async function supabaseFetch(endpoint: string, schema: string = 'public') {
   const url = `${supabaseUrl}${endpoint}`;
+  
   const headers: Record<string, string> = {
     'apikey': supabaseKey,
     'Authorization': `Bearer ${supabaseKey}`,
@@ -24,19 +17,27 @@ async function supabaseFetch(endpoint: string, schema: string = 'public') {
 
   if (schema !== 'public') {
     headers['Accept-Profile'] = schema;
-    headers['Content-Profile'] = schema;
   }
+
+  console.log(`[Supabase] Fetching: ${url}`);
+  console.log(`[Supabase] Schema: ${schema}`);
+  console.log(`[Supabase] Key Prefix: ${supabaseKey.substring(0, 10)}...`);
 
   const response = await fetch(url, {
     headers,
     cache: 'no-store',
   });
 
+  console.log(`[Supabase] Response Status: ${response.status} ${response.statusText}`);
+
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`[Supabase] Error Body:`, errorText);
     throw new Error(`Supabase fetch failed: ${response.statusText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  return data;
 }
 
 export { supabaseFetch };
