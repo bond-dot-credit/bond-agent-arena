@@ -7,14 +7,16 @@ const BASE_VALUE = 2000;
 // Get all agents with calculated metrics from Season 1 schema
 export async function getAllAgents(): Promise<Agent[]> {
   try {
-    console.log("Fetching latest agents from yield_summation_historical...");
-    // Fetch the 5 most recent records (one for each agent)
-    const data: any[] = await supabaseFetch(
-      '/rest/v1/yield_summation_historical?order=run_timestamp.desc&limit=5',
+    console.log("Fetching agents from Supabase Season 1 schema (agents table)...");
+    const data: AgentSeason1Row[] = await supabaseFetch(
+      '/rest/v1/agents?select=*&order=agent_name.asc',
       'scoringframeworkseason1'
     );
 
-    console.log(`Fetched ${data?.length || 0} agents from historical table.`);
+    console.log(`Fetched ${data?.length || 0} agents from Supabase.`);
+    if (data && data.length > 0) {
+      console.log("First agent sample:", data[0].agent_name);
+    }
 
     if (!data || data.length === 0) {
       console.warn("No agent data returned from Supabase.");
@@ -34,7 +36,7 @@ export async function getAllAgents(): Promise<Agent[]> {
       // Calculate Rewards: total_yield_usd - usdc_native_yield
       const rewards = (row.total_yield_usd || 0) - (row.usdc_native_yield || 0);
       
-      // Use APY from row if available
+      // Use APY from row if available, otherwise calculate ROI
       const apyPercent = row.apy_percent || 0;
       const roi = `${apyPercent >= 0 ? '+' : ''}${apyPercent.toFixed(1)}%`;
 
@@ -64,7 +66,7 @@ export async function getAllAgents(): Promise<Agent[]> {
       .map((agent, index) => ({ ...agent, rank: index + 1 }));
   } catch (error) {
     console.error("Error in getAllAgents:", error);
-    return [];
+    return []; // Return empty array instead of crashing
   }
 }
 
@@ -72,7 +74,7 @@ export async function getAllAgents(): Promise<Agent[]> {
 export async function getAgentByAddress(address: string): Promise<Agent | null> {
   try {
     const data: any[] = await supabaseFetch(
-      `/rest/v1/yield_summation_historical?agent_smart_wallet_address=eq.${address}&order=run_timestamp.desc&limit=1`,
+      `/rest/v1/agents?agent_smart_wallet_address=eq.${address}&select=*`,
       'scoringframeworkseason1'
     );
 
@@ -136,7 +138,14 @@ export async function getAgentPerformance(
     'scoringframeworkseason1'
   );
 
-  if (!data || data.length === 0) return [];
+  if (!data || data.length === 0) {
+    // If historical table is empty, return a single snapshot from the current agents table
+    return [{
+      timestamp: Date.now(),
+      balance: agent.aum || 0,
+      totalAum: agent.aua || agent.aum || 0
+    }];
+  }
 
   return data.map((snapshot) => ({
     timestamp: new Date(snapshot.run_timestamp).getTime(),
