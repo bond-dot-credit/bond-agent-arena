@@ -274,7 +274,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
       </div>
 
       <p className="text-sm text-gray-300 mb-4">
-        {agent.vaultType} vault with autonomous yield optimization
+        Autonomous yield optimization with verified onchain performance
       </p>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
