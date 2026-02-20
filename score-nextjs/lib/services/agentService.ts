@@ -133,10 +133,16 @@ export async function getAgentPerformance(
 
   // Fetch historical data from Season 1 schema
   // Note: we use yield_summation_historical table
-  const data: any[] = await supabaseFetch(
-    `/rest/v1/yield_summation_historical?agent_name=eq.${agentName}&select=run_timestamp,usdc_native_balance,total_balance_usd&order=run_timestamp.asc`,
-    'scoringframeworkseason1'
-  );
+  let data: any[] = [];
+  try {
+    data = await supabaseFetch(
+      `/rest/v1/yield_summation_historical?agent_name=eq.${agentName}&select=run_timestamp,usdc_native_balance,total_balance_usd&order=run_timestamp.asc`,
+      'scoringframeworkseason1'
+    );
+  } catch (error) {
+    // Keep API responses resilient when historical table permissions vary.
+    console.warn(`Historical query unavailable for ${agentName}; falling back to current balance.`, error);
+  }
 
   if (!data || data.length === 0) {
     // If historical table is empty, return a single snapshot from the current agents table

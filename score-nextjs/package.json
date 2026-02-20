@@ -10,7 +10,9 @@
     "lint": "eslint",
     "update-snapshots": "tsx scripts/update-snapshots.ts",
     "reset-snapshots": "tsx scripts/reset-and-update-snapshots.ts",
-    "add-daily-yield": "tsx scripts/add-daily-yield.ts"
+    "add-daily-yield": "tsx scripts/add-daily-yield.ts",
+    "prepare": "simple-git-hooks",
+    "secrets:check": "node scripts/check-sensitive.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -44,8 +46,13 @@
     "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
+    "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run secrets:check -- --staged",
+    "pre-push": "npm run secrets:check -- --push"
   }
 }
