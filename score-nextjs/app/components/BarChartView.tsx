@@ -36,7 +36,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
 
       ctx.save();
       ctx.globalAlpha = 0.08;
-      ctx.fillStyle = '#2727A5';
+      ctx.fillStyle = '#1172E1';
       ctx.font = 'bold 32px sans-serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
@@ -106,9 +106,9 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        titleColor: '#2727A5',
+        titleColor: '#1172E1',
         bodyColor: '#000',
-        borderColor: '#2727A5',
+        borderColor: '#1172E1',
         borderWidth: 1,
         padding: 12,
         displayColors: true,

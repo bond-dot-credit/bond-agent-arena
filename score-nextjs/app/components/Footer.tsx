@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           {/* Season End Info */}
           <div className="text-center md:text-left">
             <p className="text-gray-600 text-sm">
-              <span className="font-semibold text-[#2727A5]">Update:</span> Season 0 of Agentic Alpha has ended. Agents were successfully aggregated and routed credit. Benchmarking will resume next Season.
+              <span className="font-semibold text-[#1172E1]">Update:</span> Season 0 of Agentic Alpha has ended. Agents were successfully aggregated and routed credit. Benchmarking will resume next Season.
             </p>
           </div>
 
@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
               href="https://x.com/bondoncredit"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 text-sm font-semibold"
+              className="text-gray-600 hover:text-[#1172E1] transition-colors duration-300 text-sm font-semibold"
             >
               X
             </a>
@@ -28,13 +28,13 @@ const Footer: React.FC = () => {
               href="https://t.me/+HYosKAFQmJU3OWQ0"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 text-sm font-semibold"
+              className="text-gray-600 hover:text-[#1172E1] transition-colors duration-300 text-sm font-semibold"
             >
               TELEGRAM
             </a>
             <a
               href="mailto:team@bond.credit"
-              className="text-gray-600 hover:text-[#2727A5] transition-colors duration-300 text-sm font-semibold"
+              className="text-gray-600 hover:text-[#1172E1] transition-colors duration-300 text-sm font-semibold"
             >
               team@bond.credit
             </a>

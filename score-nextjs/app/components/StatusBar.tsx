@@ -6,7 +6,7 @@ const StatusBar: React.FC = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-3 flex justify-between items-center text-sm text-gray-400">
       <div className="flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-[#c9b382] animate-pulse"></div>
+        <div className="w-2 h-2 rounded-full bg-[#1172E1] animate-pulse"></div>
         <span>STATUS: CONNECTED TO SERVER</span>
       </div>
       <div>Last updated: <span id="last-updated">Just now</span></div>

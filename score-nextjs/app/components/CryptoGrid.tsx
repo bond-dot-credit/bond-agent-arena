@@ -1,13 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
 import { Agent } from '@/lib/types';
-import dynamic from 'next/dynamic';
-
-const ScorePanel = dynamic(() => import('@/app/components/iexec/ScorePanel'), {
-  ssr: false,
-  loading: () => <div className="p-6 text-center text-gray-500">Loading TEE Interface...</div>
-});
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [show, setShow] = useState(false);
@@ -40,17 +35,19 @@ const LeaderboardRow: React.FC<{
   calculatedScore?: number;
   onScoreCalculated: (score: number) => void;
 }> = ({ agent, index, isExpanded, onToggle, calculatedScore, onScoreCalculated }) => {
+  const { ready, authenticated, login } = usePrivy();
+  
   const getRankDisplay = (rank: number) => {
     const rankStyles = {
-      1: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40',
-      2: 'bg-gray-400/20 text-gray-300 border-gray-400/40',
-      3: 'bg-orange-500/20 text-orange-400 border-orange-500/40',
+      1: 'bg-blue-100 text-blue-700',
+      2: 'bg-blue-50 text-blue-600',
+      3: 'bg-gray-100 text-gray-700',
     };
 
-    const style = rankStyles[rank as keyof typeof rankStyles] || 'bg-gray-700/30 text-gray-500 border-gray-600/30';
+    const style = rankStyles[rank as keyof typeof rankStyles] || 'bg-gray-50 text-gray-500';
 
     return (
-      <span className={`w-8 h-8 rounded-full ${style} flex items-center justify-center text-sm font-semibold border`}>
+      <span className={`w-8 h-8 rounded-full ${style} flex items-center justify-center text-sm font-bold`}>
         {rank}
       </span>
     );
@@ -58,64 +55,31 @@ const LeaderboardRow: React.FC<{
 
   const formatCurrency = (value?: number) => {
     if (value === undefined || value === null) return 'N/A';
-    if (value >= 1000000) {
-      return `$${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 10000) {
-      return `$${(value / 1000).toFixed(1)}K`;
-    }
     return `$${value.toFixed(2)}`;
   };
 
-  // Get AUM and AUA from agent data
-  const getAUM = () => {
-    return formatCurrency(agent.aum);
-  };
-
-  const getAUA = () => {
-    return formatCurrency(agent.aua);
-  };
-
-  const getExpectedYield = () => {
-    return agent.expectedYield || 'N/A';
-  };
-
-  const getNativeYield = () => {
-    return formatCurrency(agent.nativeYield);
-  };
-
-  const getRewards = () => {
-    return formatCurrency(agent.rewards);
-  };
+  const getAUM = () => formatCurrency(agent.aum);
+  const getAUA = () => formatCurrency(agent.aua);
+  const getExpectedYield = () => agent.expectedYield || 'N/A';
+  const getNativeYield = () => formatCurrency(agent.nativeYield);
+  const getRewards = () => formatCurrency(agent.rewards);
 
   return (
-    <div className="group cursor-pointer transform transition-all duration-300">
-      <div 
-        className={`text-black rounded-xl border transition-all duration-300 relative overflow-hidden
-          ${isExpanded 
-            ? 'border-[#2727A5] shadow-lg scale-[1.01] bg-blue-50/30' 
-            : 'border-gray-200 bg-white shadow-md hover:border-[#2727A5] hover:shadow-lg hover:scale-[1.01]'
-          }`}
-        onClick={onToggle}
+    <React.Fragment>
+      <tr 
+        className={`hover:bg-blue-50 transition-colors cursor-pointer ${
+          isExpanded ? 'bg-blue-50 border-l-4 border-l-[#1172E1]' : ''
+        }`}
       >
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-tr from-gray-50 to-white opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2727A5]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
-        </div>
-
-        {/* Desktop View - Hidden on mobile */}
-        <div className="hidden md:grid px-6 py-4 relative z-10 grid-cols-8 gap-4 items-center">
-          {/* Rank */}
-          <div className="flex items-center justify-start">
-            {getRankDisplay(agent.rank)}
-          </div>
-
-          {/* Agent Name + Logo */}
+        <td className="px-6 py-4 whitespace-nowrap">
+          {getRankDisplay(agent.rank)}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
           <div className="flex items-center gap-3">
             {agent.medal && (
               agent.website ? (
                 <div 
-                  className="w-8 h-8 rounded-full bg-white border border-gray-200 hover:border-[#2727A5] flex items-center justify-center p-1 overflow-hidden shrink-0 transition-all duration-300 hover:scale-110"
+                  className="w-8 h-8 rounded-full bg-white border border-gray-200 hover:border-[#1172E1] flex items-center justify-center p-1 overflow-hidden shrink-0 transition-all duration-300"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(agent.website, '_blank');
@@ -129,139 +93,126 @@ const LeaderboardRow: React.FC<{
                 </div>
               )
             )}
-            <p className="font-bold text-black group-hover:text-[#2727A5] transition-colors duration-300 text-sm truncate">{agent.agent}</p>
+            <span className="font-semibold text-gray-900">{agent.agent}</span>
           </div>
-
-          {/* AUA */}
-          <div className="text-center">
-            <p className="font-bold text-black text-sm">
-              {getAUA()}
-            </p>
-          </div>
-
-          {/* AUM */}
-          <div className="text-center">
-            <p className="font-bold text-black text-sm">
-              {getAUM()}
-            </p>
-          </div>
-
-          {/* Native Yield */}
-          <div className="text-center">
-            <p className="text-sm text-black font-semibold">{getNativeYield()}</p>
-          </div>
-
-          {/* Rewards */}
-          <div className="text-center">
-            <p className="text-sm text-black font-semibold">{getRewards()}</p>
-          </div>
-
-          {/* Expected Yield */}
-          <div className="text-center">
-            <p className="text-sm text-black font-semibold">{getExpectedYield()}</p>
-          </div>
-
-          {/* Bond Score */}
-          <div className="text-center">
-            {calculatedScore ? (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                {calculatedScore}/100
-              </span>
-            ) : (
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors
-                ${isExpanded 
-                  ? 'bg-[#2727A5] text-white border-[#2727A5]' 
-                  : 'bg-gray-100 text-gray-600 border-gray-200 group-hover:border-[#2727A5] group-hover:text-[#2727A5]'}`}>
-                {isExpanded ? 'Verifying...' : 'Verify'}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile View - Card Layout */}
-        <div className="block md:hidden px-4 py-4 relative z-10 space-y-3">
-          {/* Rank + Agent Name */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {getRankDisplay(agent.rank)}
-              {agent.medal && (
-                <div className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
-                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-                </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap font-medium text-[#1172E1]">
+          {getAUA()}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+          {getAUM()}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+          {getNativeYield()}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+          {getRewards()}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+          {getExpectedYield()}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          {calculatedScore ? (
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1172E1]/10 text-[#1172E1] border border-[#1172E1]/20">
+              {calculatedScore}/100
+            </span>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle();
+              }}
+              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 hover:border-blue-700 transition-all duration-300 cursor-pointer"
+            >
+              {isExpanded ? (
+                <>
+                  <svg className="w-3 h-3 mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Verifying...
+                </>
+              ) : (
+                'Verify'
               )}
-              <p className="font-bold text-black group-hover:text-[#2727A5] transition-colors duration-300 text-sm">{agent.agent}</p>
-            </div>
-            
-            {/* Mobile Expand Indicator */}
-            <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-               </svg>
-            </div>
-          </div>
-
-          {/* Info Grid */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
-            <div>
-              <div className="text-gray-500 mb-1">
-                <span className="inline-flex items-center gap-1">
-                  AUA
-                  <Tooltip text="AUA means Asset Under Agent - The total balance managed by the agent.">
-                    <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600 border border-gray-300">
-                      !
-                    </span>
-                  </Tooltip>
-                </span>
-              </div>
-              <p className="text-black font-bold">{getAUA()}</p>
-            </div>
-            <div>
-              <div className="text-gray-500 mb-1">
-                <span className="inline-flex items-center gap-1">
-                  AUM
-                  <Tooltip text="AUM means Asset Under Management - The native USDC balance of the agent.">
-                    <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600 border border-gray-300">
-                      !
-                    </span>
-                  </Tooltip>
-                </span>
-              </div>
-              <p className="text-black font-bold">{getAUM()}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Native Yield</p>
-              <p className="text-black font-semibold">{getNativeYield()}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Rewards</p>
-              <p className="text-black font-semibold">{getRewards()}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Expected Yield</p>
-              <p className="text-black font-semibold">{getExpectedYield()}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Bond Score</p>
-              <p className="font-bold text-[#2727A5]">
-                {calculatedScore ? `${calculatedScore}/100` : 'Tap to Verify'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+            </button>
+          )}
+        </td>
+      </tr>
       
-      {/* Expanded Score Panel */}
-      <div 
-        className={`overflow-hidden transition-all duration-500 ease-in-out px-4 md:px-6
-          ${isExpanded ? 'max-h-[800px] opacity-100 mb-6' : 'max-h-0 opacity-0 mb-0'}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <ScorePanel 
-          agent={agent} 
-          onScoreCalculated={onScoreCalculated}
-        />
-      </div>
-    </div>
+      {/* Expanded Row */}
+      {isExpanded && (
+        <tr>
+          <td colSpan={8} className="p-0">
+            <div className="bg-gray-50 border-t border-gray-100 p-6">
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-[#1172E1] mb-1">Verify Bond Score</h3>
+                    <p className="text-sm text-gray-600">Run a confidential TEE computation to verify this agent's score.</p>
+                  </div>
+                  {ready && authenticated ? (
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      Wallet Connected
+                    </div>
+                    ) : (
+                    <button
+                      onClick={login}
+                      className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-full transition-colors cursor-pointer"
+                    >
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      Connect Wallet to Verify
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-mono rounded border border-blue-100">
+                    Dataset: 0xca38e4de...b1a2 ↗
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                    </svg>
+                    Requires <span className="font-semibold text-gray-900">0.1 RLC</span> and <span className="font-semibold text-gray-900">ETH (gas)</span> on <span className="font-semibold text-gray-900">Arbitrum One</span>
+                  </span>
+                </div>
+
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 mb-4">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-[#1172E1] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1 text-xs">WHY VERIFY WITH EXISTING DATA?</h4>
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        You are verifying the score using official metrics collected by <span className="font-semibold text-gray-900">bond.credit</span>. 
+                        The algorithm runs entirely within an <span className="font-semibold text-gray-900">iExec TEE (Trusted Execution Environment)</span>, 
+                        which ensures that calculation is performed exactly as defined, without any possibility of data manipulation or external interference.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center text-[10px] text-gray-400 flex items-center justify-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  TEE COMPUTATION POWERED BY IEXEC ON ARBITRUM ONE
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
   );
 };
 
@@ -278,53 +229,167 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   };
 
   return (
-    <div className="mb-10">
-      {/* Table Header - Hidden on mobile */}
-      <div className="hidden md:block mb-4 px-6">
-        <div className="grid grid-cols-8 gap-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-          <div className="text-left">Rank</div>
-          <div>Agent</div>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1">
-              AUA
-              <Tooltip text="AUA means Asset Under Agent - The total balance managed by the agent.">
-                <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#2727A5]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#2727A5] transition-all cursor-help border border-gray-300 hover:border-[#2727A5]">
-                  !
-                </span>
-              </Tooltip>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1">
-              AUM
-              <Tooltip text="AUM means Asset Under Management - The native USDC balance of the agent.">
-                <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#2727A5]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#2727A5] transition-all cursor-help border border-gray-300 hover:border-[#2727A5]">
-                  !
-                </span>
-              </Tooltip>
-            </div>
-          </div>
-          <div className="text-center">Native Yield</div>
-          <div className="text-center">Rewards</div>
-          <div className="text-center">Expected Yield</div>
-          <div className="text-center">Bond Score</div>
-        </div>
+    <div className="mb-10 font-sans">
+      {/* Desktop Table - Hidden on mobile */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 overflow-visible">
+        <table className="w-full font-sans">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rank</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Agent</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <div className="flex items-center gap-1">
+                  AUA
+                  <Tooltip text="AUA means Asset Under Agent - The total balance managed by the agent.">
+                    <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#1172E1]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#1172E1] transition-all cursor-help border border-gray-300 hover:border-[#1172E1]">
+                      !
+                    </span>
+                  </Tooltip>
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <div className="flex items-center gap-1">
+                  AUM
+                  <Tooltip text="AUM means Asset Under Management - The native USDC balance of the agent.">
+                    <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#1172E1]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#1172E1] transition-all cursor-help border border-gray-300 hover:border-[#1172E1]">
+                      !
+                    </span>
+                  </Tooltip>
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Native Yield</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rewards</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Expected Yield</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bond Score</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {agents.map((agent, index) => (
+              <LeaderboardRow 
+                key={agent.agent} 
+                agent={agent} 
+                index={index}
+                isExpanded={expandedAgentId === agent.agent}
+                onToggle={() => toggleExpand(agent.agent)}
+                calculatedScore={scores[agent.agent]}
+                onScoreCalculated={(score) => handleScoreCalculated(agent.agent, score)}
+              />
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Table Rows */}
-      <div className="space-y-3">
+      {/* Mobile View - Card Layout */}
+      <div className="block md:hidden space-y-3">
         {agents.map((agent, index) => (
-          <LeaderboardRow 
+          <LeaderboardRowMobile 
             key={agent.agent} 
-            agent={agent} 
-            index={index}
+            agent={agent}
             isExpanded={expandedAgentId === agent.agent}
             onToggle={() => toggleExpand(agent.agent)}
             calculatedScore={scores[agent.agent]}
-            onScoreCalculated={(score) => handleScoreCalculated(agent.agent, score)}
           />
         ))}
       </div>
+    </div>
+  );
+};
+
+// Mobile Card Component
+const LeaderboardRowMobile: React.FC<{
+  agent: Agent;
+  isExpanded: boolean;
+  onToggle: () => void;
+  calculatedScore?: number;
+}> = ({ agent, isExpanded, onToggle, calculatedScore }) => {
+  const formatCurrency = (value?: number) => {
+    if (value === undefined || value === null) return 'N/A';
+    return `$${value.toFixed(2)}`;
+  };
+
+  const getRankDisplay = (rank: number) => {
+    const rankStyles = {
+      1: 'bg-blue-100 text-blue-700',
+      2: 'bg-blue-50 text-blue-600',
+      3: 'bg-gray-100 text-gray-700',
+    };
+    const style = rankStyles[rank as keyof typeof rankStyles] || 'bg-gray-50 text-gray-500';
+    return (
+      <span className={`w-8 h-8 rounded-full ${style} flex items-center justify-center text-sm font-bold`}>
+        {rank}
+      </span>
+    );
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div 
+        className="px-4 py-4"
+        onClick={onToggle}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {getRankDisplay(agent.rank)}
+            {agent.medal && (
+              <div className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
+                <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
+              </div>
+            )}
+            <p className="font-semibold text-gray-900 text-sm">{agent.agent}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {calculatedScore ? (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-[#1172E1]/10 text-[#1172E1]">
+                {calculatedScore}/100
+              </span>
+            ) : (
+              <span className="text-xs text-gray-500">Tap to verify</span>
+            )}
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        {!isExpanded && (
+          <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+            <div>
+              <span className="text-gray-500">AUA:</span> <span className="text-[#1172E1] font-medium">{formatCurrency(agent.aua)}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">AUM:</span> <span className="text-gray-900 font-medium">{formatCurrency(agent.aum)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {isExpanded && (
+        <div className="px-4 pb-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs border-t border-gray-100 pt-3">
+            <div><span className="text-gray-500">AUA:</span> <span className="text-[#1172E1] font-medium">{formatCurrency(agent.aua)}</span></div>
+            <div><span className="text-gray-500">AUM:</span> <span className="text-gray-900 font-medium">{formatCurrency(agent.aum)}</span></div>
+            <div><span className="text-gray-500">Native:</span> <span className="text-gray-900">{formatCurrency(agent.nativeYield)}</span></div>
+            <div><span className="text-gray-500">Rewards:</span> <span className="text-gray-900">{formatCurrency(agent.rewards)}</span></div>
+            <div><span className="text-gray-500">Exp. Yield:</span> <span className="text-gray-900">{agent.expectedYield || 'N/A'}</span></div>
+            <div>
+              <span className="text-gray-500">Score:</span>{' '}
+              {calculatedScore ? (
+                <span className="text-[#1172E1] font-semibold">{calculatedScore}/100</span>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggle();
+                  }}
+                  className="text-[#1172E1] font-medium"
+                >
+                  Verify
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

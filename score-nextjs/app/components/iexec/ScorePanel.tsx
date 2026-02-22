@@ -461,7 +461,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
     <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mt-4 shadow-inner text-black text-left">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
-          <h3 className="text-lg font-bold text-[#2727A5]">Verify Bond Score</h3>
+          <h3 className="text-lg font-bold text-[#1172E1]">Verify Bond Score</h3>
           <p className="text-sm text-gray-500">Run a confidential TEE computation to verify this agent&apos;s score.</p>
           
           {/* Dataset Explorer Link */}
@@ -470,7 +470,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
               href={`https://explorer.iex.ec/arbitrum-mainnet/dataset/${currentOfficialDataset}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[10px] text-[#2727A5] hover:underline mt-1 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-100"
+              className="inline-flex items-center gap-1 text-[10px] text-[#1172E1] hover:underline mt-1 font-mono bg-blue-50 px-2 py-0.5 rounded border border-blue-100"
             >
               Dataset: {currentOfficialDataset.substring(0, 10)}...{currentOfficialDataset.substring(38)}
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
@@ -499,16 +499,16 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
       )}
 
       {result ? (
-        <div className="bg-white border border-[#2727A5]/20 rounded-lg p-6 text-center shadow-sm">
+        <div className="bg-white border border-[#1172E1]/20 rounded-lg p-6 text-center shadow-sm">
           <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">Final Verified Score</p>
-          <div className="text-5xl font-bold text-[#2727A5] mb-2">{result.score}<span className="text-2xl text-gray-400">/100</span></div>
+          <div className="text-5xl font-bold text-[#1172E1] mb-2">{result.score}<span className="text-2xl text-gray-400">/100</span></div>
           <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400 mt-4">
-             <a href={`https://explorer.iex.ec/arbitrum-mainnet/task/${result.task}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#2727A5] underline flex items-center gap-1">
+             <a href={`https://explorer.iex.ec/arbitrum-mainnet/task/${result.task}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#1172E1] underline flex items-center gap-1">
                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                View on Explorer
              </a>
              <span>|</span>
-             <a href={`https://ipfs-gateway.arbitrum-mainnet.iex.ec/ipfs/${result.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#2727A5] underline flex items-center gap-1">
+             <a href={`https://ipfs-gateway.arbitrum-mainnet.iex.ec/ipfs/${result.ipfsHash}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#1172E1] underline flex items-center gap-1">
                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" /></svg>
                View Raw Result (IPFS)
              </a>
@@ -522,7 +522,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
              {isAdmin ? (
                <button 
                  onClick={() => setShowOverrides(!showOverrides)}
-                 className="text-xs font-semibold text-[#2727A5] hover:underline flex items-center gap-1"
+                 className="text-xs font-semibold text-[#1172E1] hover:underline flex items-center gap-1"
                >
                  {showOverrides ? 'Hide' : 'Show'} Simulation Parameters (Admin Only)
                  <svg className={`w-4 h-4 transform ${showOverrides ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -542,7 +542,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
                            <label className="text-xs text-gray-500 capitalize">{key}</label>
                            <span className="text-xs font-mono">{val}%</span>
                          </div>
-                         <input type="range" min="0" max="100" value={val} onChange={e => setWeightOverrides({...weightOverrides, [key]: parseInt(e.target.value)})} className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2727A5]" />
+                         <input type="range" min="0" max="100" value={val} onChange={e => setWeightOverrides({...weightOverrides, [key]: parseInt(e.target.value)})} className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#1172E1]" />
                        </div>
                      ))}
                    </div>
@@ -577,21 +577,21 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
 
           {/* Prerequisites Notice */}
           <div className="mb-4 flex items-center justify-center gap-2 text-[10px] text-gray-500 font-medium">
-            <svg className="w-3 h-3 text-[#2727A5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg className="w-3 h-3 text-[#1172E1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             Requires <span className="font-bold text-black">0.1 RLC</span> and <span className="font-bold text-black">ETH (gas)</span> on Arbitrum One
           </div>
 
           <button
             onClick={handleCalculateScore}
             disabled={!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !currentOfficialDataset)}
-            className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !currentOfficialDataset) ? 'bg-gray-300' : 'bg-[#2727A5] hover:bg-[#3d3db8]'}`}
+            className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!isConnected || isLoading || networkStatus === 'wrong' || (!isAdmin && !currentOfficialDataset) ? 'bg-gray-300' : 'bg-[#1172E1] hover:bg-[#1575E4]'}`}
           >
             {isLoading ? `Processing (${taskStatus})...` : networkStatus === 'wrong' ? 'Switch to Arbitrum One' : (!isAdmin && !currentOfficialDataset) ? 'Waiting for Admin Setup' : 'Verify Score On-Chain'}
           </button>
           
           {currentTaskId && (
             <div className="mt-4 text-center">
-              <a href={`https://explorer.iex.ec/arbitrum-mainnet/task/${currentTaskId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2727A5] hover:underline flex items-center justify-center gap-1">
+              <a href={`https://explorer.iex.ec/arbitrum-mainnet/task/${currentTaskId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#1172E1] hover:underline flex items-center justify-center gap-1">
                 View Task on Explorer
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
               </a>
@@ -600,7 +600,7 @@ export default function ScorePanel({ agent, onScoreCalculated }: ScorePanelProps
 
           {/* Information Section */}
           <div className="mt-6 p-4 bg-white border border-gray-100 rounded-lg text-xs leading-relaxed text-gray-600 shadow-sm">
-            <div className="flex items-center gap-2 font-bold text-[#2727A5] mb-2 uppercase tracking-tight">
+            <div className="flex items-center gap-2 font-bold text-[#1172E1] mb-2 uppercase tracking-tight">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               Why verify with existing data?
             </div>

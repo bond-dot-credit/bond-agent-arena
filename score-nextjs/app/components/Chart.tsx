@@ -20,7 +20,7 @@ interface ChartData {
   [modelName: string]: ChartPoint[];
 }
 
-const agentColors = ['#c9b382', '#d4a574', '#b89968', '#e0c896', '#a88a5e'];
+const agentColors = ['#1172E1', '#1575E4', '#2C88F8', '#4DA3F8', '#0F5CBA'];
 
 const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const agentsData = agents;
@@ -167,7 +167,7 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('y', 20)
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'hanging')
-      .attr('fill', 'rgba(201, 179, 130, 0.15)')
+      .attr('fill', 'rgba(17, 114, 225, 0.15)')
       .attr('font-size', '32px')
       .attr('font-weight', 'bold')
       .attr('letter-spacing', '2px')
@@ -357,13 +357,13 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           <h2 className="text-xl font-bold text-white">TOTAL AGENT ACCOUNT VALUE</h2>
           <div className="flex gap-1">
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => handleValueToggle(true)}
             >
               $
             </button>
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => handleValueToggle(false)}
             >
               %
@@ -375,7 +375,7 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           {['ALL', '72H', '24H', '1H'].map((tf) => (
             <button
               key={tf}
-              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
               onClick={() => handleTimeframeChange(tf)}
             >
               {tf}
@@ -387,7 +387,7 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
         {loading && (
           <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
-            <div className="text-[#c9b382] text-base font-semibold">Loading Chart Data...</div>
+            <div className="text-[#1172E1] text-base font-semibold">Loading Chart Data...</div>
           </div>
         )}
       </div>

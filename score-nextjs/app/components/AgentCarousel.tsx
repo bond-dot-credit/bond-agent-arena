@@ -20,7 +20,6 @@ const AgentCarousel: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
 
-          // Check if we got rate limited
           if (data.status?.error_code === 429) {
             console.warn('CoinGecko API rate limit reached');
             setLoading(false);
@@ -62,61 +61,81 @@ const AgentCarousel: React.FC = () => {
     };
 
     fetchTokenPrices();
-    const interval = setInterval(fetchTokenPrices, 300000); // Update every 5 minutes instead of 1 minute
+    const interval = setInterval(fetchTokenPrices, 300000);
     return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
-      <div className="relative overflow-hidden mb-4 py-2 border-y border-gray-200 bg-gray-50 hidden lg:block">
+      <div className="relative overflow-hidden mb-4 py-2 border-b border-gray-100 bg-gray-50/50 hidden lg:block">
         <div className="container mx-auto px-4 max-w-[1600px]">
-          <div className="flex items-center justify-center">
-            <span className="text-gray-600 text-sm">Loading token prices...</span>
+          <div className="flex items-center justify-center h-6">
+            <span className="text-gray-400 text-sm">Loading...</span>
           </div>
         </div>
       </div>
     );
   }
 
+  const formatPrice = (price: number) => {
+    if (price === 0) return '—';
+    if (price >= 1000) {
+      return `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return `$${price.toFixed(2)}`;
+  };
+
+  const formatChange = (change: number) => {
+    if (change === 0) return '—';
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(2)}%`;
+  };
+
+  const tickerItems = tokenPrices.length > 0 
+    ? tokenPrices 
+    : [
+        { symbol: 'BTC', price: 68003, change24h: -0.27 },
+        { symbol: 'ETH', price: 1972.86, change24h: -0.05 },
+        { symbol: 'MAMO', price: 0.01, change24h: -0.03 },
+        { symbol: 'GIZA', price: 0.02, change24h: 7.82 }
+      ];
+
+  const duplicatedItems = [...tickerItems, ...tickerItems, ...tickerItems];
+
   return (
-    <div className="relative overflow-hidden mb-4 py-3 border-y border-gray-200 bg-gray-50 hidden lg:block">
-      <div className="container mx-auto px-4 max-w-[1600px]">
-        <div className="flex items-center justify-between gap-8">
-          {/* Left - Agentic Alpha */}
-          <div className="text-xl font-bold text-[#2727A5]">
-            Agentic Alpha
-          </div>
-
-          {/* Center - Token Prices */}
-          <div className="flex items-center justify-center gap-12 flex-1">
-            {tokenPrices.length > 0 ? (
-              tokenPrices.map((token) => (
-                <div key={token.symbol} className="flex items-center gap-3">
-                  <span className="text-[#2727A5] font-bold text-sm">${token.symbol}</span>
-                  <span className="text-black font-mono text-sm">
-                    {token.price > 0 
-                      ? `$${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                      : 'N/A'
-                    }
-                  </span>
-                  {token.price > 0 && (
-                    <span className={`text-xs font-semibold ${token.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
-                    </span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <span className="text-gray-600 text-sm">Unable to load prices</span>
-            )}
-          </div>
-
-          {/* Right - Empty spacer for balance */}
-          <div className="text-xl font-bold text-transparent">
-            Agentic Alpha
-          </div>
+    <div className="relative overflow-hidden mb-4 py-2.5 border-b border-gray-100 bg-white hidden lg:block">
+      <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-white to-transparent z-10" />
+      <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white to-transparent z-10" />
+      
+      <div className="overflow-hidden">
+        <div className="flex animate-scroll whitespace-nowrap">
+          {duplicatedItems.map((token, idx) => (
+            <div 
+              key={`${token.symbol}-${idx}`} 
+              className="inline-flex items-center gap-2 mx-6 text-sm"
+            >
+              <span className="text-black/50 font-medium">${token.symbol}</span>
+              <span className="text-black font-mono font-medium">{formatPrice(token.price)}</span>
+              <span className={`text-xs font-medium ${token.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatChange(token.change24h)}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.33%); }
+        }
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 };

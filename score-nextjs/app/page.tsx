@@ -1,27 +1,73 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import AgentCarousel from './components/AgentCarousel';
 import ChartWithData from './components/ChartWithData';
 import InfoTabs from './components/InfoTabs';
 import Footer from './components/Footer';
+import { Card } from './components/ui/Card';
+import { motion } from 'framer-motion';
+import { Agent } from '@/lib/types';
 import { getAllAgents } from '@/lib/services/agentService';
 
-export const runtime = 'edge';
+const easeOut = [0.4, 0, 0.2, 1] as const;
 
-export default async function Home() {
-  // Fetch agents from Supabase
-  const agents = await getAllAgents();
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20,
+  },
+  enter: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: easeOut,
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  enter: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.5, ease: easeOut }
+  },
+};
+
+export default function Home() {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getAllAgents()
+      .then(setAgents)
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, []);
 
   return (
-    <div className="relative min-h-screen bg-white text-black overflow-x-hidden flex flex-col">
+    <motion.div 
+      className="relative min-h-screen bg-white text-black overflow-x-hidden flex flex-col"
+      initial="initial"
+      animate="enter"
+      variants={pageVariants}
+    >
       <div className="relative z-10 flex-1 flex flex-col">
         <Header />
 
-        <div className="container mx-auto px-4 max-w-[1600px] flex-1">
-          {/* Token Prices - Desktop only */}
+        <motion.div
+          variants={itemVariants}
+          className="flex-1 px-4 md:px-6 lg:px-8"
+        >
           <AgentCarousel />
+        </motion.div>
 
-          {/* Combined Chart and Leaderboard */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-5 relative shadow-lg mb-4">
+        <motion.div variants={itemVariants}>
+          <Card className="p-5 mb-4">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
               <div className="lg:col-span-3">
                 <ChartWithData agents={agents} />
@@ -30,11 +76,11 @@ export default async function Home() {
                 <InfoTabs agents={agents} />
               </div>
             </div>
-          </div>
-        </div>
-
-        <Footer />
+          </Card>
+        </motion.div>
       </div>
-    </div>
+
+      <Footer />
+    </motion.div>
   );
 }

@@ -42,7 +42,7 @@ const AgentsClient: React.FC<AgentsClientProps> = ({ agents }) => {
       <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6 gap-4">
             <div className="flex-1">
-              <h1 className="text-3xl lg:text-4xl font-bold text-[#c9b382] tracking-tight mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <h1 className="text-3xl lg:text-4xl font-bold text-[#1172E1] tracking-tight mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Agentic Yield Vaults
               </h1>
               <p className="text-lg text-gray-300" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -67,7 +67,7 @@ const AgentsClient: React.FC<AgentsClientProps> = ({ agents }) => {
                 onClick={() => setActiveFilter(filter.key as any)}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeFilter === filter.key
-                    ? 'bg-[#c9b382] text-black'
+                    ? 'bg-[#1172E1] text-white'
                     : 'text-gray-300 hover:text-white hover:bg-white/10'
                 }`}
               >
@@ -86,7 +86,7 @@ const AgentsClient: React.FC<AgentsClientProps> = ({ agents }) => {
                 placeholder="Search agents..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-3 w-64 rounded-xl focus:ring-2 focus:ring-[#c9b382] focus:border-transparent text-white placeholder-gray-400"
+                className="pl-10 pr-4 py-3 w-64 rounded-xl focus:ring-2 focus:ring-[#1172E1] focus:border-transparent text-white placeholder-gray-400"
                 style={{ backgroundColor: '#1A1A1A', border: '1px solid rgba(255,255,255,0.1)' }}
               />
             </div>
@@ -96,7 +96,7 @@ const AgentsClient: React.FC<AgentsClientProps> = ({ agents }) => {
               <button
                 onClick={() => setViewMode('cards')}
                 className={`p-2.5 rounded-lg transition-colors ${
-                  viewMode === 'cards' ? 'bg-[#c9b382] text-black' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  viewMode === 'cards' ? 'bg-[#1172E1] text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 }`}
                 title="Card View"
               >
@@ -105,7 +105,7 @@ const AgentsClient: React.FC<AgentsClientProps> = ({ agents }) => {
               <button
                 onClick={() => setViewMode('table')}
                 className={`p-2.5 rounded-lg transition-colors ${
-                  viewMode === 'table' ? 'bg-[#c9b382] text-black' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  viewMode === 'table' ? 'bg-[#1172E1] text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
                 }`}
                 title="Table View"
               >
@@ -187,7 +187,7 @@ const AgentsClient: React.FC<AgentsClientProps> = ({ agents }) => {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm text-[#c9b382] font-medium">{agent.bondScore}</div>
+                        <div className="text-sm text-[#1172E1] font-medium">{agent.bondScore}</div>
                       </td>
                     </tr>
                   ))}
@@ -234,10 +234,10 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
 
   return (
     <div className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.01]">
-      <div className="text-white rounded-xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-[#c9b382]/30 overflow-hidden p-6">
+      <div className="text-white rounded-xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-xl duration-500 relative backdrop-blur-xl hover:border-[#1172E1]/30 overflow-hidden p-6">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-white/10 opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9b382]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#1172E1]/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000" />
         </div>
         <div className="relative z-10">
       <div className="flex items-start justify-between mb-4">
@@ -257,7 +257,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
             )}
           </div>
           <div>
-            <h3 className="font-bold text-white group-hover:text-[#c9b382] transition-colors text-lg">
+            <h3 className="font-bold text-white group-hover:text-[#1172E1] transition-colors text-lg">
               {agent.agent}
             </h3>
             <div className="flex items-center space-x-2 mt-1">
@@ -270,7 +270,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
             </div>
           </div>
         </div>
-        <LaunchIcon className="w-5 h-5 text-gray-400 group-hover:text-[#c9b382] transition-colors" />
+        <LaunchIcon className="w-5 h-5 text-gray-400 group-hover:text-[#1172E1] transition-colors" />
       </div>
 
       <p className="text-sm text-gray-300 mb-4">
@@ -319,7 +319,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
 
       <div className="flex items-center justify-between pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <div className="text-sm text-white font-semibold">
-          Bond Score: <span className="text-[#c9b382]">{agent.bondScore}</span>
+          Bond Score: <span className="text-[#1172E1]">{agent.bondScore}</span>
         </div>
       </div>
         </div>

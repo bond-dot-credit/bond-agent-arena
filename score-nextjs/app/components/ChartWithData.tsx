@@ -326,7 +326,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           const tooltipValue = tooltip.append('text')
             .attr('x', x + 15)
             .attr('y', y - 8)
-            .attr('fill', '#c9b382')
+            .attr('fill', '#1172E1')
             .attr('font-size', '10')
             .attr('font-weight', 'bold')
             .attr('font-family', 'Courier New, monospace')
@@ -398,15 +398,15 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
           radialGradient.append('stop')
             .attr('offset', '0%')
-            .attr('stop-color', '#f4e4c1');
+            .attr('stop-color', '#2C88F8');
 
           radialGradient.append('stop')
             .attr('offset', '50%')
-            .attr('stop-color', '#d4a574');
+            .attr('stop-color', '#1575E4');
 
           radialGradient.append('stop')
             .attr('offset', '100%')
-            .attr('stop-color', '#c9b382');
+            .attr('stop-color', '#1172E1');
 
           // Pulsing golden glow behind logo
           const glowCircle = iconGroup.append('circle')
@@ -436,7 +436,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             .attr('cy', 0)
             .attr('r', 16)
             .attr('fill', 'white')
-            .attr('stroke', '#c9b382')
+            .attr('stroke', '#1172E1')
             .attr('stroke-width', 2.5);
 
           // Animate stroke color shimmer
@@ -444,10 +444,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             logoCircle
               .transition()
               .duration(1500)
-              .attr('stroke', '#f4e4c1')
+              .attr('stroke', '#2C88F8')
               .transition()
               .duration(1500)
-              .attr('stroke', '#c9b382')
+              .attr('stroke', '#1172E1')
               .on('end', shimmerStroke);
           };
           shimmerStroke();
@@ -697,13 +697,13 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#2727A5] text-white' : 'bg-gray-200 text-gray-600'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-200 text-gray-600'}`}
               onClick={() => handleValueToggle(true)}
             >
               $
             </button>
             <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#2727A5] text-white' : 'bg-gray-200 text-gray-600'}`}
+              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-200 text-gray-600'}`}
               onClick={() => handleValueToggle(false)}
             >
               %
@@ -728,10 +728,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 padding: '6px 12px',
                 '&.Mui-selected': {
                   color: '#000',
-                  backgroundColor: '#c9b382',
-                  borderColor: '#c9b382',
+                  backgroundColor: '#1172E1',
+                  borderColor: '#1172E1',
                   '&:hover': {
-                    backgroundColor: '#d4a574',
+                    backgroundColor: '#1575E4',
                   },
                 },
                 '&:hover': {
@@ -753,7 +753,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           {['ALL', '72H', '24H', '1H'].map((tf) => (
             <button
               key={tf}
-              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
               onClick={() => handleTimeframeChange(tf)}
             >
               {tf}
@@ -769,13 +769,13 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
-              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => setShowDollar(true)}
             >
               $
             </button>
             <button
-              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${!showDollar ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${!showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
               onClick={() => setShowDollar(false)}
             >
               %
@@ -788,7 +788,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             {['ALL', '72H', '24H', '1H'].map((tf) => (
               <button
                 key={tf}
-                className={`flex-1 px-2 py-1.5 rounded-md font-semibold text-xs transition-all ${currentTimeframe === tf ? 'bg-[#c9b382] text-black' : 'bg-gray-800 text-gray-400'}`}
+                className={`flex-1 px-2 py-1.5 rounded-md font-semibold text-xs transition-all ${currentTimeframe === tf ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
                 onClick={() => handleTimeframeChange(tf)}
               >
                 {tf}
@@ -812,8 +812,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             {loading && (
               <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2727A5]"></div>
-                  <div className="text-[#2727A5] text-base font-semibold">Fetching {currentTimeframe} data...</div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1172E1]"></div>
+                  <div className="text-[#1172E1] text-base font-semibold">Fetching {currentTimeframe} data...</div>
                 </div>
               </div>
             )}

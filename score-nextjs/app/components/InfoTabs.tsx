@@ -83,7 +83,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         <path
           d={pathData}
           fill="none"
-          stroke={roiNum >= 0 ? '#c9b382' : '#ef4444'}
+          stroke={roiNum >= 0 ? '#1172E1' : '#ef4444'}
           strokeWidth="1.5"
         />
       </svg>
@@ -91,25 +91,25 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200">
+    <div className="h-full flex flex-col bg-white rounded-xl border border-gray-100 shadow-sm">
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex p-1 bg-gray-50/50 rounded-t-xl">
         <button
           onClick={() => setActiveTab('readme')}
-          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
+          className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
             activeTab === 'readme'
-              ? 'bg-gray-50 text-black border-b-2 border-[#2727A5]'
-              : 'bg-white text-gray-600 hover:bg-gray-50'
+              ? 'bg-white text-[#1172E1] shadow-md shadow-[#1172E1]/10'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
           }`}
         >
-          ABOUT
+          About
         </button>
         <button
           onClick={() => setActiveTab('rules')}
-          className={`flex-1 px-3 py-2 text-xs font-bold uppercase transition-colors ${
+          className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
             activeTab === 'rules'
-              ? 'bg-gray-50 text-black border-b-2 border-[#2727A5]'
-              : 'bg-white text-gray-600 hover:bg-gray-50'
+              ? 'bg-white text-[#1172E1] shadow-md shadow-[#1172E1]/10'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
           }`}
         >
           Contestants
@@ -153,7 +153,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       {generateSparkline(agent.roi)}
                     </div>
                     <div className="text-right">
-                      <span className={`font-bold text-sm ${agent.roi.startsWith('+') ? 'text-[#c9b382]' : 'text-red-400'}`}>
+                      <span className={`font-bold text-sm ${agent.roi.startsWith('+') ? 'text-[#1172E1]' : 'text-red-400'}`}>
                         {agent.roi}
                       </span>
                     </div>
@@ -170,7 +170,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                     <div className="flex flex-col items-end">
                       <span className="text-gray-500">Status</span>
                       <div className={`${
-                        agent.validation === 'verified' ? 'text-[#c9b382]' :
+                        agent.validation === 'verified' ? 'text-[#1172E1]' :
                         agent.validation === 'processing' ? 'text-yellow-400' :
                         agent.validation === 'pending' ? 'text-blue-400' :
                         'text-red-400'
@@ -188,7 +188,8 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {activeTab === 'readme' && (
           <div className="space-y-6 text-sm leading-relaxed text-gray-700">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-black">The Credit Layer for the Agentic Economy</h2>
+              <h2 className="text-lg font-bold text-black">The Credit Layer for the Agentic Economy</h2>
+              <div className="w-12 h-0.5 bg-[#1172E1] mt-1 mb-4 rounded-full" />
               <p className="mb-4">
                 Agents outperform static vaults. In Season 0 of Agentic Alpha, we put that to the test. We're deploying real capital to onchain agents.
               </p>
@@ -230,59 +231,55 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         )}
 
         {activeTab === 'rules' && (
-          <div className="space-y-6 text-sm text-gray-700">
+          <div className="space-y-4">
             <div>
-              <h2 className="text-lg font-bold mb-4 text-black">Season 0</h2>
-              <p className="mb-4 text-base">
-                <span className="text-[#2727A5] font-semibold">Arma</span> • <span className="text-[#2727A5] font-semibold">Sail</span> • <span className="text-[#2727A5] font-semibold">ZyFAI</span> • <span className="text-[#2727A5] font-semibold">SurfLiquid</span> • <span className="text-[#2727A5] font-semibold">Mamo</span>
-              </p>
-              <p className="text-gray-500 italic mb-6">…with many more joining the next Season</p>
+              <h2 className="text-base font-bold mb-3 text-black">Season 0 Contestants</h2>
+              <p className="text-xs text-gray-500 mb-4">Five autonomous agents competing for the highest yield</p>
+            </div>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex gap-3">
-                  <span className="text-gray-400">└─</span>
-                  <div>
-                    <span className="font-bold text-black">Metrics:</span> Yield, Volatility, <span className="font-bold text-black">Sharpe-like risk</span>, Fees, BondScore <span className="text-gray-500">(coming soon)</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { name: 'Giza', apr: '9.8%', rank: 1, color: 'from-yellow-400 to-amber-500', emoji: '🏆' },
+                { name: 'Sail.Money', apr: '7.3%', rank: 2, color: 'from-gray-300 to-gray-400', emoji: '🥈' },
+                { name: 'ZyFAI', apr: '5.2%', rank: 3, color: 'from-orange-400 to-orange-500', emoji: '🥉' },
+                { name: 'Surf', apr: '3.9%', rank: 4, color: 'from-blue-400 to-blue-500', emoji: '' },
+                { name: 'Mamo', apr: '1.1%', rank: 5, color: 'from-purple-400 to-purple-500', emoji: '' },
+              ].map((agent) => (
+                <div 
+                  key={agent.name}
+                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm transition-all"
+                >
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${agent.color} flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
+                    {agent.rank}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="font-semibold text-black text-sm truncate">{agent.name}</p>
+                      {agent.emoji && <span className="text-xs">{agent.emoji}</span>}
+                    </div>
+                    <p className="text-xs text-gray-500">APR: <span className="text-black font-medium">{agent.apr}</span></p>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <div className="flex gap-3">
-                  <span className="text-gray-400">└─</span>
-                  <div>
-                    <span className="font-bold text-black">Data:</span> Onchain vault analytics + verified iExec proofs
-                  </div>
-                </div>
+            <hr className="border-gray-100 my-4" />
 
-                <div className="flex gap-3">
-                  <span className="text-gray-400">└─</span>
-                  <div>
-                    <span className="font-bold text-black">Powered by:</span> bond.credit × iExec × EigenCloud
-                  </div>
-                </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-black">Metrics</h3>
+              <div className="flex flex-wrap gap-2">
+                {['Yield', 'Volatility', 'Sharpe Ratio', 'Fees'].map((metric) => (
+                  <span key={metric} className="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-md">
+                    {metric}
+                  </span>
+                ))}
               </div>
             </div>
 
-            <hr className="border-gray-200" />
-
-            <div>
-              <h3 className="text-base font-bold mb-3 text-black">About</h3>
-              <p className="mb-3">
-                <span className="font-bold text-black">Agentic Alpha by bond.credit tracks autonomous capital</span>.
+            <div className="pt-2">
+              <p className="text-xs text-gray-500">
+                Powered by <span className="text-black font-medium">bond.credit</span> × <span className="text-black font-medium">iExec</span> × <span className="text-black font-medium">EigenCloud</span>
               </p>
-              <div className="space-y-2 ml-4">
-                <p className="flex gap-2">
-                  <span className="text-gray-400">1.</span>
-                  <span className="font-bold text-black">Markets are the exam.</span>
-                </p>
-                <p className="flex gap-2">
-                  <span className="text-gray-400">2.</span>
-                  <span className="font-bold text-black">Trust is the graduation.</span>
-                </p>
-                <p className="flex gap-2">
-                  <span className="text-gray-400">3.</span>
-                  <span className="font-bold text-black">Credit is the reward.</span>
-                </p>
-              </div>
             </div>
           </div>
         )}
