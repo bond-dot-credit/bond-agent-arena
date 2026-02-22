@@ -15,12 +15,8 @@ export async function GET(
     const to = searchParams.get('to');
     const interval = searchParams.get('interval') || '1h';
 
-    // Get agent
+    // Resolve agent; when unavailable, continue with safe fallback response.
     const agent = await getAgentByAddress(address);
-
-    if (!agent) {
-      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
-    }
 
     // Calculate limit and time range based on interval
     let limit: number | undefined;
@@ -46,16 +42,26 @@ export async function GET(
       address,
       from ? parseInt(from) : fromTime,
       to ? parseInt(to) : undefined,
-      limit
+      limit,
+      agent
     );
 
     const baseValue = 2000;
     const initialValue = snapshots.length > 0 ? snapshots[0].balance : baseValue;
     const currentValue = snapshots.length > 0 ? snapshots[snapshots.length - 1].balance : baseValue;
-    const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
+    const roiNum = agent ? parseFloat(agent.roi.replace('%', '').replace('+', '')) : 0;
 
     return NextResponse.json({
-      agent,
+      agent: agent ?? {
+        rank: 0,
+        agent: 'Unavailable',
+        contractAddress: address,
+        roi: '0.0%',
+        riskScore: 0,
+        validation: 'warning',
+        performanceScore: 0,
+        bondScore: 'Unavailable',
+      },
       snapshots,
       currentValue,
       initialValue,

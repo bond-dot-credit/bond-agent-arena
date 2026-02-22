@@ -8,6 +8,33 @@ const supabaseKey = (process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
                     process.env.AGENTS_SUPABASE_ANON_KEY ||
                     process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
+export class SupabaseFetchError extends Error {
+  status: number;
+  statusText: string;
+  endpoint: string;
+  schema: string;
+  body: string;
+
+  constructor(
+    message: string,
+    details: {
+      status: number;
+      statusText: string;
+      endpoint: string;
+      schema: string;
+      body: string;
+    }
+  ) {
+    super(message);
+    this.name = 'SupabaseFetchError';
+    this.status = details.status;
+    this.statusText = details.statusText;
+    this.endpoint = details.endpoint;
+    this.schema = details.schema;
+    this.body = details.body;
+  }
+}
+
 // Direct fetch function for Supabase REST API
 async function supabaseFetch(endpoint: string, schema: string = 'public') {
   const url = `${supabaseUrl}${endpoint}`;
@@ -34,8 +61,16 @@ async function supabaseFetch(endpoint: string, schema: string = 'public') {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`[Supabase] Error Body:`, errorText);
-    throw new Error(`Supabase fetch failed: ${response.statusText}`);
+    if (response.status !== 401 && response.status !== 403) {
+      console.error(`[Supabase] Error Body:`, errorText);
+    }
+    throw new SupabaseFetchError(`Supabase fetch failed: ${response.statusText}`, {
+      status: response.status,
+      statusText: response.statusText,
+      endpoint,
+      schema,
+      body: errorText,
+    });
   }
 
   const data = await response.json();

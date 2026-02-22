@@ -32,3 +32,28 @@ export interface AgentPerformance {
   totalReturn: number;
   roiPercentage: number;
 }
+
+export interface WalletState {
+  address: string | null;
+  isConnected: boolean;
+  chainId: number | null;
+}
+
+export interface UserInfo {
+  email?: string;
+  [key: string]: any;
+}
+
+export interface Alert {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  timestamp: string;
+}
+
+export interface ModalState {
+  isOpen: boolean;
+  type: 'connect' | 'transaction' | 'agent' | 'waitlist' | null;
+  data?: any;
+}
