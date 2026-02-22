@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers from "./components/Providers";
+import { Providers } from "./components/Providers";
+import { PrivyProviderWrapper } from "../components/providers/PrivyProviderWrapper";
+import { Alerts } from "../components/alerts/Alerts";
+import { ConnectModal } from "../components/wallet/ConnectModal";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -29,10 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} font-sans antialiased`}
       >
         <Providers>
-          {children}
+          <PrivyProviderWrapper>
+            <Alerts />
+            <ConnectModal />
+            {children}
+          </PrivyProviderWrapper>
         </Providers>
       </body>
     </html>
