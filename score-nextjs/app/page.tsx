@@ -65,7 +65,7 @@ export default function Home() {
         {/* Portfolio KPI bar */}
         <div style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="wt-container">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', borderLeft: '1px solid var(--border)' }}>
+            <div className="kpi-grid">
               {SEASON_KPIS.map((k) => (
                 <div key={k.label} style={{
                   padding: '14px 16px',
@@ -83,7 +83,7 @@ export default function Home() {
 
         {/* Main content */}
         <div className="wt-container py-5">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '16px', alignItems: 'start' }}>
+          <div className="page-grid">
             {/* Chart panel */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -114,13 +114,13 @@ export default function Home() {
             </div>
 
             {/* Sidebar */}
-            <div style={{ height: '620px', display: 'flex', flexDirection: 'column' }}>
+            <div className="sidebar" style={{ height: '620px', display: 'flex', flexDirection: 'column' }}>
               <InfoTabs agents={agents} />
             </div>
           </div>
 
           {/* Bottom metrics strip */}
-          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+          <div className="bottom-strip">
             {[
               { label: 'Avg Daily Volume',        value: '$7,120',   icon: '📊' },
               { label: 'Avg Daily Yield',          value: '$2.76',    icon: '💰' },
@@ -140,14 +140,6 @@ export default function Home() {
 
       <style jsx global>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 960px) {
-          .page-grid { grid-template-columns: 1fr !important; }
-          .kpi-grid  { grid-template-columns: repeat(3, 1fr) !important; }
-          .bottom-strip { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 640px) {
-          .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
       `}</style>
     </div>
   );
