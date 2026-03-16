@@ -28,13 +28,13 @@ interface ChartData {
   [modelName: string]: ChartPoint[];
 }
 
-// Refined color palette for agents with better readability on dark backgrounds
+// Watchtower agent colors — matches InfoTabs and design system
 const agentColors = [
-  '#E57373', // Arma - Pink-red, warm tone
-  '#64B5F6', // Sail - Bright blue
-  '#FFD54F', // ZyFAI - Mustard yellow
-  '#9575CD', // Mamo - Premium purple
-  '#4DB6AC', // SurfLiquid - Cool teal
+  '#ccff00', // Giza/Arma   - lime
+  '#3b82f6', // Sail.Money  - blue
+  '#a855f7', // ZyFAI       - purple
+  '#f97316', // Surf        - orange
+  '#22c55e', // Mamo        - green
 ];
 
 // Simulated yield events showing how agents generate stablecoin returns
@@ -217,9 +217,9 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('y1', (d) => yScale(minValue + (maxValue - minValue) * (d / yTicks)))
       .attr('x2', chartWidth)
       .attr('y2', (d) => yScale(minValue + (maxValue - minValue) * (d / yTicks)))
-      .attr('stroke', 'rgba(255, 255, 255, 0.1)')
-      .attr('stroke-width', '0.5')
-      .attr('stroke-dasharray', '1,3');
+      .attr('stroke', 'rgba(255,255,255,0.06)')
+      .attr('stroke-width', '1')
+      .attr('stroke-dasharray', '2,4');
 
     const xTicks = 6;
     g.selectAll('.grid-line-x')
@@ -231,9 +231,9 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('y1', 0)
       .attr('x2', (d) => (chartWidth / xTicks) * d)
       .attr('y2', chartHeight)
-      .attr('stroke', 'rgba(255, 255, 255, 0.1)')
-      .attr('stroke-width', '0.5')
-      .attr('stroke-dasharray', '1,3');
+      .attr('stroke', 'rgba(255,255,255,0.04)')
+      .attr('stroke-width', '1')
+      .attr('stroke-dasharray', '2,4');
 
     // Model lines and trade points
     Object.entries(chartData).forEach(([modelName, data]) => {
@@ -398,15 +398,15 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
           radialGradient.append('stop')
             .attr('offset', '0%')
-            .attr('stop-color', '#2C88F8');
+            .attr('stop-color', model.color);
 
           radialGradient.append('stop')
-            .attr('offset', '50%')
-            .attr('stop-color', '#1575E4');
+            .attr('offset', '60%')
+            .attr('stop-color', model.color);
 
           radialGradient.append('stop')
             .attr('offset', '100%')
-            .attr('stop-color', '#1172E1');
+            .attr('stop-color', '#000');
 
           // Pulsing golden glow behind logo
           const glowCircle = iconGroup.append('circle')
@@ -435,19 +435,19 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             .attr('cx', 20)
             .attr('cy', 0)
             .attr('r', 16)
-            .attr('fill', 'white')
-            .attr('stroke', '#1172E1')
-            .attr('stroke-width', 2.5);
+            .attr('fill', '#111111')
+            .attr('stroke', model.color)
+            .attr('stroke-width', 2);
 
-          // Animate stroke color shimmer
+          // Animate stroke opacity shimmer
           const shimmerStroke = () => {
             logoCircle
               .transition()
               .duration(1500)
-              .attr('stroke', '#2C88F8')
+              .attr('opacity', 0.7)
               .transition()
               .duration(1500)
-              .attr('stroke', '#1172E1')
+              .attr('opacity', 1)
               .on('end', shimmerStroke);
           };
           shimmerStroke();
@@ -468,10 +468,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         iconGroup.append('text')
           .attr('x', 45)
           .attr('y', 4)
-          .attr('font-size', '12')
-          .attr('fill', '#fff')
-          .attr('font-weight', '600')
-          .attr('font-family', 'Courier New, monospace')
+          .attr('font-size', '11')
+          .attr('fill', model.color)
+          .attr('font-weight', '700')
+          .attr('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace')
           .text(displayValue);
       }
     });
@@ -489,8 +489,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .call(g => g.select('.domain').remove())
       .selectAll('text')
       .attr('font-size', '10')
-      .attr('fill', 'rgba(255, 255, 255, 0.7)')
-      .attr('font-family', 'Courier New, monospace')
+      .attr('fill', 'rgba(161,161,170,0.8)')
+      .attr('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace')
       .attr('font-weight', '600');
 
     // X-axis
@@ -506,9 +506,9 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .call(g => g.select('.domain').remove())
       .selectAll('text')
       .attr('font-size', '8')
-      .attr('fill', 'rgba(255, 255, 255, 0.7)')
-      .attr('font-family', 'IBM Plex Mono, monospace')
-      .attr('font-weight', '600');
+      .attr('fill', 'rgba(113,113,122,0.9)')
+      .attr('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace')
+      .attr('font-weight', '500');
 
     // Create overlay for mouse tracking at the END (higher z-index)
     // This will be appended later after all chart elements
@@ -535,11 +535,12 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('x', chartWidth - 10)
       .attr('y', chartHeight - 10)
       .attr('text-anchor', 'end')
-      .attr('font-size', '12')
-      .attr('fill', 'rgba(255, 255, 255, 0.2)')
-      .attr('font-family', 'Courier New, monospace')
+      .attr('font-size', '11')
+      .attr('fill', 'rgba(204,255,0,0.18)')
+      .attr('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace')
       .attr('font-weight', 'bold')
-      .text('bond.credit')
+      .attr('letter-spacing', '0.05em')
+      .text('bond.credit / agentic alpha')
       .style('pointer-events', 'none');
 
     // NOW add overlay after all elements are drawn
@@ -693,7 +694,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Desktop Header */}
       <div className="hidden md:flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-black">TOTAL AGENT ACCOUNT VALUE</h2>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--white)' }}>TOTAL AGENT ACCOUNT VALUE</h2>
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
@@ -765,7 +766,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Mobile Header - Stacked Layout */}
       <div className="md:hidden mb-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-black">TOTAL AGENT ACCOUNT VALUE</h2>
+          <h2 className="text-base font-bold" style={{ color: 'var(--white)' }}>TOTAL AGENT ACCOUNT VALUE</h2>
           {/* Temporarily hidden - showing dollar values only */}
           {/* <div className="flex gap-1">
             <button
@@ -798,7 +799,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         </div> */}
       </div>
       <div
-        className="relative h-[550px] rounded-lg p-3 bg-white border border-gray-200"
+        className="relative h-[550px] rounded-lg p-3"
+        style={{ background: 'transparent', border: 'none' }}
       >
         {viewMode === 'bar' ? (
           <BarChartView
@@ -810,10 +812,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           <>
             <svg id="aiModelChart" ref={svgRef} width="100%" height="100%"></svg>
             {loading && (
-              <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-lg">
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg" style={{ background: 'rgba(5,5,5,0.85)' }}>
                 <div className="flex flex-col items-center gap-2">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1172E1]"></div>
-                  <div className="text-[#1172E1] text-base font-semibold">Fetching {currentTimeframe} data...</div>
+                  <div className="animate-spin rounded-full h-8 w-8" style={{ border: '2px solid var(--border)', borderTopColor: 'var(--lime)' }}></div>
+                  <div className="text-base font-semibold" style={{ color: 'var(--lime)', fontFamily: 'var(--mono)' }}>Fetching {currentTimeframe} data…</div>
                 </div>
               </div>
             )}

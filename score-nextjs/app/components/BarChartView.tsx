@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { Agent } from '@/lib/types';
@@ -13,13 +13,13 @@ interface BarChartViewProps {
   showDollar: boolean;
 }
 
-// Refined color palette for agents with better readability on dark backgrounds
+// Watchtower agent color palette
 const agentColors = [
-  '#E57373', // Arma - Pink-red, warm tone
-  '#64B5F6', // Sail - Bright blue
-  '#FFD54F', // ZyFAI - Mustard yellow
-  '#9575CD', // Mamo - Premium purple
-  '#4DB6AC', // SurfLiquid - Cool teal
+  '#ccff00', // Giza/Arma   - lime
+  '#3b82f6', // Sail.Money  - blue
+  '#a855f7', // ZyFAI       - purple
+  '#f97316', // Surf        - orange
+  '#22c55e', // Mamo        - green
 ];
 
 const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimeframe, showDollar }) => {
@@ -35,13 +35,12 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       const topY = chartArea.top + 20; // Position near the top
 
       ctx.save();
-      ctx.globalAlpha = 0.08;
-      ctx.fillStyle = '#1172E1';
-      ctx.font = 'bold 32px sans-serif';
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = '#ccff00';
+      ctx.font = 'bold 28px ui-monospace, monospace';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
-      ctx.letterSpacing = '2px';
-      ctx.fillText('Agentic Alpha by bond.credit', rightX, topY);
+      ctx.fillText('bond.credit / agentic alpha', rightX, topY);
       ctx.restore();
     }
   };
@@ -105,10 +104,10 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
         display: false, // Hide legend since bars are labeled on X-axis
       },
       tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        titleColor: '#1172E1',
-        bodyColor: '#000',
-        borderColor: '#1172E1',
+        backgroundColor: 'rgba(17,17,17,0.97)',
+        titleColor: '#ccff00',
+        bodyColor: '#a1a1aa',
+        borderColor: '#27272a',
         borderWidth: 1,
         padding: 12,
         displayColors: true,
@@ -131,10 +130,10 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
       x: {
         display: true,
         ticks: {
-          color: '#000',
+          color: '#a1a1aa',
           font: {
-            size: 12,
-            family: 'Courier New, monospace',
+            size: 11,
+            family: 'ui-monospace, SFMono-Regular, Menlo, monospace',
             weight: 'bold' as const,
           },
         },
@@ -149,10 +148,10 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
         beginAtZero: false,
         min: 2000,
         ticks: {
-          color: '#000',
+          color: '#71717a',
           font: {
-            size: 11,
-            family: 'Courier New, monospace',
+            size: 10,
+            family: 'ui-monospace, SFMono-Regular, Menlo, monospace',
           },
           callback: function(value: any) {
             // Always show dollar values only
@@ -173,8 +172,8 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
           }
         },
         grid: {
-          color: '#e5e7eb', // Light gray grid lines
-          lineWidth: 0.5,
+          color: 'rgba(255,255,255,0.05)',
+          lineWidth: 1,
         },
         border: {
           display: false,
@@ -186,7 +185,7 @@ const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimefram
   if (!chartData) {
     return (
       <div className="flex items-center justify-center h-[550px]">
-        <div className="text-black font-mono">Loading chart data...</div>
+        <div style={{ color: 'var(--s2)', fontFamily: 'var(--mono)', fontSize: '0.8125rem' }}>Loading chart data…</div>
       </div>
     );
   }

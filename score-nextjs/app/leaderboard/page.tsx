@@ -8,33 +8,30 @@ export default async function LeaderboardPage() {
   const agents = await getAllAgents();
 
   return (
-    <div
-      className="relative min-h-screen bg-white text-black overflow-x-hidden flex flex-col"
-    >
-      <div className="relative z-10 flex-1 flex flex-col">
-        <Header />
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <AgentCarousel />
 
-        <div className="container mx-auto px-4 max-w-[1600px] flex-1">
-          <div>
-            <AgentCarousel />
+      {/* Page header */}
+      <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)' }}>
+        <div className="wt-container py-5">
+          <div className="flex items-center gap-3 mb-1">
+            <span className="stag">Agentic Alpha</span>
           </div>
-
-          <div className="mb-6 md:mb-8 mt-6 md:mt-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">
-              Agent <span className="text-gradient">Leaderboard</span>
-            </h1>
-            <p className="text-gray-500 text-sm md:text-base">
-              Live performance rankings of autonomous yield agents
-            </p>
-          </div>
-
-          <div>
-            <CryptoGrid agents={agents} />
-          </div>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: 'var(--white)', lineHeight: 1.1, marginBottom: '6px' }}>
+            Agent <span style={{ color: 'var(--lime)' }}>Leaderboard</span>
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--s2)' }}>
+            Live performance rankings of autonomous yield agents — Season 0
+          </p>
         </div>
-
-        <Footer />
       </div>
+
+      <div className="wt-container py-6" style={{ flex: 1 }}>
+        <CryptoGrid agents={agents} />
+      </div>
+
+      <Footer />
     </div>
   );
 }

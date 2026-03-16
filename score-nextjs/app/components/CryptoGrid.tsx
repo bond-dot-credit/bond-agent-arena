@@ -1,395 +1,299 @@
 'use client';
 
 import React, { useState } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
 import { Agent } from '@/lib/types';
+import { useWallet } from '../../hooks/useWallet';
+
+// Watchtower agent color/grade data
+const AGENT_META: Record<string, { color: string; grade: string; gradeClass: string; bondScore: number; perf: number; risk: number; stab: number; sharpe: number; drawdown: number; capacity: number; capitalApy: string; rewardDep: string; signal: string }> = {
+  'Sail.Money': { color: '#3b82f6', grade: 'A+', gradeClass: 'grade-ap', bondScore: 91, perf: 78,  risk: 94, stab: 92, sharpe: 2.31, drawdown: 3.1,  capacity: 18600, capitalApy: '6.41%',  rewardDep: '0.3%',  signal: 'safe'    },
+  'ZyFAI':      { color: '#a855f7', grade: 'A',  gradeClass: 'grade-a',  bondScore: 85, perf: 88,  risk: 88, stab: 76, sharpe: 1.89, drawdown: 6.4,  capacity: 16200, capitalApy: '10.17%', rewardDep: '0.0%',  signal: 'safe'    },
+  'Giza':       { color: '#ccff00', grade: 'A',  gradeClass: 'grade-a',  bondScore: 82, perf: 85,  risk: 72, stab: 80, sharpe: 1.42, drawdown: 11.2, capacity: 14300, capitalApy: '14.30%', rewardDep: '62.0%', signal: 'caution' },
+  'Surf':       { color: '#f97316', grade: 'B+', gradeClass: 'grade-bp', bondScore: 72, perf: 90,  risk: 58, stab: 68, sharpe: 0.98, drawdown: 18.5, capacity: 9800,  capitalApy: '16.49%', rewardDep: '62.9%', signal: 'caution' },
+  'Mamo':       { color: '#22c55e', grade: 'B',  gradeClass: 'grade-b',  bondScore: 67, perf: 62,  risk: 70, stab: 64, sharpe: 1.12, drawdown: 9.8,  capacity: 7400,  capitalApy: '5.21%',  rewardDep: '8.4%',  signal: 'caution' },
+};
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [show, setShow] = useState(false);
-
   return (
     <div className="relative inline-block">
-      <span
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        onClick={() => setShow(!show)}
-        className="cursor-help"
-      >
+      <span onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} className="cursor-help">
         {children}
       </span>
       {show && (
-        <div className="absolute z-50 w-64 p-3 text-xs text-black bg-white border border-gray-300 rounded-lg shadow-xl bottom-full left-1/2 transform -translate-x-1/2 mb-2">
-          <div className="text-gray-700 leading-relaxed">{text}</div>
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-300" />
+        <div style={{
+          position: 'absolute', zIndex: 50, width: '220px', padding: '10px 12px',
+          background: 'var(--card2)', border: '1px solid var(--border2)', borderRadius: '6px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)', bottom: 'calc(100% + 6px)', left: '50%',
+          transform: 'translateX(-50%)', fontSize: '0.75rem', color: 'var(--s1)', lineHeight: 1.5,
+        }}>
+          {text}
         </div>
       )}
     </div>
   );
 };
 
-const LeaderboardRow: React.FC<{ 
-  agent: Agent; 
+const SignalPill = ({ sig }: { sig: string }) => {
+  const map = { safe: { cls: 'sig-safe', label: '✓ Safe' }, caution: { cls: 'sig-caution', label: '⚠ Caution' }, risk: { cls: 'sig-risk', label: '✕ Risk' } } as Record<string, { cls: string; label: string }>;
+  const { cls, label } = map[sig] || map.caution;
+  return <span className={`sig ${cls}`}>{label}</span>;
+};
+
+const DimMiniBar = ({ value, color }: { value: number; color: string }) => (
+  <div style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
+    <div style={{ height: '100%', width: `${value}%`, background: color, borderRadius: '2px' }} />
+  </div>
+);
+
+const LeaderboardRow: React.FC<{
+  agent: Agent;
   index: number;
   isExpanded: boolean;
   onToggle: () => void;
-  calculatedScore?: number;
-  onScoreCalculated: (score: number) => void;
-}> = ({ agent, index, isExpanded, onToggle, calculatedScore, onScoreCalculated }) => {
-  const { ready, authenticated, login } = usePrivy();
-  
-  const getRankDisplay = (rank: number) => {
-    const rankStyles = {
-      1: 'bg-blue-100 text-blue-700',
-      2: 'bg-blue-50 text-blue-600',
-      3: 'bg-gray-100 text-gray-700',
-    };
+}> = ({ agent, index, isExpanded, onToggle }) => {
+  const { authenticated, connect: login } = useWallet();
+  const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
 
-    const style = rankStyles[rank as keyof typeof rankStyles] || 'bg-gray-50 text-gray-500';
-
-    return (
-      <span className={`w-8 h-8 rounded-full ${style} flex items-center justify-center text-sm font-bold`}>
-        {rank}
-      </span>
-    );
-  };
-
-  const formatCurrency = (value?: number) => {
-    if (value === undefined || value === null) return 'N/A';
-    return `$${value.toFixed(2)}`;
-  };
-
-  const getAUM = () => formatCurrency(agent.aum);
-  const getAUA = () => formatCurrency(agent.aua);
-  const getExpectedYield = () => agent.expectedYield || 'N/A';
-  const getNativeYield = () => formatCurrency(agent.nativeYield);
-  const getRewards = () => formatCurrency(agent.rewards);
+  const fmt = (v?: number) => v != null ? `$${v.toFixed(2)}` : 'N/A';
+  const rankColor = index === 0 ? 'var(--lime)' : index === 1 ? 'var(--s1)' : index === 2 ? 'var(--amber)' : 'var(--s2)';
 
   return (
-    <React.Fragment>
-      <tr 
-        className={`hover:bg-blue-50 transition-colors cursor-pointer ${
-          isExpanded ? 'bg-blue-50 border-l-4 border-l-[#1172E1]' : ''
-        }`}
+    <>
+      <tr
+        style={{ cursor: 'pointer', borderBottom: '1px solid var(--border)', transition: 'background 0.12s' }}
+        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--card2)')}
+        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = isExpanded ? 'var(--card2)' : 'transparent')}
+        onClick={onToggle}
       >
-        <td className="px-6 py-4 whitespace-nowrap">
-          {getRankDisplay(agent.rank)}
+        {/* Rank */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+          <span style={{ width: '28px', height: '28px', borderRadius: '50%', border: `1px solid ${rankColor}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: rankColor }}>
+            {agent.rank}
+          </span>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap">
-          <div className="flex items-center gap-3">
+
+        {/* Agent */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+          <div className="flex items-center gap-2">
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: meta.color, flexShrink: 0 }} />
             {agent.medal && (
-              agent.website ? (
-                <div 
-                  className="w-8 h-8 rounded-full bg-white border border-gray-200 hover:border-[#1172E1] flex items-center justify-center p-1 overflow-hidden shrink-0 transition-all duration-300"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(agent.website, '_blank');
-                  }}
-                >
-                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-                </div>
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center p-1 overflow-hidden shrink-0">
-                  <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-                </div>
-              )
+              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--card2)', border: `1px solid ${meta.color}30`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px', flexShrink: 0 }}
+                onClick={e => { e.stopPropagation(); if (agent.website) window.open(agent.website, '_blank'); }}
+              >
+                <img src={agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
             )}
-            <span className="font-semibold text-gray-900">{agent.agent}</span>
+            <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
+            <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
           </div>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap font-medium text-[#1172E1]">
-          {getAUA()}
+
+        {/* AUA */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontWeight: 600, color: meta.color }}>
+          {fmt(agent.aua)}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-          {getAUM()}
+
+        {/* AUM */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', fontFamily: 'var(--mono)', color: 'var(--s1)' }}>
+          {fmt(agent.aum)}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-          {getNativeYield()}
+
+        {/* Native Yield */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', fontFamily: 'var(--mono)', color: 'var(--green)' }}>
+          {fmt(agent.nativeYield)}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-          {getRewards()}
+
+        {/* Rewards */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', fontFamily: 'var(--mono)', color: 'var(--s1)' }}>
+          {fmt(agent.rewards)}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-          {getExpectedYield()}
+
+        {/* Capital APY */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--lime)' }}>
+          {meta.capitalApy}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap">
-          {calculatedScore ? (
-            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1172E1]/10 text-[#1172E1] border border-[#1172E1]/20">
-              {calculatedScore}/100
+
+        {/* Bond Score */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+          <div className="flex items-center gap-2">
+            <span style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '1rem', color: meta.color, lineHeight: 1 }}>
+              {meta.bondScore}
             </span>
-          ) : (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggle();
-              }}
-              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 hover:border-blue-700 transition-all duration-300 cursor-pointer"
-            >
-              {isExpanded ? (
-                <>
-                  <svg className="w-3 h-3 mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                  </svg>
-                  Verifying...
-                </>
-              ) : (
-                'Verify'
-              )}
-            </button>
-          )}
+            <span style={{ fontSize: '0.625rem', color: 'var(--s2)' }}>/100</span>
+          </div>
+        </td>
+
+        {/* Expand */}
+        <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+          <span style={{ color: 'var(--s2)', transform: isExpanded ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>
         </td>
       </tr>
-      
-      {/* Expanded Row */}
+
+      {/* Expanded panel */}
       {isExpanded && (
         <tr>
-          <td colSpan={8} className="p-0">
-            <div className="bg-gray-50 border-t border-gray-100 p-6">
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-[#1172E1] mb-1">Verify Bond Score</h3>
-                    <p className="text-sm text-gray-600">Run a confidential TEE computation to verify this agent's score.</p>
-                  </div>
-                  {ready && authenticated ? (
-                    <div className="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      Wallet Connected
+          <td colSpan={9} style={{ padding: 0, background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ padding: '16px 24px', borderLeft: `3px solid ${meta.color}` }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                {/* Score breakdown */}
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Bond Score Breakdown</div>
+                  {[
+                    { l: 'PERF', v: meta.perf  },
+                    { l: 'RISK', v: meta.risk  },
+                    { l: 'STAB', v: meta.stab  },
+                  ].map(d => (
+                    <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '5px' }}>
+                      <span style={{ width: '28px', fontSize: '0.5625rem', fontWeight: 700, color: 'var(--s2)', letterSpacing: '0.04em' }}>{d.l}</span>
+                      <DimMiniBar value={d.v} color={meta.color} />
+                      <span style={{ width: '20px', textAlign: 'right', fontSize: '0.6875rem', fontFamily: 'var(--mono)', color: 'var(--s1)' }}>{d.v}</span>
                     </div>
-                    ) : (
-                    <button
-                      onClick={login}
-                      className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-full transition-colors cursor-pointer"
-                    >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      Connect Wallet to Verify
+                  ))}
+                </div>
+
+                {/* Risk metrics */}
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Risk Metrics</div>
+                  {[
+                    { l: 'Sharpe',    v: meta.sharpe.toFixed(2) },
+                    { l: 'Drawdown',  v: `-${meta.drawdown}%` },
+                    { l: 'Reward Dep.', v: meta.rewardDep, highlight: parseFloat(meta.rewardDep) > 30 },
+                    { l: 'Capacity',  v: `$${(meta.capacity/1000).toFixed(1)}k` },
+                  ].map(m => (
+                    <div key={m.l} className="flex justify-between items-center" style={{ marginBottom: '5px', fontSize: '0.75rem' }}>
+                      <span style={{ color: 'var(--s2)' }}>{m.l}</span>
+                      <span style={{ fontFamily: 'var(--mono)', fontWeight: 600, color: (m as { l: string; v: string; highlight?: boolean }).highlight ? 'var(--amber)' : 'var(--white)' }}>{m.v}</span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: '8px' }}>
+                    <SignalPill sig={meta.signal} />
+                  </div>
+                </div>
+
+                {/* TEE Verify */}
+                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Verify Bond Score</div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--s2)', marginBottom: '10px', lineHeight: 1.5 }}>
+                    Run a confidential TEE computation via iExec to verify this agent's score on-chain.
+                  </p>
+                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginBottom: '10px' }}>
+                    Requires <span style={{ color: 'var(--white)', fontWeight: 600 }}>0.1 RLC</span> + gas on Arbitrum One
+                  </div>
+                  {authenticated ? (
+                    <button className="btn-outline-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
+                      Run TEE Verification
+                    </button>
+                  ) : (
+                    <button onClick={login} className="btn-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
+                      Connect Wallet
                     </button>
                   )}
-                </div>
-
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-mono rounded border border-blue-100">
-                    Dataset: 0xca38e4de...b1a2 ↗
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
-                      <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-                    </svg>
-                    Requires <span className="font-semibold text-gray-900">0.1 RLC</span> and <span className="font-semibold text-gray-900">ETH (gas)</span> on <span className="font-semibold text-gray-900">Arbitrum One</span>
-                  </span>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 mb-4">
-                  <div className="flex items-start gap-2">
-                    <svg className="w-4 h-4 text-[#1172E1] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-1 text-xs">WHY VERIFY WITH EXISTING DATA?</h4>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        You are verifying the score using official metrics collected by <span className="font-semibold text-gray-900">bond.credit</span>. 
-                        The algorithm runs entirely within an <span className="font-semibold text-gray-900">iExec TEE (Trusted Execution Environment)</span>, 
-                        which ensures that calculation is performed exactly as defined, without any possibility of data manipulation or external interference.
-                      </p>
-                    </div>
+                  <div style={{ marginTop: '10px', fontSize: '0.5625rem', color: 'var(--s2)', textAlign: 'center', letterSpacing: '0.04em' }}>
+                    POWERED BY IEXEC TEE · ARBITRUM ONE
                   </div>
-                </div>
-
-                <div className="text-center text-[10px] text-gray-400 flex items-center justify-center gap-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  TEE COMPUTATION POWERED BY IEXEC ON ARBITRUM ONE
                 </div>
               </div>
             </div>
           </td>
         </tr>
       )}
-    </React.Fragment>
+    </>
   );
 };
 
 const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
-  const [expandedAgentId, setExpandedAgentId] = useState<string | null>(null);
-  const [scores, setScores] = useState<Record<string, number>>({});
-
-  const toggleExpand = (agentId: string) => {
-    setExpandedAgentId(prev => prev === agentId ? null : agentId);
-  };
-
-  const handleScoreCalculated = (agentId: string, score: number) => {
-    setScores(prev => ({ ...prev, [agentId]: score }));
-  };
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
   return (
-    <div className="mb-10 font-sans">
-      {/* Desktop Table - Hidden on mobile */}
-      <div className="hidden md:block bg-white rounded-xl border border-gray-200 overflow-visible">
-        <table className="w-full font-sans">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rank</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Agent</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <div className="flex items-center gap-1">
-                  AUA
-                  <Tooltip text="AUA means Asset Under Agent - The total balance managed by the agent.">
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#1172E1]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#1172E1] transition-all cursor-help border border-gray-300 hover:border-[#1172E1]">
-                      !
-                    </span>
-                  </Tooltip>
-                </div>
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <div className="flex items-center gap-1">
-                  AUM
-                  <Tooltip text="AUM means Asset Under Management - The native USDC balance of the agent.">
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-200 hover:bg-[#1172E1]/20 flex items-center justify-center text-[10px] text-gray-600 hover:text-[#1172E1] transition-all cursor-help border border-gray-300 hover:border-[#1172E1]">
-                      !
-                    </span>
-                  </Tooltip>
-                </div>
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Native Yield</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rewards</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Expected Yield</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Bond Score</th>
+    <div style={{ marginBottom: '40px' }}>
+      {/* Desktop table */}
+      <div className="hidden md:block" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+              {['Rank', 'Agent',
+                <span className="flex items-center gap-1">AUA <Tooltip text="Assets Under Agent — total balance managed"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
+                <span className="flex items-center gap-1">AUM <Tooltip text="Assets Under Management — native USDC balance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
+                'Native Yield', 'Rewards', 'Capital APY', 'Bond Score', ''
+              ].map((h, i) => (
+                <th key={i} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--s2)', whiteSpace: 'nowrap' }}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
-            {agents.map((agent, index) => (
-              <LeaderboardRow 
-                key={agent.agent} 
-                agent={agent} 
-                index={index}
-                isExpanded={expandedAgentId === agent.agent}
-                onToggle={() => toggleExpand(agent.agent)}
-                calculatedScore={scores[agent.agent]}
-                onScoreCalculated={(score) => handleScoreCalculated(agent.agent, score)}
+          <tbody>
+            {agents.map((agent, i) => (
+              <LeaderboardRow
+                key={agent.agent}
+                agent={agent}
+                index={i}
+                isExpanded={expandedId === agent.agent}
+                onToggle={() => toggle(agent.agent)}
               />
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile View - Card Layout */}
-      <div className="block md:hidden space-y-3">
-        {agents.map((agent, index) => (
-          <LeaderboardRowMobile 
-            key={agent.agent} 
-            agent={agent}
-            isExpanded={expandedAgentId === agent.agent}
-            onToggle={() => toggleExpand(agent.agent)}
-            calculatedScore={scores[agent.agent]}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
+      {/* Mobile cards */}
+      <div className="block md:hidden" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {agents.map((agent, i) => {
+          const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
+          const isExp = expandedId === agent.agent;
+          return (
+            <div key={agent.agent} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', borderLeft: `3px solid ${meta.color}` }}>
+              <button
+                onClick={() => toggle(agent.agent)}
+                style={{ width: '100%', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', cursor: 'pointer' }}
+              >
+                <div className="flex items-center gap-2">
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--s2)', width: '16px' }}>{agent.rank}</span>
+                  {agent.medal && (
+                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', border: `1px solid ${meta.color}30`, background: 'var(--card2)', padding: '2px', flexShrink: 0 }}>
+                      <img src={agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                  )}
+                  <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
+                  <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '1rem', fontFamily: 'var(--mono)', fontWeight: 700, color: meta.color }}>{meta.bondScore}</div>
+                    <div style={{ fontSize: '0.5rem', color: 'var(--s2)' }}>BOND SCORE</div>
+                  </div>
+                  <span style={{ color: 'var(--s2)', transform: isExp ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>
+                </div>
+              </button>
 
-// Mobile Card Component
-const LeaderboardRowMobile: React.FC<{
-  agent: Agent;
-  isExpanded: boolean;
-  onToggle: () => void;
-  calculatedScore?: number;
-}> = ({ agent, isExpanded, onToggle, calculatedScore }) => {
-  const formatCurrency = (value?: number) => {
-    if (value === undefined || value === null) return 'N/A';
-    return `$${value.toFixed(2)}`;
-  };
-
-  const getRankDisplay = (rank: number) => {
-    const rankStyles = {
-      1: 'bg-blue-100 text-blue-700',
-      2: 'bg-blue-50 text-blue-600',
-      3: 'bg-gray-100 text-gray-700',
-    };
-    const style = rankStyles[rank as keyof typeof rankStyles] || 'bg-gray-50 text-gray-500';
-    return (
-      <span className={`w-8 h-8 rounded-full ${style} flex items-center justify-center text-sm font-bold`}>
-        {rank}
-      </span>
-    );
-  };
-
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div 
-        className="px-4 py-4"
-        onClick={onToggle}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {getRankDisplay(agent.rank)}
-            {agent.medal && (
-              <div className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
-                <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-              </div>
-            )}
-            <p className="font-semibold text-gray-900 text-sm">{agent.agent}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {calculatedScore ? (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-[#1172E1]/10 text-[#1172E1]">
-                {calculatedScore}/100
-              </span>
-            ) : (
-              <span className="text-xs text-gray-500">Tap to verify</span>
-            )}
-            <svg className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-
-        {!isExpanded && (
-          <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
-            <div>
-              <span className="text-gray-500">AUA:</span> <span className="text-[#1172E1] font-medium">{formatCurrency(agent.aua)}</span>
-            </div>
-            <div>
-              <span className="text-gray-500">AUM:</span> <span className="text-gray-900 font-medium">{formatCurrency(agent.aum)}</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {isExpanded && (
-        <div className="px-4 pb-4">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs border-t border-gray-100 pt-3">
-            <div><span className="text-gray-500">AUA:</span> <span className="text-[#1172E1] font-medium">{formatCurrency(agent.aua)}</span></div>
-            <div><span className="text-gray-500">AUM:</span> <span className="text-gray-900 font-medium">{formatCurrency(agent.aum)}</span></div>
-            <div><span className="text-gray-500">Native:</span> <span className="text-gray-900">{formatCurrency(agent.nativeYield)}</span></div>
-            <div><span className="text-gray-500">Rewards:</span> <span className="text-gray-900">{formatCurrency(agent.rewards)}</span></div>
-            <div><span className="text-gray-500">Exp. Yield:</span> <span className="text-gray-900">{agent.expectedYield || 'N/A'}</span></div>
-            <div>
-              <span className="text-gray-500">Score:</span>{' '}
-              {calculatedScore ? (
-                <span className="text-[#1172E1] font-semibold">{calculatedScore}/100</span>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggle();
-                  }}
-                  className="text-[#1172E1] font-medium"
-                >
-                  Verify
-                </button>
+              {isExp && (
+                <div style={{ padding: '0 14px 14px', borderTop: '1px solid var(--border)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', paddingTop: '12px' }}>
+                    {[
+                      { l: 'AUA',        v: agent.aua != null ? `$${agent.aua.toFixed(2)}` : 'N/A', color: meta.color },
+                      { l: 'AUM',        v: agent.aum != null ? `$${agent.aum.toFixed(2)}` : 'N/A' },
+                      { l: 'Capital APY', v: meta.capitalApy, color: 'var(--lime)' },
+                      { l: 'Sharpe',     v: meta.sharpe.toFixed(2) },
+                      { l: 'Drawdown',   v: `-${meta.drawdown}%`, color: 'var(--red)' },
+                      { l: 'Capacity',   v: `$${(meta.capacity/1000).toFixed(1)}k` },
+                    ].map(m => (
+                      <div key={m.l} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '4px', padding: '7px 9px' }}>
+                        <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.l}</div>
+                        <div style={{ fontSize: '0.875rem', fontFamily: 'var(--mono)', fontWeight: 700, color: (m as { l: string; v: string; color?: string }).color || 'var(--white)', marginTop: '2px' }}>{m.v}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: '10px' }}>
+                    <SignalPill sig={meta.signal} />
+                  </div>
+                </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 };

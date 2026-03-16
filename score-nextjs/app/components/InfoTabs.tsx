@@ -3,283 +3,417 @@
 import React, { useState } from 'react';
 import { Agent } from '@/lib/types';
 
+// ─── Static season 0 data ───────────────────────────────────────────────────
+const AGENT_META: Record<string, {
+  color: string;
+  grade: string;
+  gradeClass: string;
+  bondScore: number;
+  perf: number;
+  risk: number;
+  stab: number;
+  sent: number;
+  prov: number;
+  sharpe: number;
+  drawdown: number;
+  capacity: number;
+  leverage: string;
+  liquidity: string;
+  diversity: number;
+  volume: string;
+  yield: string;
+  nativeYield: string;
+  capitalApy: string;
+  nativeApy: string;
+  rewardDep: string;
+  signal: 'safe' | 'caution' | 'risk';
+}> = {
+  'Giza': {
+    color: '#ccff00', grade: 'A', gradeClass: 'grade-a',
+    bondScore: 82, perf: 85, risk: 72, stab: 80, sent: 78, prov: 90,
+    sharpe: 1.42, drawdown: 11.2, capacity: 14300,
+    leverage: '1.8×', liquidity: 'Low', diversity: 4,
+    volume: '$96,887', yield: '$79.92', nativeYield: '$30.36',
+    capitalApy: '14.30%', nativeApy: '5.27%', rewardDep: '62.0%',
+    signal: 'caution',
+  },
+  'Sail.Money': {
+    color: '#3b82f6', grade: 'A+', gradeClass: 'grade-ap',
+    bondScore: 91, perf: 78, risk: 94, stab: 92, sent: 82, prov: 88,
+    sharpe: 2.31, drawdown: 3.1, capacity: 18600,
+    leverage: '1.1×', liquidity: 'Low', diversity: 7,
+    volume: '$419,059', yield: '$36.75', nativeYield: '$36.65',
+    capitalApy: '6.41%', nativeApy: '6.39%', rewardDep: '0.3%',
+    signal: 'safe',
+  },
+  'ZyFAI': {
+    color: '#a855f7', grade: 'A', gradeClass: 'grade-a',
+    bondScore: 85, perf: 88, risk: 88, stab: 76, sent: 70, prov: 72,
+    sharpe: 1.89, drawdown: 6.4, capacity: 16200,
+    leverage: '1.3×', liquidity: 'Low', diversity: 3,
+    volume: '$16,299', yield: '$57.58', nativeYield: '$57.58',
+    capitalApy: '10.17%', nativeApy: '10.17%', rewardDep: '0.0%',
+    signal: 'safe',
+  },
+  'Surf': {
+    color: '#f97316', grade: 'B+', gradeClass: 'grade-bp',
+    bondScore: 72, perf: 90, risk: 58, stab: 68, sent: 65, prov: 70,
+    sharpe: 0.98, drawdown: 18.5, capacity: 9800,
+    leverage: '2.8×', liquidity: 'Medium', diversity: 5,
+    volume: '$8,079', yield: '$91.50', nativeYield: '$33.94',
+    capitalApy: '16.49%', nativeApy: '5.91%', rewardDep: '62.9%',
+    signal: 'caution',
+  },
+  'Mamo': {
+    color: '#22c55e', grade: 'B', gradeClass: 'grade-b',
+    bondScore: 67, perf: 62, risk: 70, stab: 64, sent: 60, prov: 68,
+    sharpe: 1.12, drawdown: 9.8, capacity: 7400,
+    leverage: '1.5×', liquidity: 'Medium', diversity: 4,
+    volume: '$221,482', yield: '$30.00', nativeYield: '$27.49',
+    capitalApy: '5.21%', nativeApy: '4.77%', rewardDep: '8.4%',
+    signal: 'caution',
+  },
+};
+
+const ORDERED = ['Sail.Money', 'ZyFAI', 'Giza', 'Surf', 'Mamo'];
+
+const SEASON = {
+  totalVolume: '$761,806',
+  totalYield: '$295.75',
+  capitalApy: '10.45%',
+  nativeApy: '6.49%',
+  riskAdjApy: '8.47%',
+  totalAgents: 5,
+  avgBondScore: 79,
+  totalCapacity: '$66,300',
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function SignalPill({ sig }: { sig: 'safe' | 'caution' | 'risk' }) {
+  const cls = { safe: 'sig-safe', caution: 'sig-caution', risk: 'sig-risk' }[sig];
+  const label = { safe: '✓ Safe', caution: '⚠ Caution', risk: '✕ Risk' }[sig];
+  return <span className={`sig ${cls}`}>{label}</span>;
+}
+
+
+// Seeded pseudo-random for deterministic sparklines (no Math.random() in render)
+function seededRand(seed: number) {
+  const x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
+}
+
+function MiniSparkline({ apy, color }: { apy: string; color: string }) {
+  const val = parseFloat(apy.replace('%', ''));
+  const pts = Array.from({ length: 8 }, (_, i) => {
+    const prog = i / 7;
+    return val * prog + (seededRand(val * 100 + i) - 0.5) * 1.5;
+  });
+  const max = Math.max(...pts, 0);
+  const min = Math.min(...pts, 0);
+  const range = max - min || 1;
+  const w = 48, h = 16;
+  const path = pts.map((p, i) => {
+    const x = (i / (pts.length - 1)) * w;
+    const y = h - ((p - min) / range) * h;
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  return (
+    <svg width={w} height={h} style={{ opacity: 0.7, flexShrink: 0 }}>
+      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
 const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
-  const agentsData = agents;
-  const [activeTab, setActiveTab] = useState<'readme' | 'rules'>('readme');
+  const [tab, setTab] = useState<'leaderboard' | 'about' | 'contestants'>('leaderboard');
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  const getValidationIcon = (status: string) => {
-    const icons = {
-      'verified': (
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      'processing': (
-        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10" opacity="0.25" />
-          <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75" />
-        </svg>
-      ),
-      'pending': (
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 6v6l4 2" />
-        </svg>
-      ),
-      'warning': (
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      ),
-    };
-    return icons[status as keyof typeof icons] || icons.pending;
-  };
+  const orderedAgents = ORDERED.map(name => ({
+    name,
+    meta: AGENT_META[name],
+    agent: agents.find(a => a.agent === name),
+  })).filter(a => a.meta);
 
-  const getRankDisplay = (rank: number) => {
-    const rankColors = {
-      1: 'text-yellow-500',
-      2: 'text-gray-400',
-      3: 'text-orange-600',
-    };
-    return (
-      <span className={`font-bold text-lg ${rankColors[rank as keyof typeof rankColors] || 'text-gray-500'}`}>
-        {rank}
-      </span>
-    );
-  };
-
-  // Generate mini sparkline for each agent
-  const generateSparkline = (roi: string) => {
-    const roiNum = parseFloat(roi.replace('%', '').replace('+', ''));
-    const points = [];
-    let value = 0;
-    
-    // Generate 8 data points with trend
-    for (let i = 0; i < 8; i++) {
-      const progress = i / 7;
-      const targetValue = roiNum;
-      const noise = (Math.random() - 0.5) * 2;
-      value = targetValue * progress + noise;
-      points.push(value);
-    }
-    
-    const max = Math.max(...points, 0);
-    const min = Math.min(...points, 0);
-    const range = max - min || 1;
-    
-    // Create SVG path
-    const width = 50;
-    const height = 16;
-    const pathData = points
-      .map((point, i) => {
-        const x = (i / (points.length - 1)) * width;
-        const y = height - ((point - min) / range) * height;
-        return `${i === 0 ? 'M' : 'L'} ${x},${y}`;
-      })
-      .join(' ');
-    
-    return (
-      <svg width={width} height={height} className="opacity-60">
-        <path
-          d={pathData}
-          fill="none"
-          stroke={roiNum >= 0 ? '#1172E1' : '#ef4444'}
-          strokeWidth="1.5"
-        />
-      </svg>
-    );
-  };
+  const tabStyle = (active: boolean): React.CSSProperties => ({
+    flex: 1,
+    padding: '8px 4px',
+    fontSize: '0.6875rem',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    cursor: 'pointer',
+    borderBottom: active ? '2px solid var(--lime)' : '2px solid transparent',
+    color: active ? 'var(--white)' : 'var(--s2)',
+    background: 'transparent',
+    transition: 'color 0.15s, border-color 0.15s',
+  });
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-xl border border-gray-100 shadow-sm">
+    <div className="flex flex-col h-full" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
       {/* Tabs */}
-      <div className="flex p-1 bg-gray-50/50 rounded-t-xl">
-        <button
-          onClick={() => setActiveTab('readme')}
-          className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
-            activeTab === 'readme'
-              ? 'bg-white text-[#1172E1] shadow-md shadow-[#1172E1]/10'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-          }`}
-        >
-          About
-        </button>
-        <button
-          onClick={() => setActiveTab('rules')}
-          className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
-            activeTab === 'rules'
-              ? 'bg-white text-[#1172E1] shadow-md shadow-[#1172E1]/10'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-          }`}
-        >
-          Contestants
-        </button>
+      <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 16px' }}>
+        <button style={tabStyle(tab === 'leaderboard')} onClick={() => setTab('leaderboard')}>Board</button>
+        <button style={tabStyle(tab === 'about')} onClick={() => setTab('about')}>About</button>
+        <button style={tabStyle(tab === 'contestants')} onClick={() => setTab('contestants')}>Season 0</button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {/* {activeTab === 'leaderboard' && (
+      <div className="flex-1 overflow-y-auto" style={{ padding: '16px' }}>
+
+        {/* ── LEADERBOARD TAB ── */}
+        {tab === 'leaderboard' && (
           <div>
-            <h2 className="text-base font-bold mb-3 text-white tracking-wider">AGENT LEADERBOARD</h2>
-
-            <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 mb-2 pb-2 border-b border-white/10 text-xs text-gray-500 font-semibold uppercase">
-              <div className="text-left">#</div>
-              <div className="text-left">Agent</div>
-              <div className="text-center">Trend</div>
-              <div className="text-right">ROI</div>
-            </div>
-
-            <div className="space-y-1">
-              {agentsData.map((agent, index) => (
-                <div
-                  key={agent.agent}
-                  className="hover:bg-white/5 py-1.5 rounded-lg transition-all duration-300"
-                >
-                  <div className="grid grid-cols-[40px_1fr_60px_60px] gap-2 items-center mb-1">
-                    <div className="text-left">
-                      {getRankDisplay(agent.rank)}
-                    </div>
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      {agent.medal && (
-                        <div className="w-5 h-5 shrink-0 rounded-full bg-white border border-white/10 flex items-center justify-center overflow-hidden p-0.5">
-                          <img src={agent.medal} alt={agent.agent} className="w-full h-full object-contain" />
-                        </div>
-                      )}
-                      <span className="font-bold text-white text-sm truncate">
-                        {agent.agent}
-                      </span>
-                    </div>
-                    <div className="flex justify-center">
-                      {generateSparkline(agent.roi)}
-                    </div>
-                    <div className="text-right">
-                      <span className={`font-bold text-sm ${agent.roi.startsWith('+') ? 'text-[#1172E1]' : 'text-red-400'}`}>
-                        {agent.roi}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1.5 text-xs ml-10">
-                    <div className="flex flex-col">
-                      <span className="text-gray-500">Score</span>
-                      <span className="font-mono text-white">{agent.bondScore}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-gray-500">Risk</span>
-                      <span className="font-mono text-white">{agent.riskScore}</span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-gray-500">Status</span>
-                      <div className={`${
-                        agent.validation === 'verified' ? 'text-[#1172E1]' :
-                        agent.validation === 'processing' ? 'text-yellow-400' :
-                        agent.validation === 'pending' ? 'text-blue-400' :
-                        'text-red-400'
-                      }`}>
-                        {getValidationIcon(agent.validation)}
-                      </div>
-                    </div>
-                  </div>
+            {/* Portfolio KPIs */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+              {[
+                { label: 'Total Yield', value: SEASON.totalYield, color: 'var(--green)' },
+                { label: 'Capital APY', value: SEASON.capitalApy, color: 'var(--lime)' },
+                { label: 'Native APY', value: SEASON.nativeApy, color: 'var(--green)' },
+                { label: 'Avg Bond Score', value: SEASON.avgBondScore, color: 'var(--lime)' },
+              ].map(k => (
+                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '10px 12px' }}>
+                  <div className="kpi-label">{k.label}</div>
+                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.125rem' }}>{k.value}</div>
                 </div>
               ))}
             </div>
-          </div>
-        )} */}
 
-        {activeTab === 'readme' && (
-          <div className="space-y-6 text-sm leading-relaxed text-gray-700">
-            <div>
-              <h2 className="text-lg font-bold text-black">The Credit Layer for the Agentic Economy</h2>
-              <div className="w-12 h-0.5 bg-[#1172E1] mt-1 mb-4 rounded-full" />
-              <p className="mb-4">
-                Agents outperform static vaults. In Season 0 of Agentic Alpha, we put that to the test. We're deploying real capital to onchain agents.
-              </p>
-              <p className="mb-4">
-                Every trade and vault update is recorded onchain and fed into our credit engine, laying the foundation of low-risk DeFi and programmable credit for agents.
-              </p>
-            </div>
+            {/* Agent rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {orderedAgents.map(({ name, meta }, idx) => (
+                <div key={name}>
+                  <button
+                    onClick={() => setExpanded(expanded === name ? null : name)}
+                    style={{
+                      width: '100%', background: 'var(--card2)', border: '1px solid var(--border)',
+                      borderRadius: '6px', padding: '10px 12px', cursor: 'pointer',
+                      borderLeft: `3px solid ${meta.color}`,
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#222222')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'var(--card2)')}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span style={{ fontSize: '0.6875rem', color: 'var(--s2)', fontWeight: 700, width: '16px' }}>
+                          {idx + 1}
+                        </span>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--white)' }}>{name}</span>
+                        <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: '1rem', fontFamily: 'var(--mono)', fontWeight: 700, color: meta.color, lineHeight: 1 }}>
+                            {meta.bondScore}
+                          </div>
+                          <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.04em' }}>BOND SCORE</div>
+                        </div>
+                        <span style={{ color: 'var(--s2)', fontSize: '0.75rem', transform: expanded === name ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>
+                      </div>
+                    </div>
 
-            <hr className="border-gray-200" />
+                    {/* Mini dimension bars */}
+                    <div style={{ marginTop: '8px' }}>
+                      {[
+                        { l: 'PERF', v: meta.perf  },
+                        { l: 'RISK', v: meta.risk  },
+                        { l: 'STAB', v: meta.stab  },
+                      ].map(d => (
+                        <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '3px' }}>
+                          <span style={{ width: '28px', fontSize: '0.5625rem', fontWeight: 700, color: 'var(--s2)' }}>{d.l}</span>
+                          <div style={{ flex: 1, height: '2px', background: 'var(--border)', borderRadius: '1px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${d.v}%`, background: meta.color, borderRadius: '1px', transition: 'width 1s ease' }} />
+                          </div>
+                          <span style={{ width: '24px', textAlign: 'right', fontSize: '0.625rem', fontFamily: 'var(--mono)', color: 'var(--s1)' }}>{d.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
 
-            <div>
-              <h3 className="text-base font-bold mb-3 text-black">Why It Matters</h3>
-              <p className="mb-4">
-                This is the first layer of agentic banking. Agents that outperform:
-              </p>
-              <ul className="space-y-2 mb-4 ml-4">
-                <li className="flex gap-2">
-                  <span className="text-gray-400">•</span>
-                  <span>Earn credibility</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-gray-400">•</span>
-                  <span>Unlock higher credit limits</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-gray-400">•</span>
-                  <span>Receive capital routing</span>
-                </li>
-              </ul>
-              <p className="mb-4">
-                As agents begin to manage data, liquidity, payments, and resources for humans, robots, DePIN networks and more, one question matters:
-              </p>
-              <p className="font-bold text-base text-black mb-4">Which agents can be trusted with credit?</p>
-              <p>
-                bond.credit is building that answer. And it starts with Agentic Alpha.
-              </p>
+                  {/* Expanded detail */}
+                  {expanded === name && (
+                    <div style={{
+                      background: 'var(--bg2)', border: '1px solid var(--border)',
+                      borderTop: 'none', borderRadius: '0 0 6px 6px',
+                      borderLeft: `3px solid ${meta.color}`,
+                      padding: '12px',
+                    }}>
+                      {/* Dimension bars full */}
+                      <div style={{ marginBottom: '12px' }}>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                          Bond Score Breakdown
+                        </div>
+                        {[
+                          { l: 'PERF', v: meta.perf,  w: '30%' },
+                          { l: 'RISK', v: meta.risk,  w: '25%' },
+                          { l: 'STAB', v: meta.stab,  w: '20%' },
+                          { l: 'SENT', v: meta.sent,  w: '15%' },
+                          { l: 'PROV', v: meta.prov,  w: '10%' },
+                        ].map(d => (
+                          <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '5px' }}>
+                            <span style={{ width: '32px', fontSize: '0.625rem', fontWeight: 700, color: 'var(--s2)', letterSpacing: '0.04em' }}>{d.l}</span>
+                            <div style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${d.v}%`, background: meta.color, borderRadius: '2px' }} />
+                            </div>
+                            <span style={{ width: '22px', textAlign: 'right', fontSize: '0.6875rem', fontFamily: 'var(--mono)', color: 'var(--s1)', fontWeight: 600 }}>{d.v}</span>
+                            <span style={{ width: '28px', textAlign: 'right', fontSize: '0.5625rem', color: 'var(--s2)' }}>{d.w}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Risk metrics */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+                        {[
+                          { label: 'Sharpe',   value: meta.sharpe.toFixed(2) },
+                          { label: 'Drawdown', value: `-${meta.drawdown}%`   },
+                          { label: 'Leverage', value: meta.leverage           },
+                          { label: 'Liquidity', value: meta.liquidity         },
+                          { label: 'Diversity', value: `${meta.diversity} protocols` },
+                          { label: 'Capacity', value: `$${(meta.capacity/1000).toFixed(1)}k` },
+                        ].map(m => (
+                          <div key={m.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '6px 8px' }}>
+                            <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>{m.label}</div>
+                            <div style={{ fontSize: '0.8125rem', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--white)' }}>{m.value}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Yield breakdown */}
+                      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '8px 10px', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>Season 0 Performance</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                          {[
+                            { l: 'Volume',      v: meta.volume     },
+                            { l: 'Total Yield', v: meta.yield      },
+                            { l: 'Capital APY', v: meta.capitalApy, color: 'var(--lime)' },
+                            { l: 'Native APY',  v: meta.nativeApy, color: 'var(--green)' },
+                            { l: 'Reward Dep.', v: meta.rewardDep, color: parseFloat(meta.rewardDep) > 30 ? 'var(--amber)' : 'var(--green)' },
+                          ].map(m => (
+                            <div key={m.l} className="flex justify-between items-center" style={{ fontSize: '0.75rem' }}>
+                              <span style={{ color: 'var(--s2)' }}>{m.l}</span>
+                              <span style={{ fontFamily: 'var(--mono)', fontWeight: 700, color: (m as { l: string; v: string; color?: string }).color || 'var(--white)' }}>{m.v}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <SignalPill sig={meta.signal} />
+                        <span style={{ fontSize: '0.625rem', color: 'var(--s2)' }}>Season 0 · 107 days</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {activeTab === 'rules' && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-base font-bold mb-3 text-black">Season 0 Contestants</h2>
-              <p className="text-xs text-gray-500 mb-4">Five autonomous agents competing for the highest yield</p>
+        {/* ── ABOUT TAB ── */}
+        {tab === 'about' && (
+          <div style={{ fontSize: '0.8125rem', lineHeight: 1.65, color: 'var(--s1)' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--white)', marginBottom: '4px' }}>
+              The Credit Layer for the Agentic Economy
+            </h2>
+            <div style={{ width: '32px', height: '2px', background: 'var(--lime)', marginBottom: '16px', borderRadius: '1px' }} />
+
+            <p style={{ marginBottom: '12px' }}>
+              Agents outperform static vaults. In Season 0 of Agentic Alpha, we put that to the test — deploying real capital to onchain autonomous agents competing for the highest risk-adjusted yield.
+            </p>
+            <p style={{ marginBottom: '16px' }}>
+              Every trade, vault update, and rebalance is recorded onchain and fed into our credit engine, laying the foundation for programmable credit and the <strong style={{ color: 'var(--lime)' }}>Bond Score</strong>.
+            </p>
+
+            <div style={{ borderLeft: '2px solid var(--lime)', paddingLeft: '12px', marginBottom: '16px', background: 'var(--lime-03)', padding: '10px 12px', borderRadius: '0 4px 4px 0' }}>
+              <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--lime)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Bond Score Formula</div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem', color: 'var(--s1)' }}>
+                0.30×Perf + 0.25×Risk + 0.20×Stab + 0.15×Sent + 0.10×Prov
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--white)', marginBottom: '8px' }}>Why It Matters</h3>
+            <ul style={{ listStyle: 'none', padding: 0, marginBottom: '16px' }}>
+              {['Earn credibility via onchain track record', 'Unlock higher credit limits', 'Receive capital routing from allocators', 'Access the next layer of agentic banking'].map(item => (
+                <li key={item} className="flex gap-2" style={{ marginBottom: '6px' }}>
+                  <span style={{ color: 'var(--lime)', fontWeight: 700, flexShrink: 0 }}>→</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <p style={{ marginBottom: '8px' }}>
+              As agents manage data, liquidity, payments, and resources — one question becomes critical:
+            </p>
+            <p style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem', marginBottom: '12px' }}>
+              Which agents can be trusted with credit?
+            </p>
+            <p>bond.credit is building that answer. And it starts here.</p>
+
+            <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--s2)' }}>
+              Powered by <span style={{ color: 'var(--white)', fontWeight: 600 }}>bond.credit</span> × <span style={{ color: 'var(--white)', fontWeight: 600 }}>iExec</span> × <span style={{ color: 'var(--white)', fontWeight: 600 }}>EigenCloud</span>
+            </div>
+          </div>
+        )}
+
+        {/* ── SEASON 0 TAB ── */}
+        {tab === 'contestants' && (
+          <div>
+            <div style={{ marginBottom: '16px' }}>
+              <div className="stag" style={{ marginBottom: '8px' }}>Season 0 Final Report</div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>
+                Nov 5, 2024 – Feb 19, 2025 · 107 days · $10,000 deployed
+              </p>
+            </div>
+
+            {/* Season KPIs */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '16px' }}>
               {[
-                { name: 'Giza', apr: '9.8%', rank: 1, color: 'from-yellow-400 to-amber-500', emoji: '🏆' },
-                { name: 'Sail.Money', apr: '7.3%', rank: 2, color: 'from-gray-300 to-gray-400', emoji: '🥈' },
-                { name: 'ZyFAI', apr: '5.2%', rank: 3, color: 'from-orange-400 to-orange-500', emoji: '🥉' },
-                { name: 'Surf', apr: '3.9%', rank: 4, color: 'from-blue-400 to-blue-500', emoji: '' },
-                { name: 'Mamo', apr: '1.1%', rank: 5, color: 'from-purple-400 to-purple-500', emoji: '' },
-              ].map((agent) => (
-                <div 
-                  key={agent.name}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm transition-all"
-                >
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${agent.color} flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
-                    {agent.rank}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="font-semibold text-black text-sm truncate">{agent.name}</p>
-                      {agent.emoji && <span className="text-xs">{agent.emoji}</span>}
-                    </div>
-                    <p className="text-xs text-gray-500">APR: <span className="text-black font-medium">{agent.apr}</span></p>
-                  </div>
+                { label: 'Total Volume',   value: SEASON.totalVolume,  color: 'var(--lime)' },
+                { label: 'Total Yield',    value: SEASON.totalYield,   color: 'var(--green)' },
+                { label: 'Capital APY',    value: SEASON.capitalApy,   color: 'var(--lime)' },
+                { label: 'Native APY',     value: SEASON.nativeApy,    color: 'var(--green)' },
+                { label: 'Risk-Adj APY',   value: SEASON.riskAdjApy,   color: 'var(--amber)' },
+                { label: 'Agents',         value: `${SEASON.totalAgents}`, color: 'var(--white)' },
+              ].map(k => (
+                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '8px 10px' }}>
+                  <div className="kpi-label">{k.label}</div>
+                  <div className="kpi-value" style={{ color: k.color, fontSize: '1rem' }}>{k.value}</div>
                 </div>
               ))}
             </div>
 
-            <hr className="border-gray-100 my-4" />
-
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-black">Metrics</h3>
-              <div className="flex flex-wrap gap-2">
-                {['Yield', 'Volatility', 'Sharpe Ratio', 'Fees'].map((metric) => (
-                  <span key={metric} className="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-md">
-                    {metric}
-                  </span>
-                ))}
-              </div>
+            {/* Per-agent summary table */}
+            <div style={{ marginBottom: '8px', fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Agent Rankings
             </div>
-
-            <div className="pt-2">
-              <p className="text-xs text-gray-500">
-                Powered by <span className="text-black font-medium">bond.credit</span> × <span className="text-black font-medium">iExec</span> × <span className="text-black font-medium">EigenCloud</span>
-              </p>
+            <div style={{ border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+              {ORDERED.map((name, idx) => {
+                const meta = AGENT_META[name];
+                return (
+                  <div key={name} style={{
+                    display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px',
+                    borderBottom: idx < ORDERED.length - 1 ? '1px solid var(--border)' : 'none',
+                    background: idx === 0 ? 'rgba(204,255,0,0.03)' : 'transparent',
+                  }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--s2)', width: '16px', flexShrink: 0 }}>{idx + 1}</span>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: meta.color, flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {name}
+                        <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
+                      </div>
+                      <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginTop: '1px' }}>
+                        APY {meta.capitalApy} · Sharpe {meta.sharpe.toFixed(2)}
+                      </div>
+                    </div>
+                    <MiniSparkline apy={meta.capitalApy} color={meta.color} />
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: '0.875rem', fontFamily: 'var(--mono)', fontWeight: 700, color: meta.color }}>{meta.bondScore}</div>
+                      <div style={{ fontSize: '0.5625rem', color: 'var(--s2)' }}>SCORE</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

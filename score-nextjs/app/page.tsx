@@ -6,37 +6,16 @@ import AgentCarousel from './components/AgentCarousel';
 import ChartWithData from './components/ChartWithData';
 import InfoTabs from './components/InfoTabs';
 import Footer from './components/Footer';
-import { Card } from './components/ui/Card';
-import { motion } from 'framer-motion';
 import { Agent } from '@/lib/types';
 import { getAllAgents } from '@/lib/services/agentService';
 
-const easeOut = [0.4, 0, 0.2, 1] as const;
-
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 20,
-  },
-  enter: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: easeOut,
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  initial: { opacity: 0, y: 20 },
-  enter: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.5, ease: easeOut }
-  },
-};
+const SEASON_KPIS = [
+  { label: 'Total Volume',  value: '$761,806', sub: '107 days',  color: 'var(--lime)' },
+  { label: 'Total Yield',   value: '$295.75',  sub: 'Season 0',  color: 'var(--green)' },
+  { label: 'Capital APY',   value: '10.45%',   sub: 'blended',   color: 'var(--lime)' },
+  { label: 'Native APY',    value: '6.49%',    sub: 'ex-rewards', color: 'var(--green)' },
+  { label: 'Risk-Adj APY',  value: '8.47%',    sub: '0.5× reward', color: 'var(--amber)' },
+];
 
 export default function Home() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -50,37 +29,126 @@ export default function Home() {
   }, []);
 
   return (
-    <motion.div 
-      className="relative min-h-screen bg-white text-black overflow-x-hidden flex flex-col"
-      initial="initial"
-      animate="enter"
-      variants={pageVariants}
-    >
-      <div className="relative z-10 flex-1 flex flex-col">
-        <Header />
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <AgentCarousel />
 
-        <motion.div
-          variants={itemVariants}
-          className="flex-1 px-4 md:px-6 lg:px-8"
-        >
-          <AgentCarousel />
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <Card className="p-5 mb-4">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-              <div className="lg:col-span-3">
-                <ChartWithData agents={agents} />
+      <main style={{ flex: 1 }}>
+        {/* Hero / Status bar */}
+        <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)' }}>
+          <div className="wt-container py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="chip">
+                  <span className="chip-dot" />
+                  Season 0 Complete
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>
+                  Nov 5, 2024 – Feb 19, 2025
+                </span>
               </div>
-              <div className="lg:col-span-2">
-                <InfoTabs agents={agents} />
+              <div className="flex items-center gap-4">
+                <span style={{ fontSize: '0.6875rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                  AGENTS: <span style={{ color: 'var(--white)', fontFamily: 'var(--mono)' }}>5</span>
+                </span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                  CAPITAL: <span style={{ color: 'var(--white)', fontFamily: 'var(--mono)' }}>$10,000</span>
+                </span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                  NEXT SEASON: <span style={{ color: 'var(--lime)', fontFamily: 'var(--mono)' }}>TBA</span>
+                </span>
               </div>
             </div>
-          </Card>
-        </motion.div>
-      </div>
+          </div>
+        </div>
+
+        {/* Portfolio KPI bar */}
+        <div style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="wt-container">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', borderLeft: '1px solid var(--border)' }}>
+              {SEASON_KPIS.map((k) => (
+                <div key={k.label} style={{
+                  padding: '14px 16px',
+                  borderRight: '1px solid var(--border)',
+                  borderBottom: 'none',
+                }}>
+                  <div className="kpi-label">{k.label}</div>
+                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.25rem' }}>{k.value}</div>
+                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginTop: '2px' }}>{k.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="wt-container py-5">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '16px', alignItems: 'start' }}>
+            {/* Chart panel */}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="flex items-center gap-3">
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    Total Agent Account Value
+                  </span>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', boxShadow: '0 0 8px var(--green)' }} />
+                </div>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--s2)' }}>AUA · Season 0</span>
+              </div>
+              <div style={{ padding: '12px' }}>
+                {isLoading ? (
+                  <div style={{ height: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{
+                        width: '24px', height: '24px', borderRadius: '50%',
+                        border: '2px solid var(--border)', borderTopColor: 'var(--lime)',
+                        animation: 'spin 1s linear infinite', margin: '0 auto 8px',
+                      }} />
+                      <span style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>Loading agents…</span>
+                    </div>
+                  </div>
+                ) : (
+                  <ChartWithData agents={agents} />
+                )}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div style={{ height: '620px', display: 'flex', flexDirection: 'column' }}>
+              <InfoTabs agents={agents} />
+            </div>
+          </div>
+
+          {/* Bottom metrics strip */}
+          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--border)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+            {[
+              { label: 'Avg Daily Volume',        value: '$7,120',   icon: '📊' },
+              { label: 'Avg Daily Yield',          value: '$2.76',    icon: '💰' },
+              { label: 'Avg Transactions / Day',   value: '5.33',     icon: '⚡' },
+              { label: 'Avg Yield / Transaction',  value: '$0.519',   icon: '📈' },
+            ].map(m => (
+              <div key={m.label} style={{ background: 'var(--card)', padding: '12px 16px' }}>
+                <div className="kpi-label">{m.icon} {m.label}</div>
+                <div style={{ fontSize: '1.125rem', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--white)', lineHeight: 1, marginTop: '4px' }}>{m.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
 
       <Footer />
-    </motion.div>
+
+      <style jsx global>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 960px) {
+          .page-grid { grid-template-columns: 1fr !important; }
+          .kpi-grid  { grid-template-columns: repeat(3, 1fr) !important; }
+          .bottom-strip { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 640px) {
+          .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
+    </div>
   );
 }
