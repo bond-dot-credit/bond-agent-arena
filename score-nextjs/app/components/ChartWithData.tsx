@@ -691,113 +691,6 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
   return (
     <div className="relative">
-      {/* Desktop Header */}
-      <div className="hidden md:flex justify-between items-center mb-4">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold" style={{ color: 'var(--white)' }}>TOTAL AGENT ACCOUNT VALUE</h2>
-          {/* Temporarily hidden - showing dollar values only */}
-          {/* <div className="flex gap-1">
-            <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-200 text-gray-600'}`}
-              onClick={() => handleValueToggle(true)}
-            >
-              $
-            </button>
-            <button
-              className={`px-3 py-1 rounded-md font-semibold text-sm transition-all ${!showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-200 text-gray-600'}`}
-              onClick={() => handleValueToggle(false)}
-            >
-              %
-            </button>
-          </div> */}
-          {/* Chart Type Toggle - Temporarily hidden, showing bar chart only */}
-          {/* <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(event, newMode) => {
-              if (newMode !== null) {
-                setViewMode(newMode);
-              }
-            }}
-            aria-label="chart type"
-            sx={{
-              ml: 2,
-              '& .MuiToggleButton-root': {
-                color: '#9CA3AF',
-                borderColor: '#374151',
-                backgroundColor: '#1F2937',
-                padding: '6px 12px',
-                '&.Mui-selected': {
-                  color: '#000',
-                  backgroundColor: '#1172E1',
-                  borderColor: '#1172E1',
-                  '&:hover': {
-                    backgroundColor: '#1575E4',
-                  },
-                },
-                '&:hover': {
-                  backgroundColor: '#374151',
-                },
-              },
-            }}
-          >
-            <ToggleButton value="bar" aria-label="bar chart">
-              <BarChartIcon sx={{ fontSize: 20 }} />
-            </ToggleButton>
-            <ToggleButton value="line" aria-label="line chart">
-              <ShowChartIcon sx={{ fontSize: 20 }} />
-            </ToggleButton>
-          </ToggleButtonGroup> */}
-        </div>
-        {/* Timeframe buttons temporarily hidden */}
-        {/* <div className="flex gap-2">
-          {['ALL', '72H', '24H', '1H'].map((tf) => (
-            <button
-              key={tf}
-              className={`px-4 py-2 rounded-md font-semibold text-sm transition-all ${currentTimeframe === tf ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
-              onClick={() => handleTimeframeChange(tf)}
-            >
-              {tf}
-            </button>
-          ))}
-        </div> */}
-      </div>
-
-      {/* Mobile Header - Stacked Layout */}
-      <div className="md:hidden mb-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold" style={{ color: 'var(--white)' }}>TOTAL AGENT ACCOUNT VALUE</h2>
-          {/* Temporarily hidden - showing dollar values only */}
-          {/* <div className="flex gap-1">
-            <button
-              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
-              onClick={() => setShowDollar(true)}
-            >
-              $
-            </button>
-            <button
-              className={`px-2 py-1 rounded-md font-semibold text-xs transition-all ${!showDollar ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
-              onClick={() => setShowDollar(false)}
-            >
-              %
-            </button>
-          </div> */}
-        </div>
-        {/* Time filter buttons hidden on mobile to save space */}
-        {/* <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-1 flex-1">
-            {['ALL', '72H', '24H', '1H'].map((tf) => (
-              <button
-                key={tf}
-                className={`flex-1 px-2 py-1.5 rounded-md font-semibold text-xs transition-all ${currentTimeframe === tf ? 'bg-[#1172E1] text-white' : 'bg-gray-800 text-gray-400'}`}
-                onClick={() => handleTimeframeChange(tf)}
-              >
-                {tf}
-              </button>
-            ))}
-          </div>
-        </div> */}
-      </div>
       <div
         className="relative h-[550px] rounded-lg p-3"
         style={{ background: 'transparent', border: 'none' }}
@@ -822,20 +715,6 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           </>
         )}
       </div>
-      {/* Chart legend - only show for line chart */}
-      {viewMode === 'line' && (
-        <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
-          <div className="flex items-center gap-1">
-            <div className="w-8 h-0.5 bg-black"></div>
-            <span>AUA (Assets Under Agent)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-gray-400 border border-black"></div>
-            <span>Event</span>
-          </div>
-          <span className="text-gray-500">• Hover markers to see event details</span>
-        </div>
-      )}
     </div>
   );
 };
