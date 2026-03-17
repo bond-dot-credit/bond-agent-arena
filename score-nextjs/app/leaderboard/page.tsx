@@ -14,7 +14,7 @@ export default async function LeaderboardPage() {
 
       {/* Page header */}
       <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)' }}>
-        <div className="wt-container" style={{ paddingTop: '48px', paddingBottom: '48px' }}>
+        <div className="wt-container" style={{ paddingTop: '24px', paddingBottom: '24px' }}>
           <div className="flex items-center gap-3 mb-3">
             <span className="stag">Agentic Alpha</span>
           </div>

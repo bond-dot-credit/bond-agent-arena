@@ -113,17 +113,18 @@ const Header: React.FC = () => {
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--white)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--s2)')}
               >
-                About ↗
+                X ↗
               </a>
             </div>
 
             {/* Connect */}
             {ready && !authenticated ? (
               <button
-                onClick={privyLogin ? login : () => setShowWaitlistModal(true)}
+                onClick={() => privyLogin?.()}
+                disabled={!privyLogin}
                 className="btn-lime text-xs"
-                style={{ padding: '6px 14px' }}
-                title={privyLogin ? undefined : 'Add NEXT_PUBLIC_PRIVY_APP_ID to enable wallet connect'}
+                style={{ padding: '6px 14px', opacity: privyLogin ? 1 : 0.4, cursor: privyLogin ? 'pointer' : 'not-allowed' }}
+                title={privyLogin ? undefined : 'Set NEXT_PUBLIC_PRIVY_APP_ID in .env.local to enable'}
               >
                 CONNECT
               </button>
