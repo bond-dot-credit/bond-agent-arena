@@ -239,7 +239,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
   return (
-    <div style={{ marginBottom: '40px', minHeight: '400px' }}>
+    <div style={{ minHeight: '400px' }}>
       {/* Desktop table */}
       <div className="hidden md:block" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '32px' }}>
         <table className="wt-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
