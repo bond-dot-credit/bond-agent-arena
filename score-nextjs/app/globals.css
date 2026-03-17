@@ -1,3 +1,9 @@
+@media (max-width: 640px) {
+  .wt-container { padding: 0 16px; }
+  .kpi-grid     { grid-template-columns: repeat(2, 1fr); }
+  .bottom-strip { margin-bottom: 24px; }
+  .page-grid    { grid-template-columns: 1fr; }
+}
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
@@ -198,7 +204,7 @@ body::before {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 54px;
+  height: 64px;
   display: flex;
   align-items: center;
   background: rgba(5,5,5,0.96);
