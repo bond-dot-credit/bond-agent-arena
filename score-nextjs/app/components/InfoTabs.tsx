@@ -150,7 +150,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   });
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+    <div className="flex flex-col" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
       {/* Tabs */}
       <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 8px', gap: '20px' }}>
         <button style={tabStyle(tab === 'leaderboard')} onClick={() => setTab('leaderboard')}>Board</button>
