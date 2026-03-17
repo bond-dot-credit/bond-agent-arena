@@ -420,7 +420,7 @@ body::before {
 /* --- Page layout grids --- */
 .page-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 420px;
   gap: 16px;
   align-items: start;
 }
