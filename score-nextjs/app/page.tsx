@@ -68,13 +68,18 @@ export default function Home() {
             <div className="kpi-grid">
               {SEASON_KPIS.map((k) => (
                 <div key={k.label} style={{
-                  padding: '14px 16px',
+                  padding: '16px',
                   borderRight: '1px solid var(--border)',
                   borderBottom: 'none',
+                  minHeight: '80px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  lineHeight: 1.4,
                 }}>
                   <div className="kpi-label">{k.label}</div>
-                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.25rem' }}>{k.value}</div>
-                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginTop: '2px' }}>{k.sub}</div>
+                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.5rem' }}>{k.value}</div>
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--s2)', marginTop: '2px' }}>{k.sub}</div>
                 </div>
               ))}
             </div>
@@ -82,7 +87,7 @@ export default function Home() {
         </div>
 
         {/* Main content */}
-        <div className="wt-container py-5">
+        <div className="wt-container py-6">
           <div className="page-grid">
             {/* Chart panel */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
@@ -95,7 +100,7 @@ export default function Home() {
                 </div>
                 <span style={{ fontSize: '0.6875rem', color: 'var(--s2)' }}>AUA · Season 0</span>
               </div>
-              <div style={{ padding: '12px' }}>
+              <div style={{ padding: '20px' }}>
                 {isLoading ? (
                   <div style={{ height: '520px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ textAlign: 'center' }}>

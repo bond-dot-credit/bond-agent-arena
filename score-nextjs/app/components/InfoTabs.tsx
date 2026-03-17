@@ -136,9 +136,8 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   })).filter(a => a.meta);
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
-    flex: 1,
-    padding: '8px 4px',
-    fontSize: '0.6875rem',
+    padding: '8px 16px',
+    fontSize: '0.75rem',
     fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
@@ -147,12 +146,13 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     color: active ? 'var(--white)' : 'var(--s2)',
     background: 'transparent',
     transition: 'color 0.15s, border-color 0.15s',
+    whiteSpace: 'nowrap',
   });
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
       {/* Tabs */}
-      <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 16px' }}>
+      <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 8px', gap: '4px' }}>
         <button style={tabStyle(tab === 'leaderboard')} onClick={() => setTab('leaderboard')}>Board</button>
         <button style={tabStyle(tab === 'about')} onClick={() => setTab('about')}>About</button>
         <button style={tabStyle(tab === 'contestants')} onClick={() => setTab('contestants')}>Season 0</button>
@@ -164,30 +164,31 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {tab === 'leaderboard' && (
           <div>
             {/* Portfolio KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               {[
                 { label: 'Total Yield', value: SEASON.totalYield, color: 'var(--green)' },
                 { label: 'Capital APY', value: SEASON.capitalApy, color: 'var(--lime)' },
                 { label: 'Native APY', value: SEASON.nativeApy, color: 'var(--green)' },
                 { label: 'Avg Bond Score', value: SEASON.avgBondScore, color: 'var(--lime)' },
               ].map(k => (
-                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '10px 12px' }}>
-                  <div className="kpi-label">{k.label}</div>
-                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.125rem' }}>{k.value}</div>
+                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '16px' }}>
+                  <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '4px' }}>{k.label}</div>
+                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.25rem', lineHeight: 1.2 }}>{k.value}</div>
                 </div>
               ))}
             </div>
 
             {/* Agent rows */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {orderedAgents.map(({ name, meta }, idx) => (
                 <div key={name}>
                   <button
                     onClick={() => setExpanded(expanded === name ? null : name)}
                     style={{
                       width: '100%', background: 'var(--card2)', border: '1px solid var(--border)',
-                      borderRadius: '6px', padding: '10px 12px', cursor: 'pointer',
+                      borderRadius: '6px', padding: '12px', cursor: 'pointer',
                       borderLeft: `3px solid ${meta.color}`,
+                      minHeight: '140px',
                       transition: 'background 0.15s',
                     }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#222222')}
@@ -195,15 +196,15 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span style={{ fontSize: '0.6875rem', color: 'var(--s2)', fontWeight: 700, width: '16px' }}>
+                        <span style={{ fontSize: '1rem', color: 'var(--s2)', fontWeight: 700, width: '20px', lineHeight: 1 }}>
                           {idx + 1}
                         </span>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--white)' }}>{name}</span>
+                        <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--white)' }}>{name}</span>
                         <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '1rem', fontFamily: 'var(--mono)', fontWeight: 700, color: meta.color, lineHeight: 1 }}>
+                          <div style={{ fontSize: '1.75rem', fontFamily: 'var(--mono)', fontWeight: 700, color: meta.color, lineHeight: 1 }}>
                             {meta.bondScore}
                           </div>
                           <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.04em' }}>BOND SCORE</div>
@@ -219,12 +220,12 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                         { l: 'RISK', v: meta.risk  },
                         { l: 'STAB', v: meta.stab  },
                       ].map(d => (
-                        <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '3px' }}>
-                          <span style={{ width: '28px', fontSize: '0.5625rem', fontWeight: 700, color: 'var(--s2)' }}>{d.l}</span>
-                          <div style={{ flex: 1, height: '2px', background: 'var(--border)', borderRadius: '1px', overflow: 'hidden' }}>
+                        <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '4px', height: '24px' }}>
+                          <span style={{ width: '35px', fontSize: '0.5625rem', fontWeight: 700, color: 'var(--s2)' }}>{d.l}</span>
+                          <div style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '1px', overflow: 'hidden', margin: '0 6px' }}>
                             <div style={{ height: '100%', width: `${d.v}%`, background: meta.color, borderRadius: '1px', transition: 'width 1s ease' }} />
                           </div>
-                          <span style={{ width: '24px', textAlign: 'right', fontSize: '0.625rem', fontFamily: 'var(--mono)', color: 'var(--s1)' }}>{d.v}</span>
+                          <span style={{ width: '20px', textAlign: 'right', fontSize: '0.6875rem', fontFamily: 'var(--mono)', color: 'var(--white)', fontWeight: 700 }}>{d.v}</span>
                         </div>
                       ))}
                     </div>
