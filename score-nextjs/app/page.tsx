@@ -31,7 +31,10 @@ export default function Home() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <AgentCarousel />
+
+      <div style={{ marginBottom: '28px' }}>
+        <AgentCarousel />
+      </div>
 
       <main style={{ flex: 1 }}>
         {/* Hero / Status bar */}
@@ -63,23 +66,18 @@ export default function Home() {
         </div>
 
         {/* Portfolio KPI bar */}
-        <div style={{ borderBottom: '1px solid var(--border)' }}>
+        <div style={{ borderBottom: '1px solid var(--border)', padding: '16px 0' }}>
           <div className="wt-container">
             <div className="kpi-grid">
               {SEASON_KPIS.map((k) => (
                 <div key={k.label} style={{
-                  padding: '16px',
-                  borderRight: '1px solid var(--border)',
-                  borderBottom: 'none',
-                  minHeight: '80px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  lineHeight: 1.4,
+                  background: 'var(--card)',
+                  padding: '22px 24px',
+                  transition: 'background 0.15s',
                 }}>
                   <div className="kpi-label">{k.label}</div>
-                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.5rem' }}>{k.value}</div>
-                  <div style={{ fontSize: '0.6875rem', color: 'var(--s2)', marginTop: '2px' }}>{k.sub}</div>
+                  <div className="kpi-value" style={{ color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--s2)', marginTop: '6px', lineHeight: 1.5 }}>{k.sub}</div>
                 </div>
               ))}
             </div>
@@ -87,7 +85,7 @@ export default function Home() {
         </div>
 
         {/* Main content */}
-        <div className="wt-container py-6" style={{ marginBottom: '40px' }}>
+        <div className="wt-container py-6" style={{ marginBottom: '40px', marginTop: '28px' }}>
           <div className="page-grid">
             {/* Chart panel */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '32px' }}>
