@@ -11,7 +11,7 @@ import { getAllAgents } from '@/lib/services/agentService';
 
 const SEASON_KPIS = [
   { label: 'Total Volume',  value: '$761,806', sub: '107 days',  color: 'var(--lime)' },
-  { label: 'Total Yield',   value: '$295.75',  sub: 'Season 0',  color: 'var(--green)' },
+  { label: 'Total Yield',   value: '$295.75',  sub: 'Genesis',   color: 'var(--green)' },
   { label: 'Capital APY',   value: '10.45%',   sub: 'blended',   color: 'var(--lime)' },
   { label: 'Native APY',    value: '6.49%',    sub: 'ex-rewards', color: 'var(--green)' },
   { label: 'Risk-Adj APY',  value: '8.47%',    sub: '0.5× reward', color: 'var(--amber)' },
@@ -41,7 +41,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <span className="chip">
                   <span className="chip-dot" />
-                  Season 0 Complete
+                  Genesis Complete
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>
                   Nov 5, 2024 – Feb 19, 2025
@@ -98,7 +98,7 @@ export default function Home() {
                   </span>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', boxShadow: '0 0 8px var(--green)' }} />
                 </div>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--s2)' }}>AUA · Season 0</span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--s2)' }}>AUA · Genesis</span>
               </div>
               <div style={{ padding: '20px' }}>
                 {isLoading ? (

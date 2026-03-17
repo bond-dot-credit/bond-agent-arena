@@ -22,7 +22,7 @@ export default async function LeaderboardPage() {
             Agent <span style={{ color: 'var(--lime)' }}>Leaderboard</span>
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--s2)' }}>
-            Live performance rankings of autonomous yield agents — Season 0
+            Live performance rankings of autonomous yield agents — Genesis
           </p>
         </div>
       </div>

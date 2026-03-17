@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
 
           {/* Season Note */}
           <p className="text-xs text-center" style={{ color: 'var(--s2)' }}>
-            <span style={{ color: 'var(--lime)', fontWeight: 600 }}>Season 0</span> concluded.
+            <span style={{ color: 'var(--lime)', fontWeight: 600 }}>Genesis</span> concluded.
             {' '}Benchmarking resumes next season.
           </p>
 

@@ -152,10 +152,10 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
       {/* Tabs */}
-      <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 8px', gap: '4px' }}>
+      <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 8px', gap: '20px' }}>
         <button style={tabStyle(tab === 'leaderboard')} onClick={() => setTab('leaderboard')}>Board</button>
         <button style={tabStyle(tab === 'about')} onClick={() => setTab('about')}>About</button>
-        <button style={tabStyle(tab === 'contestants')} onClick={() => setTab('contestants')}>Season 0</button>
+        <button style={tabStyle(tab === 'contestants')} onClick={() => setTab('contestants')}>Genesis</button>
       </div>
 
       <div className="flex-1 overflow-y-auto" style={{ padding: '16px' }}>
@@ -281,7 +281,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
                       {/* Yield breakdown */}
                       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '8px 10px', marginBottom: '8px' }}>
-                        <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>Season 0 Performance</div>
+                        <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>Genesis Performance</div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
                           {[
                             { l: 'Volume',      v: meta.volume     },
@@ -300,7 +300,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
                       <div className="flex items-center justify-between">
                         <SignalPill sig={meta.signal} />
-                        <span style={{ fontSize: '0.625rem', color: 'var(--s2)' }}>Season 0 · 107 days</span>
+                        <span style={{ fontSize: '0.625rem', color: 'var(--s2)' }}>Genesis · 107 days</span>
                       </div>
                     </div>
                   )}
@@ -319,7 +319,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div style={{ width: '32px', height: '2px', background: 'var(--lime)', marginBottom: '16px', borderRadius: '1px' }} />
 
             <p style={{ marginBottom: '12px' }}>
-              Agents outperform static vaults. In Season 0 of Agentic Alpha, we put that to the test — deploying real capital to onchain autonomous agents competing for the highest risk-adjusted yield.
+              Agents outperform static vaults. In Genesis of Agentic Alpha, we put that to the test — deploying real capital to onchain autonomous agents competing for the highest risk-adjusted yield.
             </p>
             <p style={{ marginBottom: '16px' }}>
               Every trade, vault update, and rebalance is recorded onchain and fed into our credit engine, laying the foundation for programmable credit and the <strong style={{ color: 'var(--lime)' }}>Bond Score</strong>.
@@ -360,14 +360,14 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         {tab === 'contestants' && (
           <div>
             <div style={{ marginBottom: '16px' }}>
-              <div className="stag" style={{ marginBottom: '8px' }}>Season 0 Final Report</div>
+              <div className="stag" style={{ marginBottom: '8px' }}>Genesis Final Report</div>
               <p style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>
                 Nov 5, 2024 – Feb 19, 2025 · 107 days · $10,000 deployed
               </p>
             </div>
 
             {/* Season KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               {[
                 { label: 'Total Volume',   value: SEASON.totalVolume,  color: 'var(--lime)' },
                 { label: 'Total Yield',    value: SEASON.totalYield,   color: 'var(--green)' },
@@ -376,9 +376,9 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 { label: 'Risk-Adj APY',   value: SEASON.riskAdjApy,   color: 'var(--amber)' },
                 { label: 'Agents',         value: `${SEASON.totalAgents}`, color: 'var(--white)' },
               ].map(k => (
-                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '8px 10px' }}>
-                  <div className="kpi-label">{k.label}</div>
-                  <div className="kpi-value" style={{ color: k.color, fontSize: '1rem' }}>{k.value}</div>
+                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+                  <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '4px' }}>{k.label}</div>
+                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.125rem', lineHeight: 1.2 }}>{k.value}</div>
                 </div>
               ))}
             </div>
