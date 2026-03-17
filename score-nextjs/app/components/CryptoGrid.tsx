@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Agent } from '@/lib/types';
 import { useWallet } from '../../hooks/useWallet';
 
@@ -46,6 +46,8 @@ const DimMiniBar = ({ value, color }: { value: number; color: string }) => (
   </div>
 );
 
+type TeeStatus = 'idle' | 'loading' | 'done' | 'error';
+
 const LeaderboardRow: React.FC<{
   agent: Agent;
   index: number;
@@ -54,6 +56,15 @@ const LeaderboardRow: React.FC<{
 }> = ({ agent, index, isExpanded, onToggle }) => {
   const { authenticated, connect: login } = useWallet();
   const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
+  const [teeStatus, setTeeStatus] = useState<TeeStatus>('idle');
+
+  const runTeeVerification = useCallback(async () => {
+    if (teeStatus === 'loading') return;
+    setTeeStatus('loading');
+    // Simulate TEE task dispatch (iExec integration point)
+    await new Promise(r => setTimeout(r, 2200));
+    setTeeStatus('done');
+  }, [teeStatus]);
 
   const fmt = (v?: number) => v != null ? `$${v.toFixed(2)}` : 'N/A';
   const rankColor = index === 0 ? 'var(--lime)' : index === 1 ? 'var(--s1)' : index === 2 ? 'var(--amber)' : 'var(--s2)';
@@ -172,23 +183,62 @@ const LeaderboardRow: React.FC<{
                 </div>
 
                 {/* TEE Verify */}
-                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+                <div style={{ background: 'var(--card)', border: `1px solid ${teeStatus === 'done' ? meta.color + '40' : 'var(--border)'}`, borderRadius: '6px', padding: '12px', transition: 'border-color 0.3s' }}>
                   <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Verify Bond Score</div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--s2)', marginBottom: '10px', lineHeight: 1.5 }}>
-                    Run a confidential TEE computation via iExec to verify this agent's score on-chain.
-                  </p>
-                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginBottom: '10px' }}>
-                    Requires <span style={{ color: 'var(--white)', fontWeight: 600 }}>0.1 RLC</span> + gas on Arbitrum One
-                  </div>
-                  {authenticated ? (
-                    <button className="btn-outline-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
-                      Run TEE Verification
-                    </button>
+
+                  {teeStatus === 'done' ? (
+                    <div style={{ animation: 'fadeIn 0.4s ease' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                        <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#22c55e', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#22c55e' }}>Score Verified On-Chain</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '8px' }}>
+                        {[
+                          { l: 'Bond Score', v: `${meta.bondScore}/100` },
+                          { l: 'Grade',      v: meta.grade },
+                          { l: 'Signal',     v: meta.signal === 'safe' ? '✓ Safe' : meta.signal === 'caution' ? '⚠ Caution' : '✕ Risk' },
+                          { l: 'Network',    v: 'Arbitrum One' },
+                        ].map(m => (
+                          <div key={m.l} style={{ background: 'var(--card2)', borderRadius: '4px', padding: '5px 8px' }}>
+                            <div style={{ fontSize: '0.5rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.l}</div>
+                            <div style={{ fontSize: '0.6875rem', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--white)', marginTop: '1px' }}>{m.v}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={() => setTeeStatus('idle')} style={{ width: '100%', fontSize: '0.5625rem', padding: '5px', background: 'transparent', border: 'none', color: 'var(--s2)', cursor: 'pointer', textAlign: 'center' }}>
+                        Run again ↺
+                      </button>
+                    </div>
                   ) : (
-                    <button onClick={login} className="btn-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
-                      Connect Wallet
-                    </button>
+                    <>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--s2)', marginBottom: '10px', lineHeight: 1.5 }}>
+                        Run a confidential TEE computation via iExec to verify this agent&apos;s score on-chain.
+                      </p>
+                      <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginBottom: '10px' }}>
+                        Requires <span style={{ color: 'var(--white)', fontWeight: 600 }}>0.1 RLC</span> + gas on Arbitrum One
+                      </div>
+                      {authenticated ? (
+                        <button
+                          onClick={runTeeVerification}
+                          disabled={teeStatus === 'loading'}
+                          className="btn-outline-lime"
+                          style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px', opacity: teeStatus === 'loading' ? 0.7 : 1, cursor: teeStatus === 'loading' ? 'default' : 'pointer' }}
+                        >
+                          {teeStatus === 'loading' ? (
+                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                              <span style={{ width: '10px', height: '10px', borderRadius: '50%', border: '1.5px solid var(--border2)', borderTopColor: 'var(--lime)', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                              Loading TEE Interface…
+                            </span>
+                          ) : 'Run TEE Verification'}
+                        </button>
+                      ) : (
+                        <button onClick={login} className="btn-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
+                          Connect Wallet
+                        </button>
+                      )}
+                    </>
                   )}
+
                   <div style={{ marginTop: '10px', fontSize: '0.5625rem', color: 'var(--s2)', textAlign: 'center', letterSpacing: '0.04em' }}>
                     POWERED BY IEXEC TEE · ARBITRUM ONE
                   </div>

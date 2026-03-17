@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '../../hooks/useWallet';
+import { useWalletActions } from '../../components/providers/WalletPrivySync';
 
 const Header: React.FC = () => {
   const pathname = usePathname();
   const { ready, authenticated, wallet, connect: login, disconnect: logout } = useWallet();
+  const { login: privyLogin } = useWalletActions();
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [showAgentModal, setShowAgentModal]       = useState(false);
   const [mobileOpen, setMobileOpen]               = useState(false);
@@ -98,7 +100,7 @@ const Header: React.FC = () => {
               ].map(l => (
                 <button key={l.label} onClick={l.action}
                   className="text-xs font-medium transition-colors"
-                  style={{ color: 'var(--s2)' }}
+                  style={{ color: 'var(--s2)', cursor: 'pointer' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'var(--white)')}
                   onMouseLeave={e => (e.currentTarget.style.color = 'var(--s2)')}
                 >
@@ -117,7 +119,12 @@ const Header: React.FC = () => {
 
             {/* Connect */}
             {ready && !authenticated ? (
-              <button onClick={login} className="btn-lime text-xs" style={{ padding: '6px 14px' }}>
+              <button
+                onClick={privyLogin ? login : () => setShowWaitlistModal(true)}
+                className="btn-lime text-xs"
+                style={{ padding: '6px 14px' }}
+                title={privyLogin ? undefined : 'Add NEXT_PUBLIC_PRIVY_APP_ID to enable wallet connect'}
+              >
                 CONNECT
               </button>
             ) : ready && authenticated ? (
