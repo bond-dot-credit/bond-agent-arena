@@ -5,7 +5,7 @@ import React from 'react';
 const Footer: React.FC = () => {
   return (
     <footer className="relative z-10 mt-auto" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg)' }}>
-      <div className="wt-container py-5">
+      <div className="wt-container py-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Branding */}
           <div className="flex flex-col gap-1">

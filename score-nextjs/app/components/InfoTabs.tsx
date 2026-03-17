@@ -158,13 +158,13 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         <button style={tabStyle(tab === 'contestants')} onClick={() => setTab('contestants')}>Genesis</button>
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ padding: '16px' }}>
+      <div className="flex-1 overflow-y-auto" style={{ padding: '20px 16px 16px 16px' }}>
 
         {/* ── LEADERBOARD TAB ── */}
         {tab === 'leaderboard' && (
           <div>
             {/* Portfolio KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
               {[
                 { label: 'Total Yield', value: SEASON.totalYield, color: 'var(--green)' },
                 { label: 'Capital APY', value: SEASON.capitalApy, color: 'var(--lime)' },
