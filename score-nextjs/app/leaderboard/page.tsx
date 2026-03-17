@@ -27,7 +27,7 @@ export default async function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="wt-container py-8" style={{ flex: 1, marginBottom: '40px' }}>
+      <div style={{ flex: 1, marginBottom: '40px', padding: '40px 20px 0', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
         <CryptoGrid agents={agents} />
       </div>
 

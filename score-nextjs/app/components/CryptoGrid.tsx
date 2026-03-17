@@ -5,10 +5,11 @@ import { Agent } from '@/lib/types';
 import { useWallet } from '../../hooks/useWallet';
 
 // Watchtower agent color/grade data
-const AGENT_META: Record<string, { color: string; grade: string; gradeClass: string; bondScore: number; perf: number; risk: number; stab: number; sharpe: number; drawdown: number; capacity: number; capitalApy: string; rewardDep: string; signal: string }> = {
+const AGENT_META: Record<string, { color: string; grade: string; gradeClass: string; bondScore: number; perf: number; risk: number; stab: number; sharpe: number; drawdown: number; capacity: number; capitalApy: string; rewardDep: string; signal: string; logo?: string }> = {
   'Sail.Money': { color: '#3b82f6', grade: 'A+', gradeClass: 'grade-ap', bondScore: 91, perf: 78,  risk: 94, stab: 92, sharpe: 2.31, drawdown: 3.1,  capacity: 18600, capitalApy: '6.41%',  rewardDep: '0.3%',  signal: 'safe'    },
   'ZyFAI':      { color: '#a855f7', grade: 'A',  gradeClass: 'grade-a',  bondScore: 85, perf: 88,  risk: 88, stab: 76, sharpe: 1.89, drawdown: 6.4,  capacity: 16200, capitalApy: '10.17%', rewardDep: '0.0%',  signal: 'safe'    },
-  'Giza':       { color: '#ccff00', grade: 'A',  gradeClass: 'grade-a',  bondScore: 82, perf: 85,  risk: 72, stab: 80, sharpe: 1.42, drawdown: 11.2, capacity: 14300, capitalApy: '14.30%', rewardDep: '62.0%', signal: 'caution' },
+  'Giza':       { color: '#ccff00', grade: 'A',  gradeClass: 'grade-a',  bondScore: 82, perf: 85,  risk: 72, stab: 80, sharpe: 1.42, drawdown: 11.2, capacity: 14300, capitalApy: '14.30%', rewardDep: '62.0%', signal: 'caution', logo: 'https://pbs.twimg.com/profile_images/2027034439767789568/wmmqHI6u_400x400.jpg' },
+  'Arma':       { color: '#ccff00', grade: 'A',  gradeClass: 'grade-a',  bondScore: 82, perf: 85,  risk: 72, stab: 80, sharpe: 1.42, drawdown: 11.2, capacity: 14300, capitalApy: '14.30%', rewardDep: '62.0%', signal: 'caution', logo: 'https://pbs.twimg.com/profile_images/2027034439767789568/wmmqHI6u_400x400.jpg' },
   'Surf':       { color: '#f97316', grade: 'B+', gradeClass: 'grade-bp', bondScore: 72, perf: 90,  risk: 58, stab: 68, sharpe: 0.98, drawdown: 18.5, capacity: 9800,  capitalApy: '16.49%', rewardDep: '62.9%', signal: 'caution' },
   'Mamo':       { color: '#22c55e', grade: 'B',  gradeClass: 'grade-b',  bondScore: 67, perf: 62,  risk: 70, stab: 64, sharpe: 1.12, drawdown: 9.8,  capacity: 7400,  capitalApy: '5.21%',  rewardDep: '8.4%',  signal: 'caution' },
 };
@@ -88,11 +89,11 @@ const LeaderboardRow: React.FC<{
         <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
           <div className="flex items-center gap-2">
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: meta.color, flexShrink: 0 }} />
-            {agent.medal && (
+            {(meta.logo || agent.medal) && (
               <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--card2)', border: `1px solid ${meta.color}30`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px', flexShrink: 0 }}
                 onClick={e => { e.stopPropagation(); if (agent.website) window.open(agent.website, '_blank'); }}
               >
-                <img src={agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src={meta.logo || agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
             )}
             <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
@@ -146,7 +147,7 @@ const LeaderboardRow: React.FC<{
         <tr>
           <td colSpan={9} style={{ padding: 0, background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
             <div style={{ padding: '16px 24px', borderLeft: `3px solid ${meta.color}` }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {/* Score breakdown */}
                 <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
                   <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Bond Score Breakdown</div>
@@ -161,25 +162,6 @@ const LeaderboardRow: React.FC<{
                       <span style={{ width: '20px', textAlign: 'right', fontSize: '0.6875rem', fontFamily: 'var(--mono)', color: 'var(--s1)' }}>{d.v}</span>
                     </div>
                   ))}
-                </div>
-
-                {/* Risk metrics */}
-                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
-                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Risk Metrics</div>
-                  {[
-                    { l: 'Sharpe',    v: meta.sharpe.toFixed(2) },
-                    { l: 'Drawdown',  v: `-${meta.drawdown}%` },
-                    { l: 'Reward Dep.', v: meta.rewardDep, highlight: parseFloat(meta.rewardDep) > 30 },
-                    { l: 'Capacity',  v: `$${(meta.capacity/1000).toFixed(1)}k` },
-                  ].map(m => (
-                    <div key={m.l} className="flex justify-between items-center" style={{ marginBottom: '5px', fontSize: '0.75rem' }}>
-                      <span style={{ color: 'var(--s2)' }}>{m.l}</span>
-                      <span style={{ fontFamily: 'var(--mono)', fontWeight: 600, color: (m as { l: string; v: string; highlight?: boolean }).highlight ? 'var(--amber)' : 'var(--white)' }}>{m.v}</span>
-                    </div>
-                  ))}
-                  <div style={{ marginTop: '8px' }}>
-                    <SignalPill sig={meta.signal} />
-                  </div>
                 </div>
 
                 {/* TEE Verify */}
@@ -301,9 +283,9 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               >
                 <div className="flex items-center gap-2">
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--s2)', width: '16px' }}>{agent.rank}</span>
-                  {agent.medal && (
+                  {(meta.logo || agent.medal) && (
                     <div style={{ width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', border: `1px solid ${meta.color}30`, background: 'var(--card2)', padding: '2px', flexShrink: 0 }}>
-                      <img src={agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      <img src={meta.logo || agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
                   )}
                   <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
@@ -325,9 +307,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       { l: 'AUA',        v: agent.aua != null ? `$${agent.aua.toFixed(2)}` : 'N/A', color: meta.color },
                       { l: 'AUM',        v: agent.aum != null ? `$${agent.aum.toFixed(2)}` : 'N/A' },
                       { l: 'Capital APY', v: meta.capitalApy, color: 'var(--lime)' },
-                      { l: 'Sharpe',     v: meta.sharpe.toFixed(2) },
-                      { l: 'Drawdown',   v: `-${meta.drawdown}%`, color: 'var(--red)' },
-                      { l: 'Capacity',   v: `$${(meta.capacity/1000).toFixed(1)}k` },
+                      { l: 'Bond Score', v: `${meta.bondScore}/100`, color: meta.color },
                     ].map(m => (
                       <div key={m.l} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '4px', padding: '7px 9px' }}>
                         <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.l}</div>
