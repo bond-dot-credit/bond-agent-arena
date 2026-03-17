@@ -97,7 +97,6 @@ const LeaderboardRow: React.FC<{
               </div>
             )}
             <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
-            <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
           </div>
         </td>
 
@@ -136,6 +135,29 @@ const LeaderboardRow: React.FC<{
           </div>
         </td>
 
+        {/* Verify */}
+        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
+          {authenticated ? (
+            <button
+              onClick={runTeeVerification}
+              disabled={teeStatus === 'loading'}
+              className="btn-outline-lime"
+              style={{ fontSize: '0.625rem', padding: '4px 10px', opacity: teeStatus === 'loading' ? 0.6 : 1 }}
+            >
+              {teeStatus === 'loading' ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1.5px solid var(--border2)', borderTopColor: 'var(--lime)', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                  Loading…
+                </span>
+              ) : teeStatus === 'done' ? '✓ Verified' : 'Verify'}
+            </button>
+          ) : (
+            <button onClick={login} className="btn-lime" style={{ fontSize: '0.625rem', padding: '4px 10px' }}>
+              Connect
+            </button>
+          )}
+        </td>
+
         {/* Expand */}
         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
           <span style={{ color: 'var(--s2)', transform: isExpanded ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>
@@ -145,7 +167,7 @@ const LeaderboardRow: React.FC<{
       {/* Expanded panel */}
       {isExpanded && (
         <tr>
-          <td colSpan={9} style={{ padding: 0, background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
+          <td colSpan={10} style={{ padding: 0, background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
             <div style={{ padding: '16px 24px', borderLeft: `3px solid ${meta.color}` }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 {/* Score breakdown */}
@@ -250,7 +272,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               {['Rank', 'Agent',
                 <span className="flex items-center gap-1">AUA <Tooltip text="Assets Under Agent — total balance managed"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
                 <span className="flex items-center gap-1">AUM <Tooltip text="Assets Under Management — native USDC balance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
-                'Native Yield', 'Rewards', 'Capital APY', 'Bond Score', ''
+                'Native Yield', 'Rewards', 'Capital APY', 'Bond Score', 'Verify', ''
               ].map((h, i) => (
                 <th key={i} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--s2)', whiteSpace: 'nowrap' }}>
                   {h}
@@ -291,7 +313,6 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                     </div>
                   )}
                   <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
-                  <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div style={{ textAlign: 'right' }}>
