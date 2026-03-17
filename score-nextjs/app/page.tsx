@@ -119,7 +119,7 @@ export default function Home() {
             </div>
 
             {/* Sidebar */}
-            <div className="sidebar" style={{ height: '620px', display: 'flex', flexDirection: 'column' }}>
+            <div className="sidebar" style={{ minHeight: '620px', display: 'flex', flexDirection: 'column' }}>
               <InfoTabs agents={agents} />
             </div>
           </div>

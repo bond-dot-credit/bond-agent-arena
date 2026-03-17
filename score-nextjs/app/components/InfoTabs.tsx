@@ -186,7 +186,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                     onClick={() => setExpanded(expanded === name ? null : name)}
                     style={{
                       width: '100%', background: 'var(--card2)', border: '1px solid var(--border)',
-                      borderRadius: '6px', padding: '12px', cursor: 'pointer',
+                      borderRadius: '6px', padding: '16px', cursor: 'pointer',
                       borderLeft: `3px solid ${meta.color}`,
                       minHeight: '140px',
                       transition: 'background 0.15s',
@@ -237,7 +237,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       background: 'var(--bg2)', border: '1px solid var(--border)',
                       borderTop: 'none', borderRadius: '0 0 6px 6px',
                       borderLeft: `3px solid ${meta.color}`,
-                      padding: '12px',
+                      padding: '16px',
                     }}>
                       {/* Dimension bars full */}
                       <div style={{ marginBottom: '12px' }}>
