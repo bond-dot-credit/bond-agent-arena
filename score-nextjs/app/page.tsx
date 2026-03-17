@@ -32,9 +32,7 @@ export default function Home() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
       <Header />
 
-      <div style={{ marginBottom: '28px' }}>
-        <AgentCarousel />
-      </div>
+      <AgentCarousel />
 
       <main style={{ flex: 1 }}>
         {/* Hero / Status bar */}
@@ -85,7 +83,7 @@ export default function Home() {
         </div>
 
         {/* Main content */}
-        <div className="wt-container py-6" style={{ marginBottom: '40px', marginTop: '28px' }}>
+        <div className="wt-container py-6" style={{ marginBottom: '40px', marginTop: '8px' }}>
           <div className="page-grid">
             {/* Chart panel */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '32px' }}>
@@ -125,13 +123,13 @@ export default function Home() {
           {/* Bottom metrics strip */}
           <div className="bottom-strip">
             {[
-              { label: 'Avg Daily Volume',        value: '$7,120',   icon: '📊' },
-              { label: 'Avg Daily Yield',          value: '$2.76',    icon: '💰' },
-              { label: 'Avg Transactions / Day',   value: '5.33',     icon: '⚡' },
-              { label: 'Avg Yield / Transaction',  value: '$0.519',   icon: '📈' },
+              { label: 'Avg Daily Volume',        value: '$7,120' },
+              { label: 'Avg Daily Yield',         value: '$2.76' },
+              { label: 'Avg Transactions / Day',  value: '5.33' },
+              { label: 'Avg Yield / Transaction', value: '$0.519' },
             ].map(m => (
               <div key={m.label} style={{ background: 'var(--card)', padding: '12px 16px' }}>
-                <div className="kpi-label">{m.icon} {m.label}</div>
+                <div className="kpi-label">{m.label}</div>
                 <div style={{ fontSize: '1.125rem', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--white)', lineHeight: 1, marginTop: '4px' }}>{m.value}</div>
               </div>
             ))}
