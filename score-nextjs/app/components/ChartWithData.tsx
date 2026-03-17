@@ -799,8 +799,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         </div> */}
       </div>
       <div
-        className="relative h-[550px] rounded-lg p-3"
-        style={{ background: 'transparent', border: 'none' }}
+        className="relative rounded-lg p-3"
+        style={{ background: 'transparent', border: 'none', minHeight: '550px' }}
       >
         {viewMode === 'bar' ? (
           <BarChartView
