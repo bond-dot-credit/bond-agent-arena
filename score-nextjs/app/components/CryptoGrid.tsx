@@ -207,10 +207,10 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
   return (
-    <div style={{ marginBottom: '40px' }}>
+    <div style={{ marginBottom: '40px', minHeight: '400px' }}>
       {/* Desktop table */}
-      <div className="hidden md:block" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="hidden md:block" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '32px' }}>
+        <table className="wt-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               {['Rank', 'Agent',
@@ -239,7 +239,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       </div>
 
       {/* Mobile cards */}
-      <div className="block md:hidden" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="flex flex-col gap-2 md:hidden">
         {agents.map((agent, i) => {
           const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
           const isExp = expandedId === agent.agent;

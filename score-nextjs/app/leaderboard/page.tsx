@@ -14,8 +14,8 @@ export default async function LeaderboardPage() {
 
       {/* Page header */}
       <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)' }}>
-        <div className="wt-container py-5">
-          <div className="flex items-center gap-3 mb-1">
+        <div className="wt-container py-6">
+          <div className="flex items-center gap-3 mb-2">
             <span className="stag">Agentic Alpha</span>
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: 'var(--white)', lineHeight: 1.1, marginBottom: '6px' }}>
@@ -27,7 +27,7 @@ export default async function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="wt-container py-6" style={{ flex: 1 }}>
+      <div className="wt-container py-6" style={{ flex: 1, marginBottom: '40px' }}>
         <CryptoGrid agents={agents} />
       </div>
 
