@@ -86,7 +86,7 @@ export default function Home() {
         <div className="wt-container py-6" style={{ marginBottom: '40px', marginTop: '8px' }}>
           <div className="page-grid">
             {/* Chart panel */}
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '32px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div className="flex items-center gap-3">
                   <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
