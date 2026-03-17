@@ -37,7 +37,7 @@ export default function Home() {
       <main style={{ flex: 1 }}>
         {/* Hero / Status bar */}
         <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)' }}>
-          <div className="wt-container py-5">
+          <div className="wt-container py-7">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="chip">
