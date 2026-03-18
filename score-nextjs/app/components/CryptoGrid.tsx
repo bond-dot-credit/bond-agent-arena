@@ -233,11 +233,10 @@ const TeeVerifyCard: React.FC<{ agent: Agent; color: string }> = ({ agent, color
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const teeOpts = { teeFramework: teeFramework as any };
-      try {
-        await iexec.secrets.pushRequesterSecret('1', secretPayload, teeOpts);
-      } catch (secErr: any) {
-        // Secret may already exist — update it
-        if (!secErr.message?.includes('already exists')) throw secErr;
+      const accounts = await ethereum.request({ method: 'eth_accounts' }) as string[];
+      const userAddress = accounts[0];
+      const secretExists = await iexec.secrets.checkRequesterSecretExists(userAddress, '1', teeOpts);
+      if (!secretExists) {
         await iexec.secrets.pushRequesterSecret('1', secretPayload, teeOpts);
       }
 
