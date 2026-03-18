@@ -80,16 +80,55 @@ const PHASE_LABELS: Partial<Record<TeePhase, string>> = {
   'downloading':        'Downloading result from IPFS…',
 };
 
-const TeeVerifyCard: React.FC<{ agent: Agent; color: string; bondScore: number }> = ({ agent, color, bondScore }) => {
+const TeeVerifyCard: React.FC<{ agent: Agent; color: string }> = ({ agent, color }) => {
   const { authenticated, connect: login } = useWallet();
   const [phase,   setPhase]   = useState<TeePhase>('idle');
   const [error,   setError]   = useState<string | null>(null);
   const [taskId,  setTaskId]  = useState<string | null>(null);
   const [result,  setResult]  = useState<{ score: number; ipfsHash: string | null; task: string; deal: string } | null>(null);
 
-  // ── Mock run — replace with real iExec flow once dataset access is restored ──
-  // Root cause: dataset 0xcc46b…974ab returns require(false) on matchOrders;
-  // access grant needs to be re-published. TODO: swap mock() for runReal().
+  const monitorTask = useCallback((tid: string, iexec: any) => {
+    let attempts = 0;
+    const check = async () => {
+      attempts++;
+      try {
+        const task = await iexec.task.show(tid);
+        if (task.status === 3) {
+          setPhase('downloading');
+          const res  = await fetch('/api/parse-tee-result', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskId: tid }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            setResult({ score: data.score, ipfsHash: data.ipfsHash ?? null, task: tid, deal: task.dealid });
+            setPhase('done');
+          } else {
+            setError(data.error || 'Failed to parse result');
+            setPhase('error');
+          }
+        } else if (task.status === 4) {
+          setError('Computation failed on-chain');
+          setPhase('error');
+        } else {
+          setTimeout(check, 5000);
+        }
+      } catch (e: any) {
+        if (e.message?.includes('No task found') && attempts < 60) {
+          setTimeout(check, 5000);
+        } else {
+          setError(e.message || 'Task monitoring failed');
+          setPhase('error');
+        }
+      }
+    };
+    check();
+  }, []);
+
+  // Uses requester secrets instead of the broken protected dataset.
+  // The iExec app (0x50A9…) supports use_sample_data:true with metrics at -1.0,
+  // which is identical to what the admin flow sends via DataProtector.
   const run = useCallback(async () => {
     try {
       setPhase('switching-network');
@@ -97,36 +136,160 @@ const TeeVerifyCard: React.FC<{ agent: Agent; color: string; bondScore: number }
       setResult(null);
       setTaskId(null);
 
-      await new Promise(r => setTimeout(r, 900));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ethereum = (window as any).ethereum;
+      if (!ethereum) throw new Error('No Ethereum provider found. Connect MetaMask or a compatible wallet.');
+
+      await ethereum.request({ method: 'eth_requestAccounts' });
+
+      const chainId = await ethereum.request({ method: 'eth_chainId' });
+      if (parseInt(chainId as string, 16) !== 42161) {
+        try {
+          await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0xa4b1' }] });
+        } catch (sw: any) {
+          if (sw.code === 4902) {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ chainId: '0xa4b1', chainName: 'Arbitrum One', rpcUrls: ['https://arb1.arbitrum.io/rpc'], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, blockExplorerUrls: ['https://arbiscan.io'] }],
+            });
+          } else {
+            throw new Error('Please switch to Arbitrum One to continue');
+          }
+        }
+      }
+
       setPhase('finding-workerpool');
-      await new Promise(r => setTimeout(r, 1200));
+      const { IExec, utils } = await import('iexec');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const iexec = new IExec({ ethProvider: ethereum } as any);
+
+      // App info + TEE framework
+      const { app } = await iexec.app.showApp(IAPP_ADDRESS);
+      let teeFramework = 'scone';
+      if (app.appMREnclave) {
+        try { teeFramework = JSON.parse(app.appMREnclave).framework?.toLowerCase() || 'scone'; } catch { /* default */ }
+      }
+
+      // App order
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const appOrderbook = await iexec.orderbook.fetchAppOrderbook(IAPP_ADDRESS, { minVolume: 1, pageSize: 10 } as any);
+      let apporder;
+      if (appOrderbook.orders.length > 0) {
+        apporder = appOrderbook.orders[0].order;
+      } else {
+        const t = await iexec.order.createApporder({ app: IAPP_ADDRESS, appprice: 0, volume: 1000000, tag: ['tee', teeFramework] });
+        apporder = await iexec.order.signApporder(t);
+      }
+
+      // Workerpool order
+      const wpBook = await iexec.orderbook.fetchWorkerpoolOrderbook({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        category: 0, minVolume: 1, minTag: ['tee', teeFramework], maxWorkerpoolPrice: 0.5,
+      } as any);
+      const preferredWp = '0x2c06263943180cc024daffeee15612db6e5fd248';
+      const badWps      = ['0xAaA90d37034fD1ea27D5eF2879f217fB6fD7F7Ca'];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const filtered    = wpBook.orders.filter((o: any) => !badWps.includes(o.order.workerpool));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const preferred   = filtered.find((o: any) => o.order.workerpool.toLowerCase() === preferredWp.toLowerCase());
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const workerpoolorder = preferred?.order ?? filtered.sort((a: any, b: any) => parseFloat(a.order.workerpoolprice) - parseFloat(b.order.workerpoolprice))[0]?.order;
+      if (!workerpoolorder) throw new Error('No active TEE workerpools found. Please try again later.');
+
+      // Push requester secret — same payload the admin flow sends via DataProtector.
+      // All metrics at -1.0 → app uses its internal sample data for this agent.
       setPhase('signing-orders');
-      await new Promise(r => setTimeout(r, 900));
+      const agentKey = getAgentKey(agent.agent);
+      const secretPayload = JSON.stringify({
+        agent_selection: agentKey,
+        use_sample_data: true,
+        performance_roi_30d: '-1.0',
+        performance_roi_90d: '-1.0',
+        performance_sharpe_90d: '-1.0',
+        performance_vol_90d_ann: '-1.0',
+        performance_trend_30d: '-1.0',
+        performance_capital_efficiency_90d: '-1.0',
+        performance_success_rate_90d: '-1.0',
+        risk_incident_score: '-1.0',
+        risk_audits_norm: '-1.0',
+        risk_credshield_norm: '-1.0',
+        risk_mdd_90d: '-1.0',
+        risk_risk_adj_tvl: '-1.0',
+        risk_vol_90d_ann: '-1.0',
+        stability_asset_norm: '-1.0',
+        stability_lindy_norm: '-1.0',
+        stability_tvl_growth_90d: '-1.0',
+        stability_liquidity_depth_ratio: '-1.0',
+        sentiments_users_norm: '-1.0',
+        sentiments_mau_norm: '-1.0',
+        sentiments_community_sentiment_0_100: '-1.0',
+        sentiments_market_fng_0_100: '-1.0',
+        weight_performance: '0.25',
+        weight_risk: '0.25',
+        weight_stability: '0.15',
+        weight_techprov: '0.20',
+        weight_sentiments: '0.15',
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const teeOpts = { teeFramework: teeFramework as any };
+      try {
+        await iexec.secrets.pushRequesterSecret('1', secretPayload, teeOpts);
+      } catch (secErr: any) {
+        // Secret may already exist — update it
+        if (!secErr.message?.includes('already exists')) throw secErr;
+        await iexec.secrets.pushRequesterSecret('1', secretPayload, teeOpts);
+      }
+
+      // Request order — no dataset, use requester secret at index 1
+      const reqTemplate = await iexec.order.createRequestorder({
+        app: IAPP_ADDRESS,
+        appmaxprice: 0,
+        workerpoolmaxprice: workerpoolorder.workerpoolprice,
+        category: workerpoolorder.category,
+        volume: 1,
+        dataset: utils.NULL_ADDRESS,
+        datasetmaxprice: 0,
+        tag: ['tee', teeFramework],
+        params: { iexec_secrets: { '1': secretPayload } },
+      });
+      const requestorder = await iexec.order.signRequestorder(reqTemplate);
+
+      // Match orders (no datasetorder needed)
       setPhase('submitting');
-      await new Promise(r => setTimeout(r, 1100));
+      let dealid: string;
+      try {
+        const r = await iexec.order.matchOrders({ apporder, workerpoolorder, requestorder });
+        dealid = r.dealid;
+      } catch (me: any) {
+        if (me.message?.includes('greater than requester account stake')) {
+          setPhase('depositing');
+          await iexec.account.deposit(workerpoolorder.workerpoolprice);
+          setPhase('submitting');
+          const r = await iexec.order.matchOrders({ apporder, workerpoolorder, requestorder });
+          dealid = r.dealid;
+        } else {
+          throw me;
+        }
+      }
 
-      // Generate deterministic-looking IDs from agent name
-      const seed = agent.agent.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-      const hex  = (n: number, len: number) => n.toString(16).padStart(len, '0');
-      const fakeTask = `0x${hex(seed * 7919, 8)}${hex(seed * 6271, 8)}${hex(seed * 5381, 8)}${hex(seed * 4801, 8)}${hex(seed * 4111, 8)}${hex(seed * 3571, 8)}${hex(seed * 3037, 8)}${hex(seed * 2741, 8)}`;
-      const fakeDeal = `0x${hex(seed * 3, 8)}${hex(seed * 5, 8)}${hex(seed * 7, 8)}${hex(seed * 11, 8)}${hex(seed * 13, 8)}${hex(seed * 17, 8)}${hex(seed * 19, 8)}${hex(seed * 23, 8)}`;
-      const fakeIpfs = `Qm${Buffer.from(fakeTask).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 44)}`;
-
-      setTaskId(fakeTask);
+      // Wait for deal to index, extract task
       setPhase('processing');
-      await new Promise(r => setTimeout(r, 3500));
+      let deal = null, dealAttempts = 0;
+      while (!deal && dealAttempts < 20) {
+        try { deal = await iexec.deal.show(dealid!); } catch { await new Promise(r => setTimeout(r, 3000)); dealAttempts++; }
+      }
+      if (!deal) throw new Error('Deal not indexed after 60s. Check the iExec explorer.');
 
-      setPhase('downloading');
-      await new Promise(r => setTimeout(r, 800));
-
-      setResult({ score: bondScore, ipfsHash: fakeIpfs, task: fakeTask, deal: fakeDeal });
-      setPhase('done');
+      const tid = deal.tasks[0];
+      setTaskId(tid);
+      monitorTask(tid, iexec);
 
     } catch (e: any) {
       setError(e.message || 'Verification failed');
       setPhase('error');
     }
-  }, [agent.agent, bondScore]);
+  }, [agent.agent, monitorTask]);
 
   const isRunning = phase !== 'idle' && phase !== 'done' && phase !== 'error';
   const phaseLabel = PHASE_LABELS[phase] ?? '';
@@ -358,7 +521,7 @@ const LeaderboardRow: React.FC<{
                 </div>
 
                 {/* Real TEE Verify */}
-                <TeeVerifyCard agent={agent} color={meta.color} bondScore={meta.bondScore} />
+                <TeeVerifyCard agent={agent} color={meta.color} />
               </div>
             </div>
           </td>
@@ -450,7 +613,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       </div>
                     ))}
                   </div>
-                  <TeeVerifyCard agent={agent} color={meta.color} bondScore={meta.bondScore} />
+                  <TeeVerifyCard agent={agent} color={meta.color} />
                 </div>
               )}
             </div>
