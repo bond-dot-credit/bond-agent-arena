@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '../../hooks/useWallet';
 import { useWalletActions } from '../../components/providers/WalletPrivySync';
+import { ToastContainer, useToast } from './Toast';
 
 const Header: React.FC = () => {
   const pathname = usePathname();
@@ -18,6 +19,27 @@ const Header: React.FC = () => {
   const [userType, setUserType] = useState('');
   const [agentName, setAgentName] = useState('');
   const [website, setWebsite] = useState('');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const { toasts, toast, dismiss } = useToast();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('wt-theme') as 'dark' | 'light' | null;
+    if (saved === 'light') {
+      setTheme('light');
+      document.body.setAttribute('data-theme', 'light');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    if (next === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+    } else {
+      document.body.removeAttribute('data-theme');
+    }
+    localStorage.setItem('wt-theme', next);
+  };
 
   // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
   useEffect(() => { setShowWalletDrop(false); }, [pathname]);
@@ -28,23 +50,39 @@ const Header: React.FC = () => {
     e.preventDefault();
     try {
       const res = await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, userType }) });
-      if (res.ok) { alert('Thanks for joining the waitlist!'); setShowWaitlistModal(false); setName(''); setEmail(''); setUserType(''); }
-      else { const d = await res.json(); alert(d.error || 'Failed'); }
-    } catch { alert('Failed to join waitlist. Please try again.'); }
+      if (res.ok) {
+        toast('success', "You're on the list", "We'll reach out when Season 2 opens.");
+        setShowWaitlistModal(false); setName(''); setEmail(''); setUserType('');
+      } else {
+        const d = await res.json();
+        toast('error', 'Submission failed', d.error || 'Please try again.');
+      }
+    } catch {
+      toast('error', 'Connection error', 'Could not reach the server. Please try again.');
+    }
   };
 
   const handleAgentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await fetch('/api/agent-submissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, agentName, website }) });
-      if (res.ok) { alert('Thanks! We will review your agent for Season 2.'); setShowAgentModal(false); setName(''); setAgentName(''); setWebsite(''); }
-      else { const d = await res.json(); alert(d.error || 'Failed'); }
-    } catch { alert('Failed to submit. Please try again.'); }
+      if (res.ok) {
+        toast('success', 'Agent submitted', "We'll review your agent for Season 2.");
+        setShowAgentModal(false); setName(''); setAgentName(''); setWebsite('');
+      } else {
+        const d = await res.json();
+        toast('error', 'Submission failed', d.error || 'Please try again.');
+      }
+    } catch {
+      toast('error', 'Connection error', 'Could not reach the server. Please try again.');
+    }
   };
 
   const navLinks = [
-    { href: '/',            label: 'LIVE',        live: true  },
-    { href: '/leaderboard', label: 'LEADERBOARD', live: false },
+    { href: '/',             label: 'LIVE',        live: true  },
+    { href: '/leaderboard',  label: 'LEADERBOARD', live: false },
+    { href: '/watchtower',   label: 'WATCHTOWER',  live: false },
+    { href: '/report',       label: 'REPORT',      live: false },
   ];
 
   const inputStyle: React.CSSProperties = {
@@ -115,6 +153,9 @@ const Header: React.FC = () => {
               >
                 X ↗
               </a>
+              <button onClick={toggleTheme} className="theme-toggle-track" aria-label="Toggle theme">
+                <span className="theme-toggle-thumb" />
+              </button>
             </div>
 
             {/* Connect */}
@@ -262,6 +303,8 @@ const Header: React.FC = () => {
           </div>
         </>
       )}
+
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </>
   );
 };

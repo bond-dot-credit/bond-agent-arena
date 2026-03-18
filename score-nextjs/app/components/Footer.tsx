@@ -1,23 +1,39 @@
 'use client';
+import { useEffect, useState } from 'react';
 
-import React from 'react';
+function useBodyTheme() {
+  const [dark, setDark] = useState(true);
+  useEffect(() => {
+    const check = () => setDark(document.body.getAttribute('data-theme') !== 'light');
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
 
-const Footer: React.FC = () => {
+export default function Footer() {
+  const dark = useBodyTheme();
   return (
-    <footer style={{ borderTop: '1px solid var(--border)', padding: '28px 0' }}>
-      <div className="wt-container">
-        <div>
-          <img src="/bond.credit%20logo_black.svg" alt="bond.credit" style={{ height: '18px', display: 'block', filter: 'invert(1)' }} />
-          <div style={{ fontSize: '12px', color: 'var(--s2)', marginTop: '6px' }}>
-            The Credit Layer for the Agentic Economy
+    <footer className="site-footer">
+      <div className="wrap">
+        <div className="ft">
+          <div>
+            <img
+              src="/bond.credit%20logo_black.svg"
+              alt="bond.credit"
+              style={{ height: 18, display: 'block', filter: dark ? 'invert(1)' : 'none' }}
+            />
+            <div className="ft-tagline">The Credit Layer for the Agentic Economy</div>
+            <div className="ft-copy">Watchtower · Agentic Credit Intelligence · 2025</div>
           </div>
-          <div style={{ fontSize: '11px', fontFamily: 'var(--mono)', color: 'var(--s2)', marginTop: '3px' }}>
-            Watchtower · Agentic Alpha · <span style={{ color: 'var(--lime)' }}>Genesis</span>
+          <div className="ft-links">
+            <a href="https://x.com/bondoncredit?s=21" target="_blank" rel="noopener noreferrer">X ↗</a>
+            <a href="mailto:team@bond.credit">team@bond.credit</a>
           </div>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

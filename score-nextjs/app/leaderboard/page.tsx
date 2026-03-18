@@ -1,4 +1,3 @@
-import Header from '../components/Header';
 import AgentCarousel from '../components/AgentCarousel';
 import CryptoGrid from '../components/CryptoGrid';
 import Footer from '../components/Footer';
@@ -9,7 +8,6 @@ export default async function LeaderboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
-      <Header />
       <AgentCarousel />
 
       {/* Page header */}

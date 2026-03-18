@@ -5,6 +5,8 @@ import { Providers } from "./components/Providers";
 import { PrivyProviderWrapper } from "../components/providers/PrivyProviderWrapper";
 import { Alerts } from "../components/alerts/Alerts";
 import { ConnectModal } from "../components/wallet/ConnectModal";
+import PageTransition from "./components/PageTransition";
+import Header from "./components/Header";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,7 +36,8 @@ export default function RootLayout({
           <PrivyProviderWrapper>
             <Alerts />
             <ConnectModal />
-            {children}
+            <Header />
+            <PageTransition>{children}</PageTransition>
           </PrivyProviderWrapper>
         </Providers>
       </body>

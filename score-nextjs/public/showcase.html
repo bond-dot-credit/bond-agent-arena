@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Alpha Genesis — Product Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --amber:     #FFB020;
+  --amber-dim: rgba(255,176,32,0.18);
+  --amber-glow: rgba(255,176,32,0.55);
+  --bg:        #030305;
+  --card:      #0d0d12;
+  --card2:     #13131a;
+  --border:    rgba(255,255,255,0.06);
+  --s1:        #8a8a9a;
+  --s2:        #4a4a5a;
+  --white:     #f0f0f4;
+  --green:     #22c55e;
+  --blue:      #3b82f6;
+  --purple:    #a855f7;
+  --orange:    #f97316;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── BACKGROUND ──────────────────────────────────────────────────────── */
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 900px 600px at 52% 48%, rgba(255,176,32,0.055) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 400px at 20% 80%,  rgba(59,130,246,0.03)  0%, transparent 60%),
+    radial-gradient(ellipse 400px 300px at 85% 20%,  rgba(168,85,247,0.03)  0%, transparent 60%),
+    #030305;
+}
+
+.grid {
+  position: fixed; inset: 0; z-index: 1;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* Horizontal scan line */
+.scanline {
+  position: fixed; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,176,32,0.12) 30%, rgba(255,176,32,0.25) 50%, rgba(255,176,32,0.12) 70%, transparent 100%);
+  top: 38%; z-index: 2;
+  animation: scan 8s ease-in-out infinite;
+}
+@keyframes scan {
+  0%,100% { top: 28%; opacity: 0.4; }
+  50%      { top: 68%; opacity: 0.7; }
+}
+
+/* Light streaks */
+.streaks {
+  position: fixed; inset: 0; z-index: 2; overflow: hidden; pointer-events: none;
+}
+.streak {
+  position: absolute;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(255,176,32,0.3) 40%, rgba(255,176,32,0.15) 60%, transparent 100%);
+  animation: streak-fall linear infinite;
+  border-radius: 1px;
+}
+.streak:nth-child(1)  { left:  8%; height: 180px; animation-duration: 6.2s; animation-delay: 0s; }
+.streak:nth-child(2)  { left: 18%; height: 120px; animation-duration: 8.4s; animation-delay: 1.2s; }
+.streak:nth-child(3)  { left: 32%; height: 200px; animation-duration: 5.8s; animation-delay: 2.8s; }
+.streak:nth-child(4)  { left: 47%; height:  90px; animation-duration: 9.1s; animation-delay: 0.5s; }
+.streak:nth-child(5)  { left: 61%; height: 160px; animation-duration: 7.3s; animation-delay: 3.6s; }
+.streak:nth-child(6)  { left: 75%; height: 130px; animation-duration: 6.7s; animation-delay: 1.9s; }
+.streak:nth-child(7)  { left: 88%; height: 210px; animation-duration: 8.8s; animation-delay: 4.1s; }
+.streak:nth-child(8)  { left: 94%; height:  80px; animation-duration: 5.5s; animation-delay: 2.2s; }
+@keyframes streak-fall {
+  0%   { transform: translateY(-220px); opacity: 0; }
+  10%  { opacity: 1; }
+  85%  { opacity: 0.8; }
+  100% { transform: translateY(110vh); opacity: 0; }
+}
+
+/* ── SCENE ───────────────────────────────────────────────────────────── */
+.scene {
+  position: relative; z-index: 10;
+  width: 1200px; height: 740px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0;
+}
+
+/* ── BOOK ────────────────────────────────────────────────────────────── */
+.book-wrapper {
+  position: relative; z-index: 12;
+  flex-shrink: 0;
+  margin-right: -30px;
+  transform: translateY(-20px);
+  animation: float-book 6s ease-in-out infinite;
+}
+@keyframes float-book {
+  0%,100% { transform: translateY(-20px); }
+  50%      { transform: translateY(-32px); }
+}
+
+.book-3d {
+  transform: perspective(1400px) rotateY(-22deg) rotateX(7deg);
+  position: relative;
+  filter:
+    drop-shadow(0 0 40px rgba(255,176,32,0.13))
+    drop-shadow(0 50px 80px rgba(0,0,0,0.95));
+  transform-style: preserve-3d;
+}
+
+/* Book spine (left edge visible) */
+.book-spine {
+  position: absolute;
+  left: -14px; top: 2px;
+  width: 14px; height: 100%;
+  background: linear-gradient(180deg, #0f0f14 0%, #080810 100%);
+  border-left: 1px solid rgba(255,176,32,0.2);
+  border-top: 1px solid rgba(255,176,32,0.1);
+  border-bottom: 1px solid rgba(255,176,32,0.05);
+  transform: skewY(-0.5deg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.book-spine::after {
+  content: 'BOND.CREDIT  ·  AGENTIC ALPHA  ·  GENESIS';
+  writing-mode: vertical-rl;
+  font-family: 'Space Mono', monospace;
+  font-size: 7px; letter-spacing: 0.2em;
+  color: rgba(255,176,32,0.4); text-transform: uppercase;
+  transform: rotate(180deg);
+}
+
+/* Book pages (right edge) */
+.book-pages {
+  position: absolute;
+  right: -8px; top: 3px;
+  width: 8px; height: calc(100% - 2px);
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03) 0px,
+    rgba(255,255,255,0.03) 2px,
+    rgba(255,255,255,0.01) 2px,
+    rgba(255,255,255,0.01) 4px
+  );
+  border-right: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Main cover */
+.book-cover {
+  width: 290px; height: 400px;
+  background: linear-gradient(135deg, #0e0e14 0%, #121218 60%, #0a0a0e 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid rgba(255,255,255,0.12);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* Cover light sheen */
+.book-cover::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(160deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+/* Cover edge highlight */
+.book-cover::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, rgba(255,176,32,0.4) 0%, rgba(255,176,32,0.1) 50%, transparent 100%);
+}
+
+/* Amber top stripe */
+.cover-stripe { height: 4px; background: var(--amber); flex-shrink: 0; }
+
+/* Cover content */
+.cover-body {
+  flex: 1; padding: 28px 28px 24px;
+  display: flex; flex-direction: column; position: relative;
+}
+
+/* Dot grid inside cover */
+.cover-bg-grid {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse at 70% 30%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 70% 30%, black 20%, transparent 70%);
+}
+
+/* Large watermark number */
+.cover-watermark {
+  position: absolute; right: -20px; bottom: 60px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 200px; line-height: 1;
+  color: rgba(255,176,32,0.04); pointer-events: none; user-select: none;
+}
+
+.cover-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--amber);
+  margin-bottom: 16px; opacity: 0.85;
+  display: flex; align-items: center; gap: 10px;
+}
+.cover-label::before {
+  content: ''; display: block;
+  width: 20px; height: 1px; background: var(--amber); opacity: 0.6;
+}
+
+.cover-title-main {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 68px; line-height: 0.88; letter-spacing: 0.02em;
+  color: #e8e8ee; margin-bottom: 2px;
+}
+.cover-title-accent {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 68px; line-height: 0.88; letter-spacing: 0.02em;
+  color: var(--amber);
+  text-shadow: 0 0 30px rgba(255,176,32,0.5);
+}
+.cover-subtitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 38px; line-height: 1; letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.2); margin-bottom: 28px;
+}
+
+/* Emblem */
+.cover-emblem {
+  width: 52px; height: 52px;
+  border: 1px solid rgba(255,176,32,0.3); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px; position: relative;
+  box-shadow: 0 0 20px rgba(255,176,32,0.1), inset 0 0 20px rgba(255,176,32,0.04);
+}
+.cover-emblem::before {
+  content: '◈'; font-size: 22px; color: var(--amber);
+  text-shadow: 0 0 12px rgba(255,176,32,0.8);
+  animation: pulse-emblem 3s ease-in-out infinite;
+}
+@keyframes pulse-emblem {
+  0%,100% { text-shadow: 0 0 12px rgba(255,176,32,0.8); }
+  50%      { text-shadow: 0 0 24px rgba(255,176,32,1), 0 0 40px rgba(255,176,32,0.4); }
+}
+
+/* Stats row on cover */
+.cover-stats {
+  display: flex; gap: 14px; margin-bottom: auto;
+}
+.cover-stat {
+  flex: 1;
+  border-top: 1px solid rgba(255,176,32,0.2); padding-top: 8px;
+}
+.cover-stat-v {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px; font-weight: 700; color: var(--amber); margin-bottom: 2px;
+}
+.cover-stat-l {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px; color: rgba(255,255,255,0.25); letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Cover footer rule */
+.cover-footer {
+  margin-top: 20px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cover-footer-brand {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; color: rgba(255,255,255,0.25);
+}
+.cover-footer-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px; letter-spacing: 0.08em;
+  color: var(--bg); background: var(--amber);
+  padding: 3px 8px; border-radius: 2px; text-transform: uppercase;
+}
+
+/* Book shadow + reflection */
+.book-ground-shadow {
+  position: absolute; bottom: -40px; left: -20px; right: -20px; height: 40px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.9) 0%, transparent 70%);
+  filter: blur(8px);
+}
+.book-reflection {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  height: 120px; overflow: hidden;
+  transform: perspective(1400px) rotateY(-22deg) rotateX(7deg) scaleY(-1);
+  opacity: 0.15; filter: blur(3px);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  pointer-events: none;
+}
+.book-reflection-inner {
+  width: 290px; height: 80px;
+  background: linear-gradient(135deg, #0e0e14 0%, #121218 60%, #0a0a0e 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ── DASHBOARD ───────────────────────────────────────────────────────── */
+.dash-wrapper {
+  position: relative; z-index: 11;
+  flex-shrink: 0;
+  transform: translateY(10px);
+  animation: float-dash 6s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+@keyframes float-dash {
+  0%,100% { transform: translateY(10px); }
+  50%      { transform: translateY(-2px); }
+}
+
+.dash-3d {
+  transform: perspective(1400px) rotateY(16deg) rotateX(-4deg);
+  filter:
+    drop-shadow(-8px 0 40px rgba(59,130,246,0.06))
+    drop-shadow(0 50px 80px rgba(0,0,0,0.9));
+}
+
+/* Outer bezel / monitor frame */
+.dash-frame {
+  width: 540px;
+  background: linear-gradient(135deg, #111118 0%, #0c0c12 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.13);
+  border-radius: 10px;
+  padding: 3px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px rgba(0,0,0,0.5);
+  position: relative; overflow: hidden;
+}
+
+/* Bezel top sheen */
+.dash-frame::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  pointer-events: none; z-index: 1; border-radius: 10px;
+}
+
+/* Screen inner */
+.dash-screen {
+  background: linear-gradient(160deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.008) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Screen noise */
+.dash-screen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.6; pointer-events: none; z-index: 20;
+}
+
+/* ── Screen header ── */
+.screen-header {
+  padding: 14px 20px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.015);
+}
+.screen-title-group { display: flex; align-items: center; gap: 10px; }
+.screen-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7);
+}
+.screen-logo span { color: var(--amber); }
+.screen-sub {
+  font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2); font-family: 'Space Mono', monospace;
+}
+.screen-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; font-family: 'Space Mono', monospace;
+  color: #22c55e; letter-spacing: 0.08em;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #22c55e;
+  box-shadow: 0 0 6px rgba(34,197,94,0.8);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ── Hero metrics ── */
+.screen-hero-metrics {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.hero-metric {
+  padding: 22px 22px 18px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+}
+.hero-metric:last-child { border-right: none; }
+.hero-metric::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.hero-metric.amber::before { background: linear-gradient(90deg, var(--amber), transparent); }
+.hero-metric.blue::before  { background: linear-gradient(90deg, #3b82f6, transparent); }
+.hero-metric.green::before { background: linear-gradient(90deg, #22c55e, transparent); }
+
+.metric-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.3); margin-bottom: 8px;
+}
+.metric-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.metric-value.amber {
+  color: var(--amber);
+  text-shadow: 0 0 20px rgba(255,176,32,0.6), 0 0 40px rgba(255,176,32,0.25);
+  animation: metric-pulse 3s ease-in-out infinite;
+}
+.metric-value.blue  { color: #60a5fa; text-shadow: 0 0 16px rgba(96,165,250,0.4); }
+.metric-value.green { color: #4ade80; text-shadow: 0 0 16px rgba(74,222,128,0.4); }
+@keyframes metric-pulse {
+  0%,100% { text-shadow: 0 0 20px rgba(255,176,32,0.6), 0 0 40px rgba(255,176,32,0.25); }
+  50%      { text-shadow: 0 0 30px rgba(255,176,32,0.9), 0 0 60px rgba(255,176,32,0.45), 0 0 80px rgba(255,176,32,0.15); }
+}
+.metric-sub {
+  font-size: 9px; color: rgba(255,255,255,0.25);
+  font-family: 'Space Mono', monospace;
+}
+
+/* ── Chart + agents ── */
+.screen-body {
+  display: grid; grid-template-columns: 1fr 180px;
+}
+.screen-chart {
+  padding: 18px 20px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.chart-label {
+  font-family: 'Space Mono', monospace; font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.25); margin-bottom: 14px;
+  display: flex; justify-content: space-between;
+}
+.chart-label span { color: rgba(255,255,255,0.15); }
+.chart-bars {
+  display: flex; align-items: flex-end; gap: 8px; height: 80px;
+  padding-bottom: 20px; position: relative;
+}
+/* Baseline */
+.chart-bars::after {
+  content: ''; position: absolute;
+  bottom: 19px; left: 0; right: 0; height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+.bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 0; }
+.bar-wrap {
+  flex: 1; width: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end; position: relative;
+}
+.bar-native {
+  width: 100%; border-radius: 2px 2px 0 0;
+  position: relative; z-index: 2;
+}
+.bar-total {
+  position: absolute; bottom: 0; width: 100%; border-radius: 2px 2px 0 0;
+  opacity: 0.28;
+}
+.bar-name {
+  font-family: 'Space Mono', monospace; font-size: 7px;
+  color: rgba(255,255,255,0.2); margin-top: 6px; letter-spacing: 0.04em;
+}
+.bar-apy {
+  font-family: 'Space Mono', monospace; font-size: 7px; font-weight: 700;
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* ── Agent sidebar ── */
+.screen-agents { padding: 18px 16px; }
+.agents-label {
+  font-family: 'Space Mono', monospace; font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.25); margin-bottom: 12px;
+}
+.agent-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.agent-item:last-child { border-bottom: none; }
+.agent-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.agent-info { flex: 1; min-width: 0; }
+.agent-item-name {
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.7);
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.agent-item-apy {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+}
+.agent-score-badge {
+  font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 3px; flex-shrink: 0;
+}
+
+/* ── Screen footer ── */
+.screen-footer {
+  padding: 10px 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,0.2);
+}
+.footer-stat-row { display: flex; gap: 20px; }
+.footer-stat { }
+.footer-stat-k {
+  font-family: 'Space Mono', monospace; font-size: 7px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.2);
+}
+.footer-stat-v {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: rgba(255,255,255,0.45);
+}
+.footer-powered {
+  font-family: 'Space Mono', monospace; font-size: 8px;
+  color: rgba(255,176,32,0.4); letter-spacing: 0.06em;
+}
+
+/* Dashboard glow edge */
+.dash-glow {
+  position: absolute; inset: -1px;
+  border-radius: 11px; pointer-events: none;
+  box-shadow: 0 0 40px -10px rgba(255,176,32,0.1), 0 0 80px -20px rgba(59,130,246,0.06);
+}
+.dash-shadow {
+  position: absolute; bottom: -50px; left: 30px; right: 30px; height: 50px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.85) 0%, transparent 70%);
+  filter: blur(12px); pointer-events: none;
+}
+
+/* ── TAGLINE ─────────────────────────────────────────────────────────── */
+.tagline {
+  position: absolute; bottom: 52px; left: 0; right: 0;
+  text-align: center; z-index: 15; pointer-events: none;
+}
+.tagline-main {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px; letter-spacing: 0.5em;
+  color: rgba(255,255,255,0.15); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tagline-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  color: rgba(255,176,32,0.35); text-transform: uppercase;
+}
+
+/* ── CORNER LABELS ───────────────────────────────────────────────────── */
+.corner {
+  position: absolute; z-index: 15; pointer-events: none;
+  font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.12); text-transform: uppercase;
+}
+.corner-tl { top: 36px; left: 48px; }
+.corner-tr { top: 36px; right: 48px; text-align: right; }
+.corner-bl { bottom: 36px; left: 48px; }
+.corner-br { bottom: 36px; right: 48px; text-align: right; }
+.corner-accent { color: rgba(255,176,32,0.35); }
+
+/* ── CROSSHAIR CENTER ────────────────────────────────────────────────── */
+.crosshair {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5; pointer-events: none; opacity: 0.12;
+}
+.crosshair::before, .crosshair::after {
+  content: ''; position: absolute; background: rgba(255,176,32,0.4);
+}
+.crosshair::before { width: 40px; height: 1px; top: 0; left: -20px; }
+.crosshair::after  { width: 1px; height: 40px; top: -20px; left: 0; }
+</style>
+</head>
+<body>
+
+
+<!-- Corner labels -->
+<div class="corner corner-tl">bond.credit &nbsp;·&nbsp; <span class="corner-accent">Watchtower Intelligence</span></div>
+<div class="corner corner-tr">Agent Credit Report &nbsp;·&nbsp; <span class="corner-accent">v1.0</span></div>
+<div class="corner corner-bl">Nov 2024 – Feb 2025 &nbsp;·&nbsp; <span class="corner-accent">107 days</span></div>
+<div class="corner corner-br"><span class="corner-accent">ERC-8004</span> &nbsp;·&nbsp; Onchain Identity</div>
+
+<div class="scene">
+
+  <!-- ── BOOK ──────────────────────────────────────────────────────── -->
+  <div class="book-wrapper">
+    <div class="book-3d">
+      <div class="book-spine"></div>
+      <div class="book-pages"></div>
+      <div class="book-cover">
+        <div class="cover-stripe"></div>
+        <div class="cover-body">
+          <div class="cover-bg-grid"></div>
+          <div class="cover-watermark">0</div>
+
+          <div class="cover-label">Genesis · Inaugural Report</div>
+          <div class="cover-title-main">AGENTIC</div>
+          <div class="cover-title-accent">ALPHA</div>
+          <div class="cover-subtitle">GENESIS</div>
+
+          <div class="cover-emblem"></div>
+
+          <div class="cover-stats">
+            <div class="cover-stat">
+              <div class="cover-stat-v">10.45%</div>
+              <div class="cover-stat-l">Capital APY</div>
+            </div>
+            <div class="cover-stat">
+              <div class="cover-stat-v">$295.75</div>
+              <div class="cover-stat-l">Yield</div>
+            </div>
+            <div class="cover-stat">
+              <div class="cover-stat-v">570</div>
+              <div class="cover-stat-l">Txns</div>
+            </div>
+          </div>
+
+          <div class="cover-footer">
+            <span class="cover-footer-brand">bond.credit</span>
+            <span class="cover-footer-badge">2025</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="book-ground-shadow"></div>
+  </div>
+
+  <!-- ── DASHBOARD ─────────────────────────────────────────────────── -->
+  <div class="dash-wrapper">
+    <div class="dash-3d">
+      <div class="dash-frame">
+        <div class="dash-glow"></div>
+        <div class="dash-screen">
+
+          <!-- Header -->
+          <div class="screen-header">
+            <div class="screen-title-group">
+              <div class="screen-logo">bond<span>.</span>credit</div>
+              <div class="screen-sub">Watchtower · Bond Scores</div>
+            </div>
+            <div class="screen-live">
+              <div class="live-dot"></div>
+              LIVE
+            </div>
+          </div>
+
+          <!-- Hero metrics -->
+          <div class="screen-hero-metrics">
+            <div class="hero-metric amber">
+              <div class="metric-label">Blended Capital APY</div>
+              <div class="metric-value amber">10.45<span style="font-size:18px;opacity:0.8">%</span></div>
+              <div class="metric-sub">Total · incl. rewards</div>
+            </div>
+            <div class="hero-metric blue">
+              <div class="metric-label">Days Runtime</div>
+              <div class="metric-value blue">107</div>
+              <div class="metric-sub">Nov 05 – Feb 19 · 2024–25</div>
+            </div>
+            <div class="hero-metric green">
+              <div class="metric-label">Agents Deployed</div>
+              <div class="metric-value green">5</div>
+              <div class="metric-sub">$2,000 capital each · Base</div>
+            </div>
+          </div>
+
+          <!-- Chart + Agents -->
+          <div class="screen-body">
+
+            <!-- Chart -->
+            <div class="screen-chart">
+              <div class="chart-label">
+                Capital APY by Agent — Native vs. Total
+                <span>MAX 16.49%</span>
+              </div>
+              <div class="chart-bars">
+                <!-- Sail: nat 6.39%, tot 6.41%, max=16.49 -->
+                <div class="bar-group">
+                  <div class="bar-wrap">
+                    <div class="bar-apy" style="color:#60a5fa;font-size:7px">6.41%</div>
+                    <div class="bar-total" style="height:38.9%;background:#3b82f6"></div>
+                    <div class="bar-native" style="height:38.8%;background:#3b82f6"></div>
+                  </div>
+                  <div class="bar-name">SAIL</div>
+                </div>
+                <!-- Mamo: nat 4.77%, tot 5.21% -->
+                <div class="bar-group">
+                  <div class="bar-wrap">
+                    <div class="bar-apy" style="color:#4ade80;font-size:7px">5.21%</div>
+                    <div class="bar-total" style="height:31.6%;background:#22c55e"></div>
+                    <div class="bar-native" style="height:28.9%;background:#22c55e"></div>
+                  </div>
+                  <div class="bar-name">MAMO</div>
+                </div>
+                <!-- Giza: nat 5.27%, tot 14.30% -->
+                <div class="bar-group">
+                  <div class="bar-wrap">
+                    <div class="bar-apy" style="color:#FFB020;font-size:7px">14.30%</div>
+                    <div class="bar-total" style="height:86.7%;background:#f59e0b"></div>
+                    <div class="bar-native" style="height:31.9%;background:#f59e0b"></div>
+                  </div>
+                  <div class="bar-name">GIZA</div>
+                </div>
+                <!-- ZyFi: nat 10.17%, tot 10.17% -->
+                <div class="bar-group">
+                  <div class="bar-wrap">
+                    <div class="bar-apy" style="color:#c084fc;font-size:7px">10.17%</div>
+                    <div class="bar-total" style="height:61.7%;background:#a855f7"></div>
+                    <div class="bar-native" style="height:61.7%;background:#a855f7"></div>
+                  </div>
+                  <div class="bar-name">ZYFI</div>
+                </div>
+                <!-- SurfLiquid: nat 5.91%, tot 16.49% -->
+                <div class="bar-group">
+                  <div class="bar-wrap">
+                    <div class="bar-apy" style="color:#fb923c;font-size:7px">16.49%</div>
+                    <div class="bar-total" style="height:100%;background:#f97316"></div>
+                    <div class="bar-native" style="height:35.8%;background:#f97316"></div>
+                  </div>
+                  <div class="bar-name">SURF</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Agents sidebar -->
+            <div class="screen-agents">
+              <div class="agents-label">Bond Scores</div>
+
+              <div class="agent-item">
+                <div class="agent-dot" style="background:#3b82f6;box-shadow:0 0 6px rgba(59,130,246,0.7)"></div>
+                <div class="agent-info">
+                  <div class="agent-item-name">Sail</div>
+                  <div class="agent-item-apy" style="color:#60a5fa">6.41%</div>
+                </div>
+                <div class="agent-score-badge" style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)">65</div>
+              </div>
+
+              <div class="agent-item">
+                <div class="agent-dot" style="background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,0.7)"></div>
+                <div class="agent-info">
+                  <div class="agent-item-name">Mamo</div>
+                  <div class="agent-item-apy" style="color:#4ade80">5.21%</div>
+                </div>
+                <div class="agent-score-badge" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3)">68</div>
+              </div>
+
+              <div class="agent-item">
+                <div class="agent-dot" style="background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,0.7)"></div>
+                <div class="agent-info">
+                  <div class="agent-item-name">Giza</div>
+                  <div class="agent-item-apy" style="color:#FFB020">14.30%</div>
+                </div>
+                <div class="agent-score-badge" style="background:rgba(255,176,32,0.15);color:#FFB020;border:1px solid rgba(255,176,32,0.3)">72</div>
+              </div>
+
+              <div class="agent-item">
+                <div class="agent-dot" style="background:#a855f7;box-shadow:0 0 6px rgba(168,85,247,0.7)"></div>
+                <div class="agent-info">
+                  <div class="agent-item-name">ZyFi</div>
+                  <div class="agent-item-apy" style="color:#c084fc">10.17%</div>
+                </div>
+                <div class="agent-score-badge" style="background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3)">78</div>
+              </div>
+
+              <div class="agent-item">
+                <div class="agent-dot" style="background:#f97316;box-shadow:0 0 6px rgba(249,115,22,0.7)"></div>
+                <div class="agent-info">
+                  <div class="agent-item-name">SurfLiquid</div>
+                  <div class="agent-item-apy" style="color:#fb923c">16.49%</div>
+                </div>
+                <div class="agent-score-badge" style="background:rgba(249,115,22,0.15);color:#fb923c;border:1px solid rgba(249,115,22,0.3)">71</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="screen-footer">
+            <div class="footer-stat-row">
+              <div class="footer-stat">
+                <div class="footer-stat-k">Total Volume</div>
+                <div class="footer-stat-v">$761,806</div>
+              </div>
+              <div class="footer-stat">
+                <div class="footer-stat-k">Native APY Floor</div>
+                <div class="footer-stat-v">6.49%</div>
+              </div>
+              <div class="footer-stat">
+                <div class="footer-stat-k">Aggregate Yield</div>
+                <div class="footer-stat-v">$295.75</div>
+              </div>
+              <div class="footer-stat">
+                <div class="footer-stat-k">HHI Concentration</div>
+                <div class="footer-stat-v">0.521</div>
+              </div>
+            </div>
+            <div class="footer-powered">WATCHTOWER · GENESIS · 2025</div>
+          </div>
+
+        </div><!-- /dash-screen -->
+      </div><!-- /dash-frame -->
+    </div><!-- /dash-3d -->
+    <div class="dash-shadow"></div>
+  </div><!-- /dash-wrapper -->
+
+</div><!-- /scene -->
+
+<!-- Tagline -->
+<div class="tagline">
+  <div class="tagline-main">The Credit Layer for the Agentic Economy</div>
+  <div class="tagline-sub">bond.credit &nbsp;·&nbsp; Agentic Alpha Genesis &nbsp;·&nbsp; Inaugural Report &nbsp;·&nbsp; 2025</div>
+</div>
+
+</body>
+</html>

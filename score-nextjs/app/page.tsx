@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from './components/Header';
 import AgentCarousel from './components/AgentCarousel';
 import ChartWithData from './components/ChartWithData';
 import InfoTabs from './components/InfoTabs';
@@ -30,14 +29,12 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--white)', display: 'flex', flexDirection: 'column' }}>
-      <Header />
-
       <AgentCarousel />
 
       <main style={{ flex: 1 }}>
         {/* Hero / Status bar */}
         <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)' }}>
-          <div className="wt-container py-7">
+          <div className="wt-container py-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="chip">
