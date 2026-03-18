@@ -14,6 +14,28 @@ const AGENT_META: Record<string, { color: string; grade: string; gradeClass: str
   'Mamo':       { color: '#22c55e', grade: 'B',  gradeClass: 'grade-b',  bondScore: 67, perf: 62,  risk: 70, stab: 64, prov: 60, sent: 58, sharpe: 1.12, drawdown: 9.8,  capacity: 7400,  capitalApy: '5.21%',  rewardDep: '8.4%',  signal: 'caution' },
 };
 
+// iExec TEE config — matches ScorePanel.tsx
+const IAPP_ADDRESS = '0x50A9258eDc1606d5bc9a24316916f6040A38CFAD';
+const AGENT_DATASETS: Record<string, string> = {
+  'arma-giza':   '0xcc46b93c220efbe864fb4b2876b6fc1d870974ab',
+  'zyfai':       '0x2b1136bd80b90312d8464c8ea947534d571b3a5f',
+  'surf-liquid': '0xca38ed4e2fa9ea78bd64a708938431b556a7b1a2',
+  'mamo':        '0xee07f6d9d9c8aa25bbc68a54b6ad1c4065cc9609',
+  'sail':        '0x79f8d0bbcb2e47ad6b6275302170d246f3c76448',
+};
+
+const getAgentKey = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes('arma') || n.includes('giza')) return 'arma-giza';
+  if (n.includes('zyfai'))  return 'zyfai';
+  if (n.includes('surf'))   return 'surf-liquid';
+  if (n.includes('mamo'))   return 'mamo';
+  if (n.includes('sail'))   return 'sail';
+  return '';
+};
+
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [show, setShow] = useState(false);
   return (
@@ -35,19 +57,307 @@ const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, 
   );
 };
 
-const SignalPill = ({ sig }: { sig: string }) => {
-  const map = { safe: { cls: 'sig-safe', label: '✓ Safe' }, caution: { cls: 'sig-caution', label: '⚠ Caution' }, risk: { cls: 'sig-risk', label: '✕ Risk' } } as Record<string, { cls: string; label: string }>;
-  const { cls, label } = map[sig] || map.caution;
-  return <span className={`sig ${cls}`}>{label}</span>;
-};
-
 const DimMiniBar = ({ value, color }: { value: number; color: string }) => (
   <div style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
     <div style={{ height: '100%', width: `${value}%`, background: color, borderRadius: '2px' }} />
   </div>
 );
 
-type TeeStatus = 'idle' | 'loading' | 'done' | 'error';
+// ─── TeeVerifyCard ─────────────────────────────────────────────────────────────
+
+type TeePhase =
+  | 'idle' | 'switching-network' | 'finding-workerpool'
+  | 'signing-orders' | 'submitting' | 'depositing'
+  | 'processing' | 'downloading' | 'done' | 'error';
+
+const PHASE_LABELS: Partial<Record<TeePhase, string>> = {
+  'switching-network':  'Switching to Arbitrum One…',
+  'finding-workerpool': 'Finding TEE workerpool…',
+  'signing-orders':     'Signing orders…',
+  'submitting':         'Submitting deal on-chain…',
+  'depositing':         'Depositing RLC…',
+  'processing':         'Computing inside TEE…',
+  'downloading':        'Downloading result from IPFS…',
+};
+
+const TeeVerifyCard: React.FC<{ agent: Agent; color: string }> = ({ agent, color }) => {
+  const { authenticated, connect: login } = useWallet();
+  const [phase,   setPhase]   = useState<TeePhase>('idle');
+  const [error,   setError]   = useState<string | null>(null);
+  const [taskId,  setTaskId]  = useState<string | null>(null);
+  const [result,  setResult]  = useState<{ score: number; ipfsHash: string | null; task: string; deal: string } | null>(null);
+
+  const agentKey   = getAgentKey(agent.agent);
+  const datasetAddr = AGENT_DATASETS[agentKey];
+
+  const monitorTask = useCallback((tid: string, iexec: any) => {
+    let attempts = 0;
+    const check = async () => {
+      attempts++;
+      try {
+        const task = await iexec.task.show(tid);
+        if (task.status === 3) {
+          setPhase('downloading');
+          try {
+            const res  = await fetch('/api/parse-tee-result', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ taskId: tid }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              setResult({ score: data.score, ipfsHash: data.ipfsHash ?? null, task: tid, deal: task.dealid });
+              setPhase('done');
+            } else {
+              setError(data.error || 'Failed to parse result');
+              setPhase('error');
+            }
+          } catch (e: any) {
+            setError(e.message || 'Failed to download result');
+            setPhase('error');
+          }
+        } else if (task.status === 4) {
+          setError('Computation failed on-chain');
+          setPhase('error');
+        } else {
+          setTimeout(check, 5000);
+        }
+      } catch (e: any) {
+        if (e.message?.includes('No task found') && attempts < 60) {
+          setTimeout(check, 5000);
+        } else {
+          setError(e.message || 'Task monitoring failed');
+          setPhase('error');
+        }
+      }
+    };
+    check();
+  }, []);
+
+  const run = useCallback(async () => {
+    try {
+      setPhase('switching-network');
+      setError(null);
+      setResult(null);
+      setTaskId(null);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ethereum = (window as any).ethereum;
+      if (!ethereum) throw new Error('No Ethereum provider found. Connect MetaMask or an injected wallet.');
+
+      await ethereum.request({ method: 'eth_requestAccounts' });
+
+      const chainId = await ethereum.request({ method: 'eth_chainId' });
+      if (parseInt(chainId as string, 16) !== 42161) {
+        try {
+          await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0xa4b1' }] });
+        } catch (sw: any) {
+          if (sw.code === 4902) {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ chainId: '0xa4b1', chainName: 'Arbitrum One', rpcUrls: ['https://arb1.arbitrum.io/rpc'], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, blockExplorerUrls: ['https://arbiscan.io'] }],
+            });
+          } else {
+            throw new Error('Please switch to Arbitrum One to continue');
+          }
+        }
+      }
+
+      setPhase('finding-workerpool');
+      const { IExec } = await import('iexec');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const iexec = new IExec({ ethProvider: ethereum } as any);
+
+      if (!datasetAddr) throw new Error(`No official dataset configured for ${agent.agent}. Contact team@bond.credit`);
+
+      // App info + TEE framework
+      const { app } = await iexec.app.showApp(IAPP_ADDRESS);
+      let teeFramework = 'scone';
+      if (app.appMREnclave) {
+        try { teeFramework = JSON.parse(app.appMREnclave).framework?.toLowerCase() || 'scone'; } catch { /* use default */ }
+      }
+
+      // App order
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const appOrderbook = await iexec.orderbook.fetchAppOrderbook(IAPP_ADDRESS, { minVolume: 1, pageSize: 10 } as any);
+      let apporder;
+      if (appOrderbook.orders.length > 0) {
+        apporder = appOrderbook.orders[0].order;
+      } else {
+        const t = await iexec.order.createApporder({ app: IAPP_ADDRESS, appprice: 0, volume: 1000000, tag: ['tee', teeFramework] });
+        apporder = await iexec.order.signApporder(t);
+      }
+
+      // Workerpool order
+      const wpBook = await iexec.orderbook.fetchWorkerpoolOrderbook({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        category: 0, minVolume: 1, minTag: ['tee', teeFramework], maxWorkerpoolPrice: 0.5,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      const preferredWp = '0x2c06263943180cc024daffeee15612db6e5fd248';
+      const badWps      = ['0xAaA90d37034fD1ea27D5eF2879f217fB6fD7F7Ca'];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const filtered    = wpBook.orders.filter((o: any) => !badWps.includes(o.order.workerpool));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const preferred   = filtered.find((o: any) => o.order.workerpool.toLowerCase() === preferredWp.toLowerCase());
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const workerpoolorder = preferred?.order ?? filtered.sort((a: any, b: any) => parseFloat(a.order.workerpoolprice) - parseFloat(b.order.workerpoolprice))[0]?.order;
+      if (!workerpoolorder) throw new Error('No active TEE workerpools found. Please try again later.');
+
+      // Dataset order
+      setPhase('signing-orders');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dsBook = await iexec.orderbook.fetchDatasetOrderbook(datasetAddr, { app: IAPP_ADDRESS, minVolume: 1 } as any);
+      if (dsBook.orders.length === 0) throw new Error('No dataset order found. Contact team@bond.credit to publish one.');
+      const datasetorder = dsBook.orders[0].order;
+
+      // Request order
+      const reqTemplate = await iexec.order.createRequestorder({
+        app: IAPP_ADDRESS, appmaxprice: 0,
+        workerpoolmaxprice: workerpoolorder.workerpoolprice,
+        category: workerpoolorder.category, volume: 1,
+        dataset: datasetAddr, datasetmaxprice: 0,
+      });
+      const requestorder = await iexec.order.signRequestorder(reqTemplate);
+
+      // Match orders
+      setPhase('submitting');
+      let dealid: string;
+      try {
+        const r = await iexec.order.matchOrders({ apporder, workerpoolorder, requestorder, datasetorder });
+        dealid = r.dealid;
+      } catch (me: any) {
+        if (me.message?.includes('greater than requester account stake')) {
+          setPhase('depositing');
+          await iexec.account.deposit(workerpoolorder.workerpoolprice);
+          setPhase('submitting');
+          const r = await iexec.order.matchOrders({ apporder, workerpoolorder, requestorder, datasetorder });
+          dealid = r.dealid;
+        } else {
+          throw me;
+        }
+      }
+
+      // Wait for deal to be indexed, extract task ID
+      setPhase('processing');
+      let deal = null, dealAttempts = 0;
+      while (!deal && dealAttempts < 20) {
+        try { deal = await iexec.deal.show(dealid!); } catch { await new Promise(r => setTimeout(r, 3000)); dealAttempts++; }
+      }
+      if (!deal) throw new Error('Deal not indexed after 60s. Check the iExec explorer for status.');
+
+      const tid = deal.tasks[0];
+      setTaskId(tid);
+      monitorTask(tid, iexec);
+
+    } catch (e: any) {
+      setError(e.message || 'Verification failed');
+      setPhase('error');
+    }
+  }, [agent.agent, datasetAddr, monitorTask]);
+
+  const isRunning = phase !== 'idle' && phase !== 'done' && phase !== 'error';
+  const phaseLabel = PHASE_LABELS[phase] ?? '';
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  return (
+    <div style={{ background: 'var(--card)', border: `1px solid ${phase === 'done' ? color + '50' : 'var(--border)'}`, borderRadius: '6px', padding: '14px', transition: 'border-color 0.3s' }}>
+      <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
+        Verify Bond Score
+      </div>
+
+      {phase === 'done' && result ? (
+        <div style={{ animation: 'fadeIn 0.4s ease' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+            <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#22c55e', flexShrink: 0 }}>✓</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#22c55e' }}>Score Verified On-Chain</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '2rem', fontFamily: 'var(--mono)', fontWeight: 800, color, lineHeight: 1 }}>{result.score}</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>/100</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px' }}>
+            <a
+              href={`https://explorer.iex.ec/arbitrum-mainnet/task/${result.task}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: '0.5625rem', color: 'var(--lime)', textDecoration: 'none', fontFamily: 'var(--mono)' }}
+            >
+              View task ↗
+            </a>
+            {result.ipfsHash && (
+              <a
+                href={`https://ipfs-gateway.arbitrum-mainnet.iex.ec/ipfs/${result.ipfsHash}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: '0.5625rem', color: 'var(--s2)', textDecoration: 'none', fontFamily: 'var(--mono)' }}
+              >
+                Raw result (IPFS) ↗
+              </a>
+            )}
+          </div>
+          <button onClick={() => { setPhase('idle'); setResult(null); setTaskId(null); }} style={{ fontSize: '0.5625rem', color: 'var(--s2)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+            Run again ↺
+          </button>
+        </div>
+      ) : (
+        <>
+          <p style={{ fontSize: '0.75rem', color: 'var(--s2)', marginBottom: '10px', lineHeight: 1.5 }}>
+            Run a confidential TEE computation via iExec to verify this agent&apos;s score on-chain.
+          </p>
+
+          {phase === 'error' && error && (
+            <div style={{ fontSize: '0.6875rem', color: 'var(--red)', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '4px', padding: '8px 10px', marginBottom: '10px', lineHeight: 1.4 }}>
+              {error}
+            </div>
+          )}
+
+          {isRunning && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '50%', border: '2px solid var(--border2)', borderTopColor: 'var(--lime)', animation: 'spin 0.8s linear infinite', display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.6875rem', color: 'var(--s1)' }}>{phaseLabel}</span>
+            </div>
+          )}
+
+          {taskId && phase === 'processing' && (
+            <div style={{ marginBottom: '10px' }}>
+              <a
+                href={`https://explorer.iex.ec/arbitrum-mainnet/task/${taskId}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: '0.5625rem', color: 'var(--lime)', fontFamily: 'var(--mono)', textDecoration: 'none' }}
+              >
+                Track task ↗
+              </a>
+            </div>
+          )}
+
+          <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginBottom: '10px' }}>
+            Requires <span style={{ color: 'var(--white)', fontWeight: 600 }}>0.1 RLC</span> + gas · Arbitrum One
+          </div>
+
+          {authenticated ? (
+            <button
+              onClick={run}
+              disabled={isRunning}
+              className="btn-outline-lime"
+              style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px', opacity: isRunning ? 0.5 : 1, cursor: isRunning ? 'default' : 'pointer' }}
+            >
+              {isRunning ? 'Running…' : phase === 'error' ? 'Retry Verification' : 'Run TEE Verification'}
+            </button>
+          ) : (
+            <button onClick={login} className="btn-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
+              Connect Wallet
+            </button>
+          )}
+        </>
+      )}
+
+      <div style={{ marginTop: '10px', fontSize: '0.5rem', color: 'var(--s2)', textAlign: 'center', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+        Powered by iExec TEE · Arbitrum One
+      </div>
+    </div>
+  );
+};
+
+// ─── LeaderboardRow ────────────────────────────────────────────────────────────
 
 const LeaderboardRow: React.FC<{
   agent: Agent;
@@ -57,15 +367,6 @@ const LeaderboardRow: React.FC<{
 }> = ({ agent, index, isExpanded, onToggle }) => {
   const { authenticated, connect: login } = useWallet();
   const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
-  const [teeStatus, setTeeStatus] = useState<TeeStatus>('idle');
-
-  const runTeeVerification = useCallback(async () => {
-    if (teeStatus === 'loading') return;
-    setTeeStatus('loading');
-    // Simulate TEE task dispatch (iExec integration point)
-    await new Promise(r => setTimeout(r, 2200));
-    setTeeStatus('done');
-  }, [teeStatus]);
 
   const fmt = (v?: number) => v != null ? `$${v.toFixed(2)}` : 'N/A';
   const rankColor = index === 0 ? 'var(--lime)' : index === 1 ? 'var(--s1)' : index === 2 ? 'var(--amber)' : 'var(--s2)';
@@ -90,7 +391,8 @@ const LeaderboardRow: React.FC<{
           <div className="flex items-center gap-2">
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: meta.color, flexShrink: 0 }} />
             {(meta.logo || agent.medal) && (
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--card2)', border: `1px solid ${meta.color}30`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px', flexShrink: 0 }}
+              <div
+                style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--card2)', border: `1px solid ${meta.color}30`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px', flexShrink: 0 }}
                 onClick={e => { e.stopPropagation(); if (agent.website) window.open(agent.website, '_blank'); }}
               >
                 <img src={meta.logo || agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -135,21 +437,15 @@ const LeaderboardRow: React.FC<{
           </div>
         </td>
 
-        {/* Verify */}
+        {/* Verify — toggles the row, does not run TEE itself */}
         <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
           {authenticated ? (
             <button
-              onClick={runTeeVerification}
-              disabled={teeStatus === 'loading'}
-              className="btn-outline-lime"
-              style={{ fontSize: '0.625rem', padding: '4px 10px', opacity: teeStatus === 'loading' ? 0.6 : 1 }}
+              onClick={onToggle}
+              className={isExpanded ? 'btn-outline-lime' : 'btn-outline-lime'}
+              style={{ fontSize: '0.625rem', padding: '4px 10px' }}
             >
-              {teeStatus === 'loading' ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1.5px solid var(--border2)', borderTopColor: 'var(--lime)', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
-                  Loading…
-                </span>
-              ) : teeStatus === 'done' ? '✓ Verified' : 'Verify'}
+              {isExpanded ? 'Close' : 'Verify'}
             </button>
           ) : (
             <button onClick={login} className="btn-lime" style={{ fontSize: '0.625rem', padding: '4px 10px' }}>
@@ -158,7 +454,7 @@ const LeaderboardRow: React.FC<{
           )}
         </td>
 
-        {/* Expand */}
+        {/* Expand chevron */}
         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
           <span style={{ color: 'var(--s2)', transform: isExpanded ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>
         </td>
@@ -170,15 +466,16 @@ const LeaderboardRow: React.FC<{
           <td colSpan={10} style={{ padding: 0, background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
             <div style={{ padding: '16px 24px', borderLeft: `3px solid ${meta.color}` }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
-                {/* Score breakdown */}
+
+                {/* Bond Score Breakdown */}
                 <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
                   <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Bond Score Breakdown</div>
                   {[
-                    { l: 'PERF', v: meta.perf  },
-                    { l: 'RISK', v: meta.risk  },
-                    { l: 'STAB', v: meta.stab  },
-                    { l: 'PROV', v: meta.prov  },
-                    { l: 'SENT', v: meta.sent  },
+                    { l: 'PERF', v: meta.perf },
+                    { l: 'RISK', v: meta.risk },
+                    { l: 'STAB', v: meta.stab },
+                    { l: 'PROV', v: meta.prov },
+                    { l: 'SENT', v: meta.sent },
                   ].map(d => (
                     <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '5px' }}>
                       <span style={{ width: '28px', fontSize: '0.5625rem', fontWeight: 700, color: 'var(--s2)', letterSpacing: '0.04em' }}>{d.l}</span>
@@ -188,67 +485,8 @@ const LeaderboardRow: React.FC<{
                   ))}
                 </div>
 
-                {/* TEE Verify */}
-                <div style={{ background: 'var(--card)', border: `1px solid ${teeStatus === 'done' ? meta.color + '40' : 'var(--border)'}`, borderRadius: '6px', padding: '12px', transition: 'border-color 0.3s' }}>
-                  <div style={{ fontSize: '0.625rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Verify Bond Score</div>
-
-                  {teeStatus === 'done' ? (
-                    <div style={{ animation: 'fadeIn 0.4s ease' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                        <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#22c55e', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#22c55e' }}>Score Verified On-Chain</span>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '8px' }}>
-                        {[
-                          { l: 'Bond Score', v: `${meta.bondScore}/100` },
-                          { l: 'Grade',      v: meta.grade },
-                          { l: 'Signal',     v: meta.signal === 'safe' ? '✓ Safe' : meta.signal === 'caution' ? '⚠ Caution' : '✕ Risk' },
-                          { l: 'Network',    v: 'Arbitrum One' },
-                        ].map(m => (
-                          <div key={m.l} style={{ background: 'var(--card2)', borderRadius: '4px', padding: '5px 8px' }}>
-                            <div style={{ fontSize: '0.5rem', color: 'var(--s2)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.l}</div>
-                            <div style={{ fontSize: '0.6875rem', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--white)', marginTop: '1px' }}>{m.v}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <button onClick={() => setTeeStatus('idle')} style={{ width: '100%', fontSize: '0.5625rem', padding: '5px', background: 'transparent', border: 'none', color: 'var(--s2)', cursor: 'pointer', textAlign: 'center' }}>
-                        Run again ↺
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--s2)', marginBottom: '10px', lineHeight: 1.5 }}>
-                        Run a confidential TEE computation via iExec to verify this agent&apos;s score on-chain.
-                      </p>
-                      <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginBottom: '10px' }}>
-                        Requires <span style={{ color: 'var(--white)', fontWeight: 600 }}>0.1 RLC</span> + gas on Arbitrum One
-                      </div>
-                      {authenticated ? (
-                        <button
-                          onClick={runTeeVerification}
-                          disabled={teeStatus === 'loading'}
-                          className="btn-outline-lime"
-                          style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px', opacity: teeStatus === 'loading' ? 0.7 : 1, cursor: teeStatus === 'loading' ? 'default' : 'pointer' }}
-                        >
-                          {teeStatus === 'loading' ? (
-                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                              <span style={{ width: '10px', height: '10px', borderRadius: '50%', border: '1.5px solid var(--border2)', borderTopColor: 'var(--lime)', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
-                              Loading TEE Interface…
-                            </span>
-                          ) : 'Run TEE Verification'}
-                        </button>
-                      ) : (
-                        <button onClick={login} className="btn-lime" style={{ width: '100%', fontSize: '0.6875rem', padding: '7px 12px' }}>
-                          Connect Wallet
-                        </button>
-                      )}
-                    </>
-                  )}
-
-                  <div style={{ marginTop: '10px', fontSize: '0.5625rem', color: 'var(--s2)', textAlign: 'center', letterSpacing: '0.04em' }}>
-                    POWERED BY IEXEC TEE · ARBITRUM ONE
-                  </div>
-                </div>
+                {/* Real TEE Verify */}
+                <TeeVerifyCard agent={agent} color={meta.color} />
               </div>
             </div>
           </td>
@@ -257,6 +495,8 @@ const LeaderboardRow: React.FC<{
     </>
   );
 };
+
+// ─── CryptoGrid ────────────────────────────────────────────────────────────────
 
 const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -270,9 +510,9 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               {['Rank', 'Agent',
-                <span className="flex items-center gap-1">AUA <Tooltip text="Assets Under Agent — total balance managed"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
-                <span className="flex items-center gap-1">AUM <Tooltip text="Assets Under Management — native USDC balance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
-                'Native Yield', 'Rewards', 'Capital APY', 'Bond Score', 'Verify', ''
+                <span key="aua" className="flex items-center gap-1">AUA <Tooltip text="Assets Under Agent — total balance managed"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
+                <span key="aum" className="flex items-center gap-1">AUM <Tooltip text="Assets Under Management — native USDC balance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
+                'Native Yield', 'Rewards', 'Capital APY', 'Bond Score', 'Verify', '',
               ].map((h, i) => (
                 <th key={i} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--s2)', whiteSpace: 'nowrap' }}>
                   {h}
@@ -297,8 +537,8 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Mobile cards */}
       <div className="flex flex-col gap-2 md:hidden">
         {agents.map((agent, i) => {
-          const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
-          const isExp = expandedId === agent.agent;
+          const meta   = AGENT_META[agent.agent] || AGENT_META['Mamo'];
+          const isExp  = expandedId === agent.agent;
           return (
             <div key={agent.agent} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', borderLeft: `3px solid ${meta.color}` }}>
               <button
@@ -325,7 +565,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
               {isExp && (
                 <div style={{ padding: '0 14px 14px', borderTop: '1px solid var(--border)' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', paddingTop: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', paddingTop: '12px', marginBottom: '12px' }}>
                     {[
                       { l: 'AUA',        v: agent.aua != null ? `$${agent.aua.toFixed(2)}` : 'N/A', color: meta.color },
                       { l: 'AUM',        v: agent.aum != null ? `$${agent.aum.toFixed(2)}` : 'N/A' },
@@ -338,9 +578,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: '10px' }}>
-                    <SignalPill sig={meta.signal} />
-                  </div>
+                  <TeeVerifyCard agent={agent} color={meta.color} />
                 </div>
               )}
             </div>
