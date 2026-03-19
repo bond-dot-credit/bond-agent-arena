@@ -274,9 +274,9 @@ export default function ReportPage() {
                     <span className="tge-agent-handle">{a.handle}</span>
                     <span className="ticker-badge" style={{ color: a.color, background: `${a.color}1F`, border: `1px solid ${a.color}40` }}>{a.ticker}</span>
                   </div>
-                  <div className="tge-agent-score" style={{ color: a.color }}>{a.score}</div>
+                  <div className="tge-agent-score" style={{ color: a.color, filter: 'blur(6px)', userSelect: 'none' }}>{a.score}</div>
                   <div className="tge-agent-label">Bond Score</div>
-                  <div className="tge-agent-apy" style={{ color: a.color }}>{a.apy}</div>
+                  <div className="tge-agent-apy" style={{ color: a.color, filter: 'blur(5px)', userSelect: 'none' }}>{a.apy}</div>
                   <div className="tge-agent-label" style={{ marginTop: 0 }}>Capital APY</div>
                   <div className="tge-agent-role" style={{ marginTop: 8 }}>{a.note}</div>
                 </div>
