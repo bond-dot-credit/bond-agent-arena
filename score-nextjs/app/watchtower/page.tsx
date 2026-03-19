@@ -1,3 +1,4 @@
+import BetaGate from '../components/watchtower/BetaGate';
 import WatchtowerNav from '../components/watchtower/WatchtowerNav';
 import Hero from '../components/watchtower/Hero';
 import DifferentiationStrip from '../components/watchtower/DifferentiationStrip';
@@ -12,7 +13,7 @@ import ScrollReveal from '../components/watchtower/ScrollReveal';
 
 export default function WatchtowerPage() {
   return (
-    <>
+    <BetaGate>
       <WatchtowerNav />
       <Hero />
       <DifferentiationStrip />
@@ -41,6 +42,6 @@ export default function WatchtowerPage() {
       <Methodology />
       <FootnoteStrip />
       <ScrollReveal />
-    </>
+    </BetaGate>
   );
 }
