@@ -86,22 +86,15 @@ body[data-theme="light"] { background: #f4f4f5; }
   background-size: 200% 100%;
 }
 
-/* Theme toggle pill */
-.theme-toggle-track {
-  width: 32px; height: 18px; border-radius: 100px;
-  background: var(--border2); position: relative;
-  transition: background 0.2s; flex-shrink: 0;
-  cursor: pointer; border: none; display: inline-block; padding: 0;
+/* Theme toggle icon button */
+.theme-toggle-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 6px; border: none;
+  background: var(--card2); color: var(--s2);
+  cursor: pointer; flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
 }
-[data-theme="light"] .theme-toggle-track { background: var(--lime); }
-
-.theme-toggle-thumb {
-  position: absolute; top: 3px; left: 3px;
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--s1); transition: transform 0.2s, background 0.2s;
-  pointer-events: none;
-}
-[data-theme="light"] .theme-toggle-thumb { transform: translateX(14px); background: #fff; }
+.theme-toggle-btn:hover { color: var(--white); background: var(--border2); }
 
 * { box-sizing: border-box; }
 

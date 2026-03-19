@@ -241,7 +241,6 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {name}
-                        <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
                       </div>
                       <div style={{ fontSize: '0.625rem', color: 'var(--s2)', marginTop: '1px' }}>
                         APY {meta.capitalApy} · Sharpe {meta.sharpe.toFixed(2)}
