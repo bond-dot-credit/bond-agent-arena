@@ -236,15 +236,16 @@ export default function PortfolioOverview() {
   const [chartTab, setChartTab] = useState(0);
   const [agents, setAgents] = useState<LiveAgentSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch('/api/watchtower/agents')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data: LiveAgentSummary[]) => {
         setAgents(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setError(true); setLoading(false); });
   }, []);
 
   // Derived chart data
@@ -310,6 +311,12 @@ export default function PortfolioOverview() {
   return (
     <section className="sec" id="portfolio" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg2)' }}>
       <div className="wrap">
+
+        {error && (
+          <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 6, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', fontSize: 12, color: '#f87171' }}>
+            Portfolio data unavailable — displaying cached genesis data
+          </div>
+        )}
 
         {/* ── About board ── */}
         <div

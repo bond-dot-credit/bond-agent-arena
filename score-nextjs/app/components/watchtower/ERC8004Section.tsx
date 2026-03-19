@@ -54,10 +54,11 @@ function SkeletonRow() {
 export default function ERC8004Section() {
   const [identities, setIdentities] = useState<AgentIdentity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch('/api/watchtower/agents')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data: LiveAgentSummary[]) => {
         const mapped: AgentIdentity[] = data.map(a => ({
           name: a.name,
@@ -72,7 +73,7 @@ export default function ERC8004Section() {
         setIdentities(mapped);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setError(true); setLoading(false); });
   }, []);
 
   const activeCount = identities.filter(a => a.status === 'Active').length;
@@ -108,6 +109,8 @@ export default function ERC8004Section() {
                   <SkeletonRow />
                   <SkeletonRow />
                 </>
+              ) : error ? (
+                <tr><td colSpan={6} style={{ padding: '24px 16px', textAlign: 'center', fontSize: 12, color: 'var(--s2)' }}>Registry data unavailable — showing cached state</td></tr>
               ) : identities.map((a, i) => (
                 <tr key={a.ticker} style={{ borderBottom: i < identities.length - 1 ? '1px solid var(--border)' : 'none' }}>
                   <td style={{ padding: '12px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: a.color, display: 'inline-block', flexShrink: 0 }} /><span style={{ fontSize: 13, fontWeight: 600, color: 'var(--white)' }}>{a.name}</span></div></td>

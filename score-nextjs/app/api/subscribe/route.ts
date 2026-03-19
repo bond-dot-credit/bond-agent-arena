@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (supabase) {
-      await supabase.from('waitlist').insert([{ email, source: 'report' }]);
+      await supabase.from('user_waitlist').insert([{ email, source: 'report' }]);
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

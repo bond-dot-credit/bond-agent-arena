@@ -52,9 +52,13 @@ function FlywheelSVG() {
 
 export default function Hero() {
   const [summary, setSummary] = useState<WatchtowerSummary | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch('/api/watchtower/summary').then(r => r.json()).then(setSummary).catch(() => {});
+    fetch('/api/watchtower/summary')
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(setSummary)
+      .catch(() => setError(true));
   }, []);
 
   function formatTimeAgo(ts: string): string {
@@ -99,11 +103,11 @@ export default function Hero() {
             <div className="hero-meta">
               <div className="hm">
                 <div className="hm-l">AGENTS MONITORED</div>
-                <div className="hm-v">{summary ? summary.total_agents : <span className="skel-line" style={{ display: 'inline-block', width: 20, height: 14 }} />}</div>
+                <div className="hm-v">{error ? '—' : summary ? summary.total_agents : <span className="skel-line" style={{ display: 'inline-block', width: 20, height: 14 }} />}</div>
               </div>
               <div className="hm">
                 <div className="hm-l">AVG BOND SCORE</div>
-                <div className="hm-v" style={{ color: 'var(--lime)' }}>{summary ? summary.avg_bond_score : <span className="skel-line" style={{ display: 'inline-block', width: 30, height: 14 }} />}</div>
+                <div className="hm-v" style={{ color: 'var(--lime)' }}>{error ? '—' : summary ? summary.avg_bond_score : <span className="skel-line" style={{ display: 'inline-block', width: 30, height: 14 }} />}</div>
               </div>
               <div className="hm">
                 <div className="hm-l">TOTAL CAPACITY</div>
@@ -111,7 +115,7 @@ export default function Hero() {
               </div>
               <div className="hm">
                 <div className="hm-l">LAST UPDATED</div>
-                <div className="hm-v">{summary ? formatTimeAgo(summary.last_updated) : <span className="skel-line" style={{ display: 'inline-block', width: 40, height: 14 }} />}</div>
+                <div className="hm-v">{error ? <span style={{ color: 'var(--s2)', fontSize: 11 }}>unavailable</span> : summary ? formatTimeAgo(summary.last_updated) : <span className="skel-line" style={{ display: 'inline-block', width: 40, height: 14 }} />}</div>
               </div>
             </div>
           </div>
