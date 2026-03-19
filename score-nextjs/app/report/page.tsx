@@ -58,21 +58,23 @@ export default function ReportPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    const trimmed = email.trim();
+    if (!trimmed) return;
     setStatus('loading');
     setErrorMsg('');
+    const name = trimmed.split('@')[0];
     try {
-      const res = await fetch('/api/subscribe', {
+      const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: trimmed, name, userType: 'reader' }),
       });
       const data = await res.json();
       if (!res.ok) {
         setStatus('error');
         setErrorMsg(data.error || 'Something went wrong. Please try again.');
       } else {
-        setSubmittedEmail(email.trim());
+        setSubmittedEmail(trimmed);
         setStatus('success');
         setEmail('');
       }
