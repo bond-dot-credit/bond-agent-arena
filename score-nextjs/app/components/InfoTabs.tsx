@@ -205,7 +205,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             <div style={{ marginBottom: '16px' }}>
               <div className="stag" style={{ marginBottom: '8px' }}>Genesis Final Report</div>
               <p style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>
-                Nov 5, 2024 – Feb 19, 2025 · 107 days · $10,000 deployed
+                Nov 5, 2025 – Feb 19, 2026 · 107 days · $10,000 deployed
               </p>
             </div>
             {/* Season KPIs (customized) */}

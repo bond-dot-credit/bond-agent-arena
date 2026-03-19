@@ -42,7 +42,7 @@ export default function Home() {
                   Genesis Complete
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--s2)' }}>
-                  Nov 5, 2024 – Feb 19, 2025
+                  Nov 5, 2025 – Feb 19, 2026
                 </span>
               </div>
               <div className="flex items-center gap-4">

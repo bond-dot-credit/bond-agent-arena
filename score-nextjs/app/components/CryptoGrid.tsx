@@ -445,7 +445,7 @@ const LeaderboardRow: React.FC<{
                 <img src={meta.logo || agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
             )}
-            <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
+            <span style={{ fontWeight: 700, color: meta.color, fontSize: '0.875rem' }}>{agent.agent}</span>
           </div>
         </td>
 
@@ -599,7 +599,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                       <img src={meta.logo || agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
                   )}
-                  <span style={{ fontWeight: 700, color: 'var(--white)', fontSize: '0.875rem' }}>{agent.agent}</span>
+                  <span style={{ fontWeight: 700, color: meta.color, fontSize: '0.875rem' }}>{agent.agent}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div style={{ textAlign: 'right' }}>

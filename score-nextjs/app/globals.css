@@ -47,6 +47,10 @@
   --foreground:  var(--white);
   --primary:     var(--lime);
   --border-old:  var(--border);
+
+  /* BetaGate unlock button */
+  --unlock-btn-bg: #ffffff;
+  --unlock-btn-fg: #0a0a0a;
 }
 
 @theme inline {
@@ -74,6 +78,10 @@
   --lime-10: rgba(69,69,233,0.1);
   --lime-05: rgba(69,69,233,0.05);
   --lime-03: rgba(69,69,233,0.03);
+
+  /* BetaGate unlock button */
+  --unlock-btn-bg: #0a0a0a;
+  --unlock-btn-fg: #ffffff;
 }
 
 [data-theme="light"] body::before { opacity: 0.012; }

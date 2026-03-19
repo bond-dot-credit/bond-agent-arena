@@ -103,7 +103,8 @@ export default function BetaGate({ children }: { children: React.ReactNode }) {
               onClick={attempt}
               style={{
                 width: '100%', padding: '10px 14px',
-                background: '#ffffff', color: '#0a0a0a',
+                background: 'var(--unlock-btn-bg, #ffffff)',
+                color: 'var(--unlock-btn-fg, #0a0a0a)',
                 border: 'none', borderRadius: '6px',
                 fontSize: '0.8125rem', fontWeight: 700,
                 letterSpacing: '0.05em', textTransform: 'uppercase',

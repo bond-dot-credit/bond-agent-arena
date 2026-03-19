@@ -119,7 +119,7 @@ export default function ReportPage() {
                     <div className="tge-success-check">✓</div>
                     <div className="tge-success-title">You&rsquo;re on the list.</div>
                     <div className="tge-success-sub">
-                      Season 1 updates will be sent to <strong>{submittedEmail}</strong>.
+                      Genesis report will be sent to <strong>{submittedEmail}</strong>.
                     </div>
                   </div>
                 ) : (
