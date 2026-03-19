@@ -351,7 +351,7 @@ const Chart: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative mb-10">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-bold text-white">TOTAL AGENT ACCOUNT VALUE</h2>

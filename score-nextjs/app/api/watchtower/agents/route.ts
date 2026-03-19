@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { AGENT_SUMMARIES } from '@/lib/watchtower-data';
+import { getAgents } from '@/lib/db/watchtower-db';
 
-export const runtime = 'edge';
+export const revalidate = 3600;
 
 export async function GET() {
-  return NextResponse.json(AGENT_SUMMARIES);
+  const agents = await getAgents();
+  return NextResponse.json(agents);
 }

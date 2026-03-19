@@ -1,42 +1,67 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type React from 'react';
+import type { LiveAgentSummary } from '@/lib/db/watchtower-db';
 
-/* ── Genesis static dataset (Agentic Alpha, Nov 2024 – Feb 2025) ──────── */
+/* ── Chart data types ─────────────────────────────────────────────────── */
 
-const GENESIS_APY = [
-  { name: 'Sail',       native: 6.39,  total: 6.41,  color: '#4a90b8' },
-  { name: 'Mamo',       native: 4.77,  total: 5.21,  color: '#00d180' },
-  { name: 'Giza',       native: 5.27,  total: 14.30, color: '#bced62' },
-  { name: 'ZyFi',       native: 10.17, total: 10.17, color: '#a855f7' },
-  { name: 'SurfLiquid', native: 5.91,  total: 16.49, color: '#f97316' },
-];
+interface APYDatum {
+  name: string;
+  native: number;
+  total: number;
+  color: string;
+}
 
-// Sorted by volume desc
-const GENESIS_VOL = [
-  { name: 'Sail',       volume: 419059, txns: 399, share: 55.0, color: '#4a90b8' },
-  { name: 'Mamo',       volume: 221482, txns: 110, share: 29.1, color: '#00d180' },
-  { name: 'Giza',       volume: 96887,  txns: 48,  share: 12.7, color: '#bced62' },
-  { name: 'ZyFi',       volume: 16299,  txns: 8,   share: 2.1,  color: '#a855f7' },
-  { name: 'SurfLiquid', volume: 8079,   txns: 5,   share: 1.1,  color: '#f97316' },
-];
+interface VolDatum {
+  name: string;
+  volume: number;
+  txns: number;
+  share: number;
+  color: string;
+}
 
-// Sorted by total yield desc
-const GENESIS_YIELD = [
-  { name: 'SurfLiquid', native: 33.94, reward: 57.56, color: '#f97316' },
-  { name: 'Giza',       native: 30.36, reward: 49.56, color: '#bced62' },
-  { name: 'ZyFi',       native: 57.58, reward: 0.00,  color: '#a855f7' },
-  { name: 'Sail',       native: 36.65, reward: 0.10,  color: '#4a90b8' },
-  { name: 'Mamo',       native: 27.49, reward: 2.51,  color: '#00d180' },
-];
+interface YieldDatum {
+  name: string;
+  native: number;
+  reward: number;
+  color: string;
+}
 
-const summaryStats = [
-  { label: 'Total Volume', value: '$761,806', sub: '107 days',       accent: false },
-  { label: 'Total Yield',  value: '$295.75',  sub: 'Genesis cohort', accent: false },
-  { label: 'Capital APY',  value: '10.45%',   sub: 'blended',        accent: true  },
-  { label: 'Native APY',   value: '6.49%',    sub: 'ex-rewards',     accent: false },
-  { label: 'Risk-Adj APY', value: '8.47%',    sub: '0.5× reward',    accent: false },
-];
+/* ── Derived stats ────────────────────────────────────────────────────── */
+
+interface PortfolioStats {
+  totalVolume: number;
+  totalYield: number;
+  blendedCapApy: number;
+  nativeFloor: number;
+  riskAdjApy: number;
+  totalTxns: number;
+  lastUpdated: string | null;
+}
+
+function computeStats(agents: LiveAgentSummary[]): PortfolioStats {
+  const active = agents.filter(a => a.capital_apy_total != null);
+  const totalVolume = agents.reduce((s, a) => s + (a.total_volume ?? 0), 0);
+  const totalYield = agents.reduce((s, a) => s + (a.total_yield ?? 0), 0);
+  const totalTxns = agents.reduce((s, a) => s + (a.transaction_count ?? 0), 0);
+  const blendedCapApy = active.length > 0
+    ? active.reduce((s, a) => s + (a.capital_apy_total ?? 0), 0) / active.length
+    : 0;
+  const nativeFloor = active.length > 0
+    ? active.reduce((s, a) => s + (a.capital_apy_native ?? 0), 0) / active.length
+    : 0;
+  // Risk-adjusted: native portion at 1x + reward portion at 0.5x discount
+  const riskAdjApy = active.length > 0
+    ? active.reduce((s, a) => {
+        const total = a.capital_apy_total ?? 0;
+        const native = a.capital_apy_native ?? 0;
+        const reward = total - native;
+        return s + native + reward * 0.5;
+      }, 0) / active.length
+    : 0;
+  const lastUpdated = agents[0]?.last_updated ?? null;
+  return { totalVolume, totalYield, blendedCapApy, nativeFloor, riskAdjApy, totalTxns, lastUpdated };
+}
 
 const poLabel: React.CSSProperties = {
   fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
@@ -44,7 +69,8 @@ const poLabel: React.CSSProperties = {
 };
 
 /* ── Chart 1 — Capital APY ───────────────────────────────────────────── */
-function ChartAPY() {
+function ChartAPY({ data, blended, nativeFloor }: { data: APYDatum[]; blended: number; nativeFloor: number }) {
+  if (data.length === 0) return null;
   return (
     <svg viewBox="0 0 960 330" style={{ width: '100%', height: 'auto', display: 'block' }}>
       {[0, 5, 10, 15, 20].map((pct) => {
@@ -56,9 +82,9 @@ function ChartAPY() {
           </g>
         );
       })}
-      <line x1={60} y1={240 - 10.45 * 10} x2={920} y2={240 - 10.45 * 10} stroke="var(--lime)" strokeWidth={1} strokeDasharray="6 4" />
-      <line x1={60} y1={240 - 6.49 * 10}  x2={920} y2={240 - 6.49 * 10}  stroke="#22c55e" strokeWidth={1} strokeDasharray="6 4" />
-      {GENESIS_APY.map((a, i) => {
+      <line x1={60} y1={240 - blended * 10} x2={920} y2={240 - blended * 10} stroke="var(--lime)" strokeWidth={1} strokeDasharray="6 4" />
+      <line x1={60} y1={240 - nativeFloor * 10} x2={920} y2={240 - nativeFloor * 10} stroke="#22c55e" strokeWidth={1} strokeDasharray="6 4" />
+      {data.map((a, i) => {
         const gx = 100 + i * 170;
         const bw = 50;
         const nH = a.native * 10;
@@ -79,62 +105,58 @@ function ChartAPY() {
         <rect x={130} y={0} width={14} height={10} fill="#888" opacity={0.32} rx={1} />
         <text x={150} y={9} fill="var(--s2)" fontSize={10}>Total APY</text>
         <line x1={280} y1={5} x2={300} y2={5} stroke="var(--lime)" strokeWidth={1} strokeDasharray="6 4" />
-        <text x={306} y={9} fill="var(--s2)" fontSize={10}>Blended 10.45%</text>
+        <text x={306} y={9} fill="var(--s2)" fontSize={10}>Blended {blended.toFixed(2)}%</text>
         <line x1={440} y1={5} x2={460} y2={5} stroke="#22c55e" strokeWidth={1} strokeDasharray="6 4" />
-        <text x={466} y={9} fill="var(--s2)" fontSize={10}>Native Floor 6.49%</text>
+        <text x={466} y={9} fill="var(--s2)" fontSize={10}>Native Floor {nativeFloor.toFixed(2)}%</text>
       </g>
     </svg>
   );
 }
 
 /* ── Chart 2 — Volume by Agent ───────────────────────────────────────── */
-function ChartVolume() {
+function ChartVolume({ data }: { data: VolDatum[] }) {
+  if (data.length === 0) return null;
   const labelX = 120;
   const barEnd = 860;
   const barMaxW = barEnd - labelX;
-  const maxVol = 420000;
-  const totalVol = 761806;
+  const maxVol = Math.max(...data.map(a => a.volume)) * 1.05;
+  const totalVol = data.reduce((s, a) => s + a.volume, 0);
+  const avgVol = totalVol / data.length;
   const rowH = 44;
-  const svgH = GENESIS_VOL.length * rowH + 60;
-  const avgVol = totalVol / GENESIS_VOL.length; // 152361
+  const svgH = data.length * rowH + 60;
 
   return (
     <svg viewBox={`0 0 960 ${svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-      {/* avg reference line */}
       {(() => {
         const refX = labelX + (avgVol / maxVol) * barMaxW;
+        const avgLabel = avgVol >= 100000 ? `avg $${(avgVol / 1000).toFixed(0)}K` : `avg $${(avgVol / 1000).toFixed(1)}K`;
         return (
           <g>
             <line x1={refX} y1={0} x2={refX} y2={svgH - 28} stroke="var(--border)" strokeWidth={1} strokeDasharray="4 3" />
-            <text x={refX + 4} y={12} fill="var(--s2)" fontSize={9} fontFamily="var(--mono)">avg $152K</text>
+            <text x={refX + 4} y={12} fill="var(--s2)" fontSize={9} fontFamily="var(--mono)">{avgLabel}</text>
           </g>
         );
       })()}
-      {GENESIS_VOL.map((a, i) => {
+      {data.map((a, i) => {
         const y = i * rowH + 20;
         const bw = (a.volume / maxVol) * barMaxW;
         const fmtVol = a.volume >= 100000 ? `$${(a.volume / 1000).toFixed(0)}K` : `$${(a.volume / 1000).toFixed(1)}K`;
         return (
           <g key={a.name}>
-            {/* bg track */}
             <rect x={labelX} y={y + 6} width={barMaxW} height={22} rx={3} fill="var(--border)" opacity={0.4} />
-            {/* bar */}
             <rect x={labelX} y={y + 6} width={bw} height={22} rx={3} fill={a.color} opacity={0.75} />
-            {/* agent label */}
             <text x={labelX - 8} y={y + 21} textAnchor="end" fill="var(--s1)" fontSize={11} fontFamily="var(--mono)" fontWeight={600}>{a.name}</text>
-            {/* volume value */}
             <text x={labelX + bw + 10} y={y + 21} fill={a.color} fontSize={11} fontFamily="var(--mono)" fontWeight={700}>{fmtVol}</text>
-            {/* share */}
             <text x={labelX + bw + 10} y={y + 33} fill="var(--s2)" fontSize={9} fontFamily="var(--mono)">{a.share.toFixed(1)}% · {a.txns} txns</text>
           </g>
         );
       })}
-      {/* x-axis labels */}
-      {[0, 100000, 200000, 300000, 400000].map(v => {
-        const x = labelX + (v / maxVol) * barMaxW;
+      {[0, 0.25, 0.5, 0.75, 1].map(frac => {
+        const v = frac * maxVol;
+        const x = labelX + frac * barMaxW;
         return (
-          <text key={v} x={x} y={svgH - 8} textAnchor="middle" fill="var(--s2)" fontSize={9} fontFamily="var(--mono)">
-            {v === 0 ? '$0' : `$${v / 1000}K`}
+          <text key={frac} x={x} y={svgH - 8} textAnchor="middle" fill="var(--s2)" fontSize={9} fontFamily="var(--mono)">
+            {v === 0 ? '$0' : v >= 100000 ? `$${(v / 1000).toFixed(0)}K` : `$${(v / 1000).toFixed(0)}K`}
           </text>
         );
       })}
@@ -143,17 +165,18 @@ function ChartVolume() {
 }
 
 /* ── Chart 3 — Yield Composition ─────────────────────────────────────── */
-function ChartYield() {
+function ChartYield({ data }: { data: YieldDatum[] }) {
+  if (data.length === 0) return null;
   const labelX = 120;
   const barEnd = 780;
   const barMaxW = barEnd - labelX;
-  const maxYield = 95; // slightly above SurfLiquid 91.50
+  const maxYield = Math.max(...data.map(a => a.native + a.reward)) * 1.05;
   const rowH = 44;
-  const svgH = GENESIS_YIELD.length * rowH + 60;
+  const svgH = data.length * rowH + 60;
 
   return (
     <svg viewBox={`0 0 960 ${svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-      {GENESIS_YIELD.map((a, i) => {
+      {data.map((a, i) => {
         const y = i * rowH + 20;
         const total = a.native + a.reward;
         const nativeW = (a.native / maxYield) * barMaxW;
@@ -162,20 +185,13 @@ function ChartYield() {
         const rewardPct = total > 0 ? ((a.reward / total) * 100).toFixed(0) : '0';
         return (
           <g key={a.name}>
-            {/* bg track */}
             <rect x={labelX} y={y + 6} width={barMaxW} height={22} rx={3} fill="var(--border)" opacity={0.4} />
-            {/* native bar */}
             <rect x={labelX} y={y + 6} width={nativeW} height={22} rx={3} fill={a.color} opacity={0.9} />
-            {/* reward bar (stacked) */}
             {a.reward > 0 && (
-              <rect x={labelX + nativeW} y={y + 6} width={rewardW} height={22}
-                rx={3} fill={a.color} opacity={0.3} />
+              <rect x={labelX + nativeW} y={y + 6} width={rewardW} height={22} rx={3} fill={a.color} opacity={0.3} />
             )}
-            {/* agent label */}
             <text x={labelX - 8} y={y + 21} textAnchor="end" fill="var(--s1)" fontSize={11} fontFamily="var(--mono)" fontWeight={600}>{a.name}</text>
-            {/* total yield */}
             <text x={labelX + totalW + 10} y={y + 21} fill={a.color} fontSize={11} fontFamily="var(--mono)" fontWeight={700}>${total.toFixed(2)}</text>
-            {/* reward dep badge */}
             {a.reward > 0 ? (
               <text x={labelX + totalW + 10} y={y + 33} fill="var(--amber)" fontSize={9} fontFamily="var(--mono)">{rewardPct}% reward dep.</text>
             ) : (
@@ -184,7 +200,6 @@ function ChartYield() {
           </g>
         );
       })}
-      {/* legend */}
       <g transform={`translate(${labelX}, ${svgH - 22})`}>
         <rect x={0} y={0} width={12} height={10} fill="#888" opacity={0.9} rx={1} />
         <text x={18} y={9} fill="var(--s2)" fontSize={10}>Native yield</text>
@@ -192,6 +207,20 @@ function ChartYield() {
         <text x={148} y={9} fill="var(--s2)" fontSize={10}>Reward emissions</text>
       </g>
     </svg>
+  );
+}
+
+/* ── Loading skeleton ─────────────────────────────────────────────────── */
+function Skeleton({ w, h }: { w?: string | number; h?: string | number }) {
+  return (
+    <span style={{
+      display: 'inline-block',
+      width: w ?? '100%', height: h ?? 16,
+      borderRadius: 4,
+      background: 'var(--border)',
+      opacity: 0.5,
+      animation: 'pulse 1.5s ease-in-out infinite',
+    }} />
   );
 }
 
@@ -205,6 +234,78 @@ const CHART_TABS = [
 
 export default function PortfolioOverview() {
   const [chartTab, setChartTab] = useState(0);
+  const [agents, setAgents] = useState<LiveAgentSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/watchtower/agents')
+      .then(r => r.json())
+      .then((data: LiveAgentSummary[]) => {
+        setAgents(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Derived chart data
+  const apyData: APYDatum[] = agents
+    .filter(a => a.capital_apy_total != null)
+    .map(a => ({
+      name: a.name,
+      native: a.capital_apy_native ?? 0,
+      total: a.capital_apy_total ?? 0,
+      color: a.color,
+    }));
+
+  const totalVol = agents.reduce((s, a) => s + (a.total_volume ?? 0), 0);
+  const volData: VolDatum[] = [...agents]
+    .sort((a, b) => (b.total_volume ?? 0) - (a.total_volume ?? 0))
+    .map(a => ({
+      name: a.name,
+      volume: a.total_volume ?? 0,
+      txns: a.transaction_count ?? 0,
+      share: totalVol > 0 ? ((a.total_volume ?? 0) / totalVol) * 100 : 0,
+      color: a.color,
+    }));
+
+  const yieldData: YieldDatum[] = [...agents]
+    .sort((a, b) => ((b.total_yield ?? 0)) - ((a.total_yield ?? 0)))
+    .map(a => ({
+      name: a.name,
+      native: a.native_yield ?? 0,
+      reward: 0, // reward_yield not in AgentSummary; will be 0 unless API returns it
+      color: a.color,
+    }));
+
+  const stats: PortfolioStats = loading ? {
+    totalVolume: 0, totalYield: 0, blendedCapApy: 0,
+    nativeFloor: 0, riskAdjApy: 0, totalTxns: 0, lastUpdated: null,
+  } : computeStats(agents);
+
+  const fmtCurrency = (v: number) =>
+    v >= 1000000 ? `$${(v / 1000000).toFixed(2)}M`
+    : v >= 1000 ? `$${(v / 1000).toFixed(1)}K`
+    : `$${v.toFixed(2)}`;
+
+  const fmtDate = (iso: string | null) => {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch { return iso; }
+  };
+
+  const summaryStats = [
+    { label: 'Total Volume',  value: loading ? null : fmtCurrency(stats.totalVolume), sub: 'Genesis cohort', accent: false },
+    { label: 'Total Yield',   value: loading ? null : fmtCurrency(stats.totalYield),  sub: 'Genesis cohort', accent: false },
+    { label: 'Capital APY',   value: loading ? null : `${stats.blendedCapApy.toFixed(2)}%`, sub: 'blended', accent: true },
+    { label: 'Native APY',    value: loading ? null : `${stats.nativeFloor.toFixed(2)}%`,   sub: 'ex-rewards', accent: false },
+    { label: 'Risk-Adj APY',  value: loading ? null : `${stats.riskAdjApy.toFixed(2)}%`,    sub: '0.5× reward', accent: false },
+  ];
+
+  const avgDailyVol = stats.totalVolume > 0 ? stats.totalVolume / 107 : 0;
+  const avgDailyYield = stats.totalYield > 0 ? stats.totalYield / 107 : 0;
+  const avgTxnsPerDay = stats.totalTxns > 0 ? stats.totalTxns / 107 : 0;
+  const yieldPerTxn = stats.totalTxns > 0 ? stats.totalYield / stats.totalTxns : 0;
 
   return (
     <section className="sec" id="portfolio" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg2)' }}>
@@ -223,21 +324,30 @@ export default function PortfolioOverview() {
           <div style={{ background: 'var(--card)', padding: '28px 32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <div style={{ ...poLabel, marginBottom: 0 }}>GENESIS · NOV 5 2024 – FEB 19 2025</div>
-              <span style={{
-                fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-                padding: '2px 8px', borderRadius: 4, border: '1px solid var(--border)',
-                color: 'var(--s2)', background: 'var(--bg2)', fontFamily: 'var(--mono)',
-              }}>
-                STATIC · AGENTIC ALPHA RECAP
-              </span>
+              {stats.lastUpdated ? (
+                <span style={{
+                  fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                  padding: '2px 8px', borderRadius: 4, border: '1px solid var(--border)',
+                  color: 'var(--lime)', background: 'var(--bg2)', fontFamily: 'var(--mono)',
+                }}>
+                  LIVE · {fmtDate(stats.lastUpdated)}
+                </span>
+              ) : (
+                <Skeleton w={120} h={18} />
+              )}
             </div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--white)', marginBottom: 10, lineHeight: 1.3 }}>
               Agents Overview
             </div>
             <p style={{ fontSize: 13, color: 'var(--s2)', lineHeight: 1.75, margin: 0 }}>
-              Aggregate performance across all five agents over 107 days. $10,000 deployed at $2,000 per agent
-              across Ethereum mainnet and Base. The Genesis cohort generated $295.75 in total yield
-              at a blended 10.45% Capital APY — with a 6.49% sustainable native floor.
+              Aggregate performance across all {loading ? '—' : agents.length} agents. $10,000 deployed at $2,000 per agent
+              across Ethereum mainnet and Base. The Genesis cohort generated{' '}
+              {loading ? <Skeleton w={50} h={12} /> : <strong style={{ color: 'var(--white)' }}>{fmtCurrency(stats.totalYield)}</strong>}{' '}
+              in total yield at a blended{' '}
+              {loading ? <Skeleton w={40} h={12} /> : <strong style={{ color: 'var(--white)' }}>{stats.blendedCapApy.toFixed(2)}%</strong>}{' '}
+              Capital APY — with a{' '}
+              {loading ? <Skeleton w={40} h={12} /> : <strong style={{ color: 'var(--white)' }}>{stats.nativeFloor.toFixed(2)}%</strong>}{' '}
+              sustainable native floor.
             </p>
           </div>
           <div style={{
@@ -246,10 +356,16 @@ export default function PortfolioOverview() {
             borderLeft: '2px solid var(--lime)',
           }}>
             <div style={poLabel}>Portfolio APY</div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 40, fontWeight: 700, color: 'var(--lime)', lineHeight: 1 }}>
-              10.45%
+            {loading ? (
+              <Skeleton w={100} h={40} />
+            ) : (
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 40, fontWeight: 700, color: 'var(--lime)', lineHeight: 1 }}>
+                {stats.blendedCapApy.toFixed(2)}%
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: 'var(--s2)', marginTop: 8 }}>
+              {loading ? <Skeleton w={130} h={12} /> : `${stats.nativeFloor.toFixed(2)}% native-only floor`}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--s2)', marginTop: 8 }}>6.49% native-only floor</div>
           </div>
         </div>
 
@@ -267,7 +383,7 @@ export default function PortfolioOverview() {
             <div key={s.label} style={{ background: 'var(--card)', padding: '18px 20px' }}>
               <div style={poLabel}>{s.label}</div>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 20, fontWeight: 700, color: s.accent ? 'var(--lime)' : 'var(--white)', marginBottom: 3 }}>
-                {s.value}
+                {s.value ?? <Skeleton w={70} h={20} />}
               </div>
               <div style={{ fontSize: 11, color: 'var(--s2)' }}>{s.sub}</div>
             </div>
@@ -291,10 +407,19 @@ export default function PortfolioOverview() {
               </button>
             ))}
           </div>
-          <div style={{ padding: '20px 24px', background: 'var(--card)' }}>
-            {chartTab === 0 && <ChartAPY />}
-            {chartTab === 1 && <ChartVolume />}
-            {chartTab === 2 && <ChartYield />}
+          <div style={{ padding: '20px 24px', background: 'var(--card)', minHeight: 120 }}>
+            {loading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Skeleton h={24} />
+                <Skeleton h={200} />
+              </div>
+            ) : (
+              <>
+                {chartTab === 0 && <ChartAPY data={apyData} blended={stats.blendedCapApy} nativeFloor={stats.nativeFloor} />}
+                {chartTab === 1 && <ChartVolume data={volData} />}
+                {chartTab === 2 && <ChartYield data={yieldData} />}
+              </>
+            )}
           </div>
         </div>
 
@@ -318,7 +443,9 @@ export default function PortfolioOverview() {
                   <rect x="10.5" y="0" width="1.5" height="12" rx="0.75" fill="currentColor" opacity="0.4"/>
                 </svg>
               ),
-              label: 'Avg Daily Volume', value: '$7,120', sub: 'per day · 107 days',
+              label: 'Avg Daily Volume',
+              value: loading ? null : fmtCurrency(avgDailyVol),
+              sub: 'per day · 107 days',
             },
             {
               icon: (
@@ -327,7 +454,9 @@ export default function PortfolioOverview() {
                   <text x="6" y="9" textAnchor="middle" fill="currentColor" fontSize="7" fontWeight="700" fontFamily="monospace">$</text>
                 </svg>
               ),
-              label: 'Avg Daily Yield', value: '$2.76', sub: 'per day · Genesis',
+              label: 'Avg Daily Yield',
+              value: loading ? null : fmtCurrency(avgDailyYield),
+              sub: 'per day · Genesis',
             },
             {
               icon: (
@@ -336,7 +465,9 @@ export default function PortfolioOverview() {
                   <circle cx="11" cy="2" r="1.2" fill="currentColor"/>
                 </svg>
               ),
-              label: 'Avg Txns / Day', value: '5.33', sub: '570 txns total',
+              label: 'Avg Txns / Day',
+              value: loading ? null : avgTxnsPerDay.toFixed(2),
+              sub: loading ? '— txns total' : `${stats.totalTxns} txns total`,
             },
             {
               icon: (
@@ -346,16 +477,18 @@ export default function PortfolioOverview() {
                   <circle cx="9" cy="3" r="1.5" fill="currentColor"/>
                 </svg>
               ),
-              label: 'Avg Yield / Txn', value: '$0.519', sub: '$295.75 ÷ 570 txns',
+              label: 'Avg Yield / Txn',
+              value: loading ? null : `$${yieldPerTxn.toFixed(3)}`,
+              sub: loading ? '—' : `${fmtCurrency(stats.totalYield)} ÷ ${stats.totalTxns} txns`,
             },
-          ] as { icon: React.ReactNode; label: string; value: string; sub: string }[]).map((s) => (
+          ] as { icon: React.ReactNode; label: string; value: string | null; sub: string }[]).map((s) => (
             <div key={s.label} style={{ background: 'var(--card)', padding: '16px 20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, ...poLabel, marginBottom: 4, color: 'var(--s2)' }}>
                 <span style={{ display: 'flex', color: 'var(--s2)' }}>{s.icon}</span>
                 {s.label}
               </div>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 18, fontWeight: 700, color: 'var(--white)', marginBottom: 2 }}>
-                {s.value}
+                {s.value ?? <Skeleton w={60} h={18} />}
               </div>
               <div style={{ fontSize: 10, color: 'var(--s2)' }}>{s.sub}</div>
             </div>
@@ -380,9 +513,15 @@ export default function PortfolioOverview() {
           <span style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 6 }}>
             Sustainability Note
           </span>
-          Blended 10.45% APY includes reward-emission yield from Giza (62.0% dep.) and SurfLiquid (62.9% dep.).
-          Stripping rewards, the <strong style={{ color: 'var(--white)' }}>native floor is 6.49%</strong> — the underwriting baseline for Season 1 credit decisions.
-          Risk-adjusted at 0.5× reward discount: <strong style={{ color: 'var(--white)' }}>8.47%</strong>.
+          {loading ? (
+            <Skeleton h={40} />
+          ) : (
+            <>
+              Blended {stats.blendedCapApy.toFixed(2)}% APY includes reward-emission yield.
+              Stripping rewards, the <strong style={{ color: 'var(--white)' }}>native floor is {stats.nativeFloor.toFixed(2)}%</strong> — the underwriting baseline for Season 1 credit decisions.
+              Risk-adjusted at 0.5× reward discount: <strong style={{ color: 'var(--white)' }}>{stats.riskAdjApy.toFixed(2)}%</strong>.
+            </>
+          )}
         </div>
 
       </div>

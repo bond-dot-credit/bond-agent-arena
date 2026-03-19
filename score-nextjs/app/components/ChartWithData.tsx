@@ -84,6 +84,15 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   const [chartData, setChartData] = useState<ChartData>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'bar' | 'line'>('bar'); // Default to bar chart
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const check = () => setIsDark(document.body.getAttribute('data-theme') !== 'light');
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
 
   const models: { [key: string]: ModelData } = agentsData.reduce((acc, agent, index) => {
     const roiNum = parseFloat(agent.roi.replace('%', '').replace('+', ''));
@@ -530,17 +539,16 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     const tooltipGroup = crosshairGroup.append('g')
       .attr('class', 'tooltip-group');
 
-    // Watermark
-    g.append('text')
-      .attr('x', chartWidth - 10)
-      .attr('y', chartHeight - 10)
-      .attr('text-anchor', 'end')
-      .attr('font-size', '11')
-      .attr('fill', 'rgba(204,255,0,0.18)')
-      .attr('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace')
-      .attr('font-weight', 'bold')
-      .attr('letter-spacing', '0.05em')
-      .text('bond.credit / agentic alpha')
+    // Watermark logo
+    const wmW = 220, wmH = 55;
+    g.append('image')
+      .attr('href', '/bond.credit%20logo_black.svg')
+      .attr('x', (chartWidth - wmW) / 2)
+      .attr('y', (chartHeight - wmH) / 2)
+      .attr('width', wmW)
+      .attr('height', wmH)
+      .attr('opacity', 0.06)
+      .style('filter', isDark ? 'invert(1)' : 'none')
       .style('pointer-events', 'none');
 
     // NOW add overlay after all elements are drawn
@@ -670,7 +678,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           .style('filter', 'none');
       });
 
-  }, [chartData, models, showDollar]);
+  }, [chartData, models, showDollar, isDark]);
 
   useEffect(() => {
     fetchAgentData();

@@ -99,10 +99,11 @@ export function computeBondScore(row: AgentRow): number {
 export function computeGrade(score: number): string {
   if (score >= 90) return 'A+';
   if (score >= 80) return 'A';
-  if (score >= 70) return 'B+';
-  if (score >= 60) return 'B';
-  if (score >= 50) return 'C';
-  return 'D';
+  if (score >= 75) return 'B+';
+  if (score >= 70) return 'B';
+  if (score >= 65) return 'B-';
+  if (score >= 60) return 'C+';
+  return 'C';
 }
 
 const LAST_UPDATED = '2025-02-19T00:00:00Z';
@@ -158,7 +159,7 @@ export const GENESIS_AGENTS: AgentRow[] = [
     capital_turnover: 210.0, transaction_count: 399,
     cadence: 0.27, tyr: 0.030, yield_per_1k_capital: 18.38,
     strategy_type: 'HFT / Routing',
-    strategy_description: 'The high-frequency volume anchor. Sail cycles $2,000 of capital 210× over 107 days, executing every 0.27 days on average — the highest cadence in the Season 0 cohort.',
+    strategy_description: 'The high-frequency volume anchor. Sail cycles $2,000 of capital 210× over 107 days, executing every 0.27 days on average — the highest cadence in the Season 0 cohort. Its micro-margin HFT strategy delivers 6.41% Capital APY entirely through native earned yield (99.7%), making it the purest credit signal for execution-based underwriting.',
     strategy_notes: 'Sail shows solid provenance credentials and adequate execution stability but carries moderate drawdown risk relative to peers. Leverage ratio and limited protocol diversity warrant active monitoring. Credit line approved at reduced capacity pending two additional full scoring periods and drawdown improvement.',
     score_trend: 'stable', days_since_scored: 2, last_updated: LAST_UPDATED,
   },
@@ -176,7 +177,7 @@ export const GENESIS_AGENTS: AgentRow[] = [
     capital_turnover: 8.0, transaction_count: 8,
     cadence: 13.4, tyr: 1.210, yield_per_1k_capital: 28.79,
     strategy_type: 'Pure Yield Farming',
-    strategy_description: 'The pure-yield late activator and Season 0\'s strongest risk-adjusted performer. ZyFi deployed 8 transactions across Fluid, Wasabi and Harvest protocols, generating $57.58 in 100% native yield — zero reward dependency.',
+    strategy_description: 'The pure-yield late activator and Season 0\'s strongest risk-adjusted performer. ZyFi deployed 8 transactions across Fluid, Wasabi and Harvest protocols, generating $57.58 in 100% native yield — zero reward dependency. Capital APY of 10.17% is the highest native return in the cohort.',
     strategy_notes: 'ZyFi leads the cohort on both performance and provenance. Elevated leverage is well-offset by superior yield generation and the highest Sharpe ratio in the group. Broad strategy diversification across six protocols reduces single-point dependency risk significantly. High-confidence credit allocation with active leverage monitoring recommended.',
     score_trend: 'up', days_since_scored: 1, last_updated: LAST_UPDATED,
   },

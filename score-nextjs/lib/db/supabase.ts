@@ -8,6 +8,34 @@ const supabaseKey = (process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
                     process.env.AGENTS_SUPABASE_ANON_KEY ||
                     process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
+// Validate configuration
+if (!supabaseUrl) {
+  throw new Error(
+    'Missing NEXT_PUBLIC_SUPABASE_URL. ' +
+    'Please set it to your full Supabase project URL (e.g., https://your-project.supabase.co) in .env.local'
+  );
+}
+
+// Validate URL format (must be absolute URL)
+try {
+  new URL(supabaseUrl);
+} catch {
+  throw new Error(
+    `Invalid NEXT_PUBLIC_SUPABASE_URL: "${supabaseUrl}". ` +
+    'Please use a full absolute URL (e.g., https://your-project.supabase.co)'
+  );
+}
+
+if (!supabaseKey) {
+  throw new Error(
+    'Missing Supabase API key. ' +
+    'Please set one of: SUPABASE_PUBLISHABLE_DEFAULT_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, or SUPABASE_SERVICE_ROLE_KEY in .env.local'
+  );
+}
+
+// Ensure URL doesn't end with a trailing slash for consistent concatenation
+const normalizedSupabaseUrl = supabaseUrl.replace(/\/$/, '');
+
 export class SupabaseFetchError extends Error {
   status: number;
   statusText: string;
@@ -37,7 +65,7 @@ export class SupabaseFetchError extends Error {
 
 // Direct fetch function for Supabase REST API
 async function supabaseFetch(endpoint: string, schema: string = 'public') {
-  const url = `${supabaseUrl}${endpoint}`;
+  const url = `${normalizedSupabaseUrl}${endpoint}`;
   
   const headers: Record<string, string> = {
     'apikey': supabaseKey,

@@ -40,7 +40,7 @@ const ICONS: Record<ToastType, React.ReactNode> = {
 const COLORS: Record<ToastType, { border: string; icon: string; accent: string }> = {
   success: { border: 'rgba(34,197,94,0.3)',  icon: '#22c55e', accent: 'rgba(34,197,94,0.08)'  },
   error:   { border: 'rgba(239,68,68,0.3)',  icon: '#ef4444', accent: 'rgba(239,68,68,0.08)'  },
-  info:    { border: 'rgba(204,255,0,0.2)',  icon: 'var(--lime)', accent: 'rgba(204,255,0,0.05)' },
+  info:    { border: 'rgba(69,69,233,0.2)',  icon: 'var(--lime)', accent: 'rgba(69,69,233,0.05)' },
 };
 
 function ToastItem({ toast, onDismiss }: { toast: ToastMessage; onDismiss: (id: number) => void }) {

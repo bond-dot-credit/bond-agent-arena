@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getWatchtowerSummary } from '@/lib/watchtower-data';
+import { getSummary } from '@/lib/db/watchtower-db';
 
-export const runtime = 'edge';
+export const revalidate = 3600;
 
 export async function GET() {
-  return NextResponse.json(getWatchtowerSummary());
+  const summary = await getSummary();
+  return NextResponse.json(summary);
 }

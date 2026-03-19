@@ -23,7 +23,7 @@ export default function WatchtowerPage() {
           <div className="sh reveal">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <div className="stag" style={{ marginBottom: 0 }}>AGENT REPORTS</div>
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 4, border: '1px solid rgba(204,255,0,0.2)', color: 'var(--lime)', background: 'rgba(204,255,0,0.05)', fontFamily: 'var(--mono)' }}>
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '2px 8px', borderRadius: 4, border: '1px solid rgba(69,69,233,0.2)', color: 'var(--lime)', background: 'rgba(69,69,233,0.05)', fontFamily: 'var(--mono)' }}>
                 GENESIS · STATIC DATA
               </span>
             </div>

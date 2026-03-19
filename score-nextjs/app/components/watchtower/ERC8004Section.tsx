@@ -1,13 +1,17 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { LiveAgentSummary } from '@/lib/db/watchtower-db';
 
-const agentIdentities = [
-  { name: 'Giza', ticker: 'ARMA', chain: 'Base + Arbitrum', tee: 'Attested', status: 'Active', score: 84, color: '#bced62', address: '0x3a8B1a9Df3E4c52C6b9F2e7D0A5c8B4e1F6d9C2a' },
-  { name: 'Mamo', ticker: 'MAMO', chain: 'Base', tee: 'Attested', status: 'Active', score: 77, color: '#00d180', address: '0x7f2C4b8E9D1a6F3c0B5e2A9d4C7f1E8b3D6a5F0c' },
-  { name: 'Sail', ticker: 'SAIL', chain: 'Base + Arbitrum', tee: 'Attested', status: 'Active', score: 80, color: '#4a90b8', address: '0x5e1D7c3A8f4B2e9C6d0F5a3B8e2D7c4A1f9E6b0d' },
-  { name: 'ZyFi', ticker: 'ZYFI', chain: 'Base + Arbitrum', tee: 'Attested', status: 'Active', score: 89, color: '#a855f7', address: '0x9b4F6e2C8a1D5f3B7e0C4A9d6F2e8B5c3A7f1D4e' },
-  { name: 'SurfLiquid', ticker: 'SURF', chain: 'Base', tee: 'Attested', status: 'Active', score: 72, color: '#f97316', address: '0x2d8E5b1C9f4A7e3D6c0B8F2a5E9d1C4b7A3f6E8c' },
-];
+interface AgentIdentity {
+  name: string;
+  ticker: string;
+  chain: string;
+  tee: string;
+  status: string;
+  score: number;
+  color: string;
+  address: string;
+}
 
 const cards = [
   { num: '01', title: 'Verifiable Identity', body: 'Agents hold unique on-chain identities backed by cryptographic attestation, enabling permissioned protocol access and reputation continuity across deployments.' },
@@ -35,7 +39,45 @@ function ActiveBadge({ address }: { address: string }) {
   );
 }
 
+function SkeletonRow() {
+  return (
+    <tr>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <td key={i} style={{ padding: '12px 16px' }}>
+          <span style={{ display: 'inline-block', width: '80%', height: 14, borderRadius: 4, background: 'var(--border)', opacity: 0.5 }} />
+        </td>
+      ))}
+    </tr>
+  );
+}
+
 export default function ERC8004Section() {
+  const [identities, setIdentities] = useState<AgentIdentity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/watchtower/agents')
+      .then(r => r.json())
+      .then((data: LiveAgentSummary[]) => {
+        const mapped: AgentIdentity[] = data.map(a => ({
+          name: a.name,
+          ticker: a.ticker,
+          chain: a.chain ?? 'Base',
+          tee: a.tee_status ?? 'Attested',
+          status: 'Active',
+          score: a.provenance_score,
+          color: a.color,
+          address: a.erc8004_address ?? '0x0000000000000000000000000000000000000000',
+        }));
+        setIdentities(mapped);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const activeCount = identities.filter(a => a.status === 'Active').length;
+  const totalCount = identities.length;
+
   return (
     <section className="sec" id="erc8004" style={{ borderTop: '1px solid var(--border)' }}>
       <div className="wrap">
@@ -47,7 +89,9 @@ export default function ERC8004Section() {
         <div className="reveal" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg2)', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--s2)' }}>Genesis Agent Registry — ERC-8004 Verified</span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--lime)', background: 'var(--lime-05)', border: '1px solid var(--lime-20)', borderRadius: 4, padding: '1px 7px' }}>5 / 5 Active</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--lime)', background: 'var(--lime-05)', border: '1px solid var(--lime-20)', borderRadius: 4, padding: '1px 7px' }}>
+              {loading ? '— / —' : `${activeCount} / ${totalCount}`} Active
+            </span>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -56,8 +100,16 @@ export default function ERC8004Section() {
               ))}</tr>
             </thead>
             <tbody>
-              {agentIdentities.map((a, i) => (
-                <tr key={a.ticker} style={{ borderBottom: i < agentIdentities.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              {loading ? (
+                <>
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                </>
+              ) : identities.map((a, i) => (
+                <tr key={a.ticker} style={{ borderBottom: i < identities.length - 1 ? '1px solid var(--border)' : 'none' }}>
                   <td style={{ padding: '12px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: a.color, display: 'inline-block', flexShrink: 0 }} /><span style={{ fontSize: 13, fontWeight: 600, color: 'var(--white)' }}>{a.name}</span></div></td>
                   <td style={{ padding: '12px 16px' }}><span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: a.color, background: `${a.color}1F`, border: `1px solid ${a.color}40`, borderRadius: 4, padding: '2px 7px' }}>{a.ticker}</span></td>
                   <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--s1)', fontFamily: 'var(--mono)' }}>{a.chain}</td>
@@ -77,7 +129,7 @@ export default function ERC8004Section() {
         <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
           {cards.map((card) => (
             <div key={card.num} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 24, transition: 'border-color 0.2s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(204,255,0,0.25)'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(69,69,233,0.25)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)'; }}>
               <div style={{ fontFamily: 'monospace', fontSize: 34, fontWeight: 700, color: 'rgba(255,255,255,0.05)', lineHeight: 1, marginBottom: 12 }}>{card.num}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 8 }}>{card.title}</div>

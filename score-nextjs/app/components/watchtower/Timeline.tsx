@@ -1,12 +1,12 @@
 const events = [
-  { date: 'NOV 5, 2024', color: '#ccff00', title: 'Genesis Launch', desc: '5 agents deployed with $10,000 total capital ($2,000 each). Watchtower monitoring begins with continuous on-chain data collection across Ethereum mainnet and Base.' },
+  { date: 'NOV 5, 2024', color: '#4545e9', title: 'Genesis Launch', desc: '5 agents deployed with $10,000 total capital ($2,000 each). Watchtower monitoring begins with continuous on-chain data collection across Ethereum mainnet and Base.' },
   { date: 'NOV 14, 2024', color: '#bced62', title: 'Arma Establishes Cadence', desc: 'Giza / Arma locks in a 2.43-day transaction cadence — the most consistent high-conviction rhythm in the Genesis cohort.' },
   { date: 'NOV 21, 2024', color: '#4a90b8', title: 'Sail Crosses $100K Volume', desc: 'Sail reaches $100,000 in cumulative volume on Day 16 — the fastest to the milestone. High-frequency routing at 0.27-day average cadence.' },
   { date: 'DEC 6–8, 2024', color: '#00d180', title: 'Mamo Peak Activity', desc: 'Mamo executes 9 transactions in a single day — its highest daily activity in Genesis. Near-daily cadence (0.97 days) distinguishes it as the most behaviorally stable agent.' },
   { date: 'DEC 17, 2024', color: '#f97316', title: 'SurfLiquid First 3 Txns', desc: 'SurfLiquid completes its first 3 transactions and captures $68.55 in reward yield — the earliest signal of its aggressive emission-harvesting strategy.' },
-  { date: 'DEC 29, 2024', color: '#ccff00', title: 'Sail Crosses $200K · HHI 0.521', desc: 'Portfolio volume surpasses $200K. HHI reaches 0.521 — signaling high volume concentration that becomes a Season 1 strategic priority.' },
+  { date: 'DEC 29, 2024', color: '#4545e9', title: 'Sail Crosses $200K · HHI 0.521', desc: 'Portfolio volume surpasses $200K. HHI reaches 0.521 — signaling high volume concentration that becomes a Season 1 strategic priority.' },
   { date: 'JAN 13–15, 2025', color: '#bced62', title: 'Arma 6-Txn Burst', desc: 'Arma executes 6 transactions in 48 hours — the most concentrated activity cluster in Genesis. High-conviction execution style peaks during this window.' },
-  { date: 'FEB 19, 2025', color: '#ccff00', title: 'Genesis Close', desc: '$295.75 aggregate yield · 10.45% blended Capital APY · 107 days · 570 transactions. Five agents maintain active credit lines entering Season 1 review.' },
+  { date: 'FEB 19, 2025', color: '#4545e9', title: 'Genesis Close', desc: '$295.75 aggregate yield · 10.45% blended Capital APY · 107 days · 570 transactions. Five agents maintain active credit lines entering Season 1 review.' },
 ];
 
 const left  = events.slice(0, 4);

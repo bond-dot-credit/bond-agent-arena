@@ -126,7 +126,8 @@ function MiniSparkline({ apy, color }: { apy: string; color: string }) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
-  const [tab, setTab] = useState<'leaderboard' | 'about' | 'contestants'>('leaderboard');
+  // Set About as the default tab
+  const [tab, setTab] = useState<'about' | 'contestants'>('about');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const orderedAgents = ORDERED.map(name => ({
@@ -136,7 +137,7 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   })).filter(a => a.meta);
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
-    padding: '8px 16px',
+    padding: '12px 32px',
     fontSize: '0.75rem',
     fontWeight: 700,
     textTransform: 'uppercase',
@@ -152,164 +153,12 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
   return (
     <div className="flex flex-col" style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
       {/* Tabs */}
-      <div className="flex" style={{ borderBottom: '1px solid var(--border)', padding: '0 8px', gap: '20px' }}>
-        <button style={tabStyle(tab === 'leaderboard')} onClick={() => setTab('leaderboard')}>Board</button>
+      <div className="flex" style={{ borderBottom: '1px solid var(--border)' }}>
         <button style={tabStyle(tab === 'about')} onClick={() => setTab('about')}>About</button>
         <button style={tabStyle(tab === 'contestants')} onClick={() => setTab('contestants')}>Genesis</button>
       </div>
 
       <div className="flex-1 overflow-y-auto" style={{ padding: '20px 16px 16px 16px' }}>
-
-        {/* ── LEADERBOARD TAB ── */}
-        {tab === 'leaderboard' && (
-          <div>
-            {/* Portfolio KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-              {[
-                { label: 'Total Yield', value: SEASON.totalYield, color: 'var(--green)' },
-                { label: 'Capital APY', value: SEASON.capitalApy, color: 'var(--lime)' },
-                { label: 'Native APY', value: SEASON.nativeApy, color: 'var(--green)' },
-                { label: 'Avg Bond Score', value: SEASON.avgBondScore, color: 'var(--lime)' },
-              ].map(k => (
-                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '16px' }}>
-                  <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '4px' }}>{k.label}</div>
-                  <div className="kpi-value" style={{ color: k.color, fontSize: '1.25rem', lineHeight: 1.2 }}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Agent rows */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {orderedAgents.map(({ name, meta }, idx) => (
-                <div key={name}>
-                  <button
-                    onClick={() => setExpanded(expanded === name ? null : name)}
-                    style={{
-                      width: '100%', background: 'var(--card2)', border: '1px solid var(--border)',
-                      borderRadius: '6px', padding: '16px', cursor: 'pointer',
-                      borderLeft: `3px solid ${meta.color}`,
-                      minHeight: '140px',
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#222222')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'var(--card2)')}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span style={{ fontSize: '1rem', color: 'var(--s2)', fontWeight: 700, width: '20px', lineHeight: 1 }}>
-                          {idx + 1}
-                        </span>
-                        <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--white)' }}>{name}</span>
-                        <span className={`grade ${meta.gradeClass}`}>{meta.grade}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '1.75rem', fontFamily: 'var(--mono)', fontWeight: 700, color: meta.color, lineHeight: 1 }}>
-                            {meta.bondScore}
-                          </div>
-                          <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.04em' }}>BOND SCORE</div>
-                        </div>
-                        <span style={{ color: 'var(--s2)', fontSize: '0.75rem', transform: expanded === name ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>
-                      </div>
-                    </div>
-
-                    {/* Mini dimension bars */}
-                    <div style={{ marginTop: '8px' }}>
-                      {[
-                        { l: 'PERF', v: meta.perf  },
-                        { l: 'RISK', v: meta.risk  },
-                        { l: 'STAB', v: meta.stab  },
-                      ].map(d => (
-                        <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '4px', height: '24px' }}>
-                          <span style={{ width: '35px', fontSize: '0.5625rem', fontWeight: 700, color: 'var(--s2)' }}>{d.l}</span>
-                          <div style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '1px', overflow: 'hidden', margin: '0 6px' }}>
-                            <div style={{ height: '100%', width: `${d.v}%`, background: meta.color, borderRadius: '1px', transition: 'width 1s ease' }} />
-                          </div>
-                          <span style={{ width: '20px', textAlign: 'right', fontSize: '0.6875rem', fontFamily: 'var(--mono)', color: 'var(--white)', fontWeight: 700 }}>{d.v}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </button>
-
-                  {/* Expanded detail */}
-                  {expanded === name && (
-                    <div style={{
-                      background: 'var(--bg2)', border: '1px solid var(--border)',
-                      borderTop: 'none', borderRadius: '0 0 6px 6px',
-                      borderLeft: `3px solid ${meta.color}`,
-                      padding: '16px',
-                    }}>
-                      {/* Dimension bars full */}
-                      <div style={{ marginBottom: '12px' }}>
-                        <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                          Bond Score Breakdown
-                        </div>
-                        {[
-                          { l: 'PERF', v: meta.perf,  w: '30%' },
-                          { l: 'RISK', v: meta.risk,  w: '25%' },
-                          { l: 'STAB', v: meta.stab,  w: '20%' },
-                          { l: 'SENT', v: meta.sent,  w: '15%' },
-                          { l: 'PROV', v: meta.prov,  w: '10%' },
-                        ].map(d => (
-                          <div key={d.l} className="flex items-center gap-2" style={{ marginBottom: '5px' }}>
-                            <span style={{ width: '32px', fontSize: '0.625rem', fontWeight: 700, color: 'var(--s2)', letterSpacing: '0.04em' }}>{d.l}</span>
-                            <div style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: `${d.v}%`, background: meta.color, borderRadius: '2px' }} />
-                            </div>
-                            <span style={{ width: '22px', textAlign: 'right', fontSize: '0.6875rem', fontFamily: 'var(--mono)', color: 'var(--s1)', fontWeight: 600 }}>{d.v}</span>
-                            <span style={{ width: '28px', textAlign: 'right', fontSize: '0.5625rem', color: 'var(--s2)' }}>{d.w}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Risk metrics */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
-                        {[
-                          { label: 'Sharpe',   value: meta.sharpe.toFixed(2) },
-                          { label: 'Drawdown', value: `-${meta.drawdown}%`   },
-                          { label: 'Leverage', value: meta.leverage           },
-                          { label: 'Liquidity', value: meta.liquidity         },
-                          { label: 'Diversity', value: `${meta.diversity} protocols` },
-                          { label: 'Capacity', value: `$${(meta.capacity/1000).toFixed(1)}k` },
-                        ].map(m => (
-                          <div key={m.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '6px 8px' }}>
-                            <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>{m.label}</div>
-                            <div style={{ fontSize: '0.8125rem', fontFamily: 'var(--mono)', fontWeight: 700, color: 'var(--white)' }}>{m.value}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Yield breakdown */}
-                      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '8px 10px', marginBottom: '8px' }}>
-                        <div style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>Genesis Performance</div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                          {[
-                            { l: 'Volume',      v: meta.volume     },
-                            { l: 'Total Yield', v: meta.yield      },
-                            { l: 'Capital APY', v: meta.capitalApy, color: 'var(--lime)' },
-                            { l: 'Native APY',  v: meta.nativeApy, color: 'var(--green)' },
-                            { l: 'Reward Dep.', v: meta.rewardDep, color: parseFloat(meta.rewardDep) > 30 ? 'var(--amber)' : 'var(--green)' },
-                          ].map(m => (
-                            <div key={m.l} className="flex justify-between items-center" style={{ fontSize: '0.75rem' }}>
-                              <span style={{ color: 'var(--s2)' }}>{m.l}</span>
-                              <span style={{ fontFamily: 'var(--mono)', fontWeight: 700, color: (m as { l: string; v: string; color?: string }).color || 'var(--white)' }}>{m.v}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <SignalPill sig={meta.signal} />
-                        <span style={{ fontSize: '0.625rem', color: 'var(--s2)' }}>Genesis · 107 days</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* ── ABOUT TAB ── */}
         {tab === 'about' && (
           <div style={{ fontSize: '0.8125rem', lineHeight: 1.65, color: 'var(--s1)' }}>
@@ -317,21 +166,18 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               The Credit Layer for the Agentic Economy
             </h2>
             <div style={{ width: '32px', height: '2px', background: 'var(--lime)', marginBottom: '16px', borderRadius: '1px' }} />
-
             <p style={{ marginBottom: '12px' }}>
               Agents outperform static vaults. In Genesis of Agentic Alpha, we put that to the test — deploying real capital to onchain autonomous agents competing for the highest risk-adjusted yield.
             </p>
             <p style={{ marginBottom: '16px' }}>
               Every trade, vault update, and rebalance is recorded onchain and fed into our credit engine, laying the foundation for programmable credit and the <strong style={{ color: 'var(--lime)' }}>Bond Score</strong>.
             </p>
-
             <div style={{ borderLeft: '2px solid var(--lime)', paddingLeft: '12px', marginBottom: '16px', background: 'var(--lime-03)', padding: '10px 12px', borderRadius: '0 4px 4px 0' }}>
               <div style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--lime)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Bond Score Formula</div>
               <div style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem', color: 'var(--s1)' }}>
                 0.30×Perf + 0.25×Risk + 0.20×Stab + 0.15×Sent + 0.10×Prov
               </div>
             </div>
-
             <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--white)', marginBottom: '8px' }}>Why It Matters</h3>
             <ul style={{ listStyle: 'none', padding: 0, marginBottom: '16px' }}>
               {['Earn credibility via onchain track record', 'Unlock higher credit limits', 'Receive capital routing from allocators', 'Access the next layer of agentic banking'].map(item => (
@@ -341,7 +187,6 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 </li>
               ))}
             </ul>
-
             <p style={{ marginBottom: '8px' }}>
               As agents manage data, liquidity, payments, and resources — one question becomes critical:
             </p>
@@ -349,13 +194,11 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               Which agents can be trusted with credit?
             </p>
             <p>bond.credit is building that answer. And it starts here.</p>
-
             <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--s2)' }}>
-              Powered by <span style={{ color: 'var(--white)', fontWeight: 600 }}>bond.credit</span> × <span style={{ color: 'var(--white)', fontWeight: 600 }}>iExec</span> × <span style={{ color: 'var(--white)', fontWeight: 600 }}>EigenCloud</span>
+              Powered by <span style={{ color: 'var(--white)', fontWeight: 600 }}>bond.credit</span> × <span style={{ color: 'var(--white)', fontWeight: 600 }}>iExec</span>
             </div>
           </div>
         )}
-
         {/* ── SEASON 0 TAB ── */}
         {tab === 'contestants' && (
           <div>
@@ -365,24 +208,21 @@ const InfoTabs: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 Nov 5, 2024 – Feb 19, 2025 · 107 days · $10,000 deployed
               </p>
             </div>
-
-            {/* Season KPIs */}
+            {/* Season KPIs (customized) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
               {[
-                { label: 'Total Volume',   value: SEASON.totalVolume,  color: 'var(--lime)' },
-                { label: 'Total Yield',    value: SEASON.totalYield,   color: 'var(--green)' },
-                { label: 'Capital APY',    value: SEASON.capitalApy,   color: 'var(--lime)' },
-                { label: 'Native APY',     value: SEASON.nativeApy,    color: 'var(--green)' },
-                { label: 'Risk-Adj APY',   value: SEASON.riskAdjApy,   color: 'var(--amber)' },
-                { label: 'Agents',         value: `${SEASON.totalAgents}`, color: 'var(--white)' },
+                { label: 'Capital Deployed', value: '$10,000', sub: '$2,000 per agent', color: 'var(--lime)' },
+                { label: 'Daily Avg Volume', value: '$7,120', sub: '~5.3 transactions/day', color: 'var(--green)' },
+                { label: 'Native Yield', value: '62.9%', sub: '$186.02 of $295.75 total', color: 'var(--lime)' },
+                { label: 'Reward Dependency', value: '37.1%', sub: '$109.73 in emissions', color: 'var(--amber)' },
               ].map(k => (
-                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+                <div key={k.label} style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '4px' }}>{k.label}</div>
                   <div className="kpi-value" style={{ color: k.color, fontSize: '1.125rem', lineHeight: 1.2 }}>{k.value}</div>
+                  <div style={{ fontSize: '0.6875rem', color: 'var(--s2)', marginTop: '2px' }}>{k.sub}</div>
                 </div>
               ))}
             </div>
-
             {/* Per-agent summary table */}
             <div style={{ marginBottom: '8px', fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Agent Rankings

@@ -91,16 +91,16 @@ export default function ReportPage() {
           <div className="wrap">
             <div className="tge-hero-grid">
               <div className="tge-hero-text">
-                <div className="chip" style={{ borderColor: 'rgba(245,158,11,0.35)', background: 'rgba(245,158,11,0.06)' }}>
-                  <div className="chip-dot" style={{ background: '#f59e0b', boxShadow: '0 0 6px #f59e0b88' }} />
-                  <span style={{ color: '#f59e0b' }}>Agent Credit Report</span>
+                <div className="chip" style={{ borderColor: 'rgba(69,69,233,0.35)', background: 'rgba(69,69,233,0.06)' }}>
+                  <div className="chip-dot" style={{ background: 'var(--lime)', boxShadow: '0 0 6px rgba(69,69,233,0.5)' }} />
+                  <span style={{ color: 'var(--lime)' }}>Agent Credit Report</span>
                   <span style={{ margin: '0 4px', opacity: 0.4 }}>·</span>
                   <span>Nov 2024 – Feb 2025</span>
                 </div>
 
                 <h1 className="tge-h1">
                   Agentic Alpha<br />
-                  <span style={{ color: '#f59e0b' }}>Genesis</span><br />
+                  <span style={{ color: 'var(--lime)' }}>Genesis</span><br />
                   <span style={{ fontSize: '0.52em', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--s1)', lineHeight: 1.3, display: 'block', marginTop: 6 }}>
                     Inaugural Capital Deployment Report
                   </span>
@@ -205,7 +205,7 @@ export default function ReportPage() {
         <section className="sec tge-inside">
           <div className="wrap">
             <div className="sh reveal">
-              <div className="stag" style={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.05)' }}>
+              <div className="stag" style={{ color: 'var(--lime)' }}>
                 WHAT THIS REPORT COVERS
               </div>
               <h2 className="sh2">Four sections. The full Genesis picture.</h2>
@@ -231,7 +231,7 @@ export default function ReportPage() {
         <section className="sec" style={{ background: 'var(--bg2)' }}>
           <div className="wrap">
             <div className="sh reveal">
-              <div className="stag" style={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.05)' }}>
+              <div className="stag" style={{ color: 'var(--lime)' }}>
                 KEY FINDINGS
               </div>
               <h2 className="sh2">What 107 days revealed.</h2>
@@ -255,7 +255,7 @@ export default function ReportPage() {
         <section className="sec tge-agents">
           <div className="wrap">
             <div className="sh reveal">
-              <div className="stag" style={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.05)' }}>
+              <div className="stag" style={{ color: 'var(--lime)' }}>
                 GENESIS COHORT
               </div>
               <h2 className="sh2">Five agents. Five credit profiles.</h2>
@@ -282,7 +282,7 @@ export default function ReportPage() {
             </div>
             <p style={{ fontSize: 11, color: 'var(--s2)', marginTop: 24, textAlign: 'center', fontFamily: 'var(--mono)' }}>
               Full credit reports with transaction-level data available on the{' '}
-              <a href="/watchtower" style={{ color: '#f59e0b', textDecoration: 'none' }}>Watchtower dashboard ↗</a>
+              <a href="/watchtower" style={{ color: 'var(--lime)', textDecoration: 'none' }}>Watchtower dashboard ↗</a>
             </p>
           </div>
         </section>

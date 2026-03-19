@@ -13,7 +13,8 @@
     "reset-snapshots": "tsx scripts/reset-and-update-snapshots.ts",
     "add-daily-yield": "tsx scripts/add-daily-yield.ts",
     "prepare": "simple-git-hooks",
-    "secrets:check": "node scripts/check-sensitive.cjs"
+    "secrets:check": "node scripts/check-sensitive.cjs",
+    "seed-watchtower": "tsx scripts/seed-watchtower-db.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

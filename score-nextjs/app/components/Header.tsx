@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '../../hooks/useWallet';
 import { useWalletActions } from '../../components/providers/WalletPrivySync';
@@ -9,6 +9,18 @@ import { ToastContainer, useToast } from './Toast';
 const Header: React.FC = () => {
   const pathname = usePathname();
   const { ready, authenticated, wallet, connect: login, disconnect: logout } = useWallet();
+  const hasBeenReady = useRef(false);
+  const hasBeenAuthenticated = useRef(false);
+  const lastWallet = useRef<string | undefined>(undefined);
+  if (ready) hasBeenReady.current = true;
+  if (authenticated && wallet?.address) {
+    hasBeenAuthenticated.current = true;
+    lastWallet.current = wallet.address;
+  }
+  if (!authenticated) {
+    hasBeenAuthenticated.current = false;
+    lastWallet.current = undefined;
+  }
   const { login: privyLogin } = useWalletActions();
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [showAgentModal, setShowAgentModal]       = useState(false);
@@ -27,6 +39,7 @@ const Header: React.FC = () => {
     if (saved === 'light') {
       setTheme('light');
       document.body.setAttribute('data-theme', 'light');
+      document.documentElement.style.background = '#f4f4f5';
     }
   }, []);
 
@@ -35,8 +48,10 @@ const Header: React.FC = () => {
     setTheme(next);
     if (next === 'light') {
       document.body.setAttribute('data-theme', 'light');
+      document.documentElement.style.background = '#f4f4f5';
     } else {
       document.body.removeAttribute('data-theme');
+      document.documentElement.style.background = '#050505';
     }
     localStorage.setItem('wt-theme', next);
   };
@@ -101,7 +116,7 @@ const Header: React.FC = () => {
         <div className="wt-container w-full flex items-center justify-between">
           {/* Brand */}
           <a href="/" className="flex flex-col gap-0.5">
-            <img src="/bond.credit%20logo_black.svg" alt="bond.credit" className="h-4 w-auto invert" />
+            <img src="/bond.credit%20logo_black.svg" alt="bond.credit" className="h-4 w-auto" style={{ filter: theme === 'dark' ? 'invert(1)' : 'none' }} />
             <span style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               Agentic Alpha
             </span>
@@ -159,29 +174,19 @@ const Header: React.FC = () => {
             </div>
 
             {/* Connect */}
-            {ready && !authenticated ? (
-              <button
-                onClick={() => privyLogin?.()}
-                disabled={!privyLogin}
-                className="btn-lime text-xs"
-                style={{ padding: '6px 14px', opacity: privyLogin ? 1 : 0.4, cursor: privyLogin ? 'pointer' : 'not-allowed' }}
-                title={privyLogin ? undefined : 'Set NEXT_PUBLIC_PRIVY_APP_ID in .env.local to enable'}
-              >
-                CONNECT
-              </button>
-            ) : ready && authenticated ? (
+            {hasBeenAuthenticated.current || authenticated ? (
               <div className="relative">
                 <button
                   onClick={() => setShowWalletDrop(!showWalletDrop)}
                   className="flex items-center gap-2 text-xs font-semibold"
                   style={{ color: 'var(--lime)', padding: '6px 10px', background: 'var(--card2)', border: '1px solid var(--border2)', borderRadius: '6px' }}
                 >
-                  {truncate(wallet?.address || '')}
+                  {truncate(wallet?.address || lastWallet.current || '')}
                   <span style={{ transform: showWalletDrop ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▾</span>
                 </button>
                 {showWalletDrop && (
                   <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: 'var(--card)', border: '1px solid var(--border2)', borderRadius: '8px', minWidth: '160px', zIndex: 200 }}>
-                    <a href={`https://arbiscan.io/address/${wallet?.address}`} target="_blank" rel="noopener noreferrer"
+                    <a href={`https://arbiscan.io/address/${wallet?.address || lastWallet.current}`} target="_blank" rel="noopener noreferrer"
                       onClick={() => setShowWalletDrop(false)}
                       className="block px-4 py-2.5 text-xs transition-colors"
                       style={{ color: 'var(--s1)', borderBottom: '1px solid var(--border)' }}
@@ -200,7 +205,15 @@ const Header: React.FC = () => {
                 )}
               </div>
             ) : (
-              <button disabled className="btn-lime text-xs opacity-50" style={{ padding: '6px 14px' }}>…</button>
+              <button
+                onClick={() => privyLogin?.()}
+                disabled={!privyLogin || !hasBeenReady.current}
+                className="btn-lime text-xs"
+                style={{ padding: '6px 14px', opacity: (privyLogin && hasBeenReady.current) ? 1 : 0.4, cursor: (privyLogin && hasBeenReady.current) ? 'pointer' : 'not-allowed' }}
+                title={privyLogin ? undefined : 'Set NEXT_PUBLIC_PRIVY_APP_ID in .env.local to enable'}
+              >
+                {hasBeenReady.current ? 'CONNECT' : '…'}
+              </button>
             )}
 
             {/* Mobile hamburger */}

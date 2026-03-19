@@ -28,10 +28,7 @@ export default function Footer() {
             <div className="ft-tagline">The Credit Layer for the Agentic Economy</div>
             <div className="ft-copy">Watchtower · Agentic Credit Intelligence · 2025</div>
           </div>
-          <div className="ft-links">
-            <a href="https://x.com/bondoncredit?s=21" target="_blank" rel="noopener noreferrer">X ↗</a>
-            <a href="mailto:team@bond.credit">team@bond.credit</a>
-          </div>
+
         </div>
       </div>
     </footer>

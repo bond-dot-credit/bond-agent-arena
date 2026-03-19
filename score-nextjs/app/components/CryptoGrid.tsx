@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Agent } from '@/lib/types';
 import { useWallet } from '../../hooks/useWallet';
 
@@ -37,21 +38,33 @@ const getAgentKey = (name: string): string => {
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
-  const [show, setShow] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const triggerRef = useRef<HTMLSpanElement>(null);
+
+  const handleEnter = () => {
+    if (triggerRef.current) {
+      const r = triggerRef.current.getBoundingClientRect();
+      setPos({ top: r.top + window.scrollY, left: r.left + r.width / 2 });
+    }
+  };
+
   return (
     <div className="relative inline-block">
-      <span onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} className="cursor-help">
+      <span ref={triggerRef} onMouseEnter={handleEnter} onMouseLeave={() => setPos(null)} className="cursor-help">
         {children}
       </span>
-      {show && (
+      {pos && typeof document !== 'undefined' && createPortal(
         <div style={{
-          position: 'absolute', zIndex: 50, width: '220px', padding: '10px 12px',
+          position: 'absolute', zIndex: 9999, width: '220px', padding: '10px 12px',
           background: 'var(--card2)', border: '1px solid var(--border2)', borderRadius: '6px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.5)', bottom: 'calc(100% + 6px)', left: '50%',
-          transform: 'translateX(-50%)', fontSize: '0.75rem', color: 'var(--s1)', lineHeight: 1.5,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          top: pos.top - 8, left: pos.left,
+          transform: 'translate(-50%, -100%)',
+          fontSize: '0.75rem', color: 'var(--s1)', lineHeight: 1.5, pointerEvents: 'none',
         }}>
           {text}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -5,7 +5,7 @@ import type { WatchtowerSummary } from '@/lib/watchtower-data';
 const flywheelNodes = [
   { label: 'ERC-8004 Identity',    desc: 'Verifiable onchain ID',  color: '#3b82f6', x: 300, y: 60  },
   { label: 'Onchain Activity',      desc: 'Transaction history',    color: '#a855f7', x: 490, y: 155 },
-  { label: 'Watchtower Monitoring', desc: 'Continuous scoring',     color: '#ccff00', x: 490, y: 335 },
+  { label: 'Watchtower Monitoring', desc: 'Continuous scoring',     color: '#4545e9', x: 490, y: 335 },
   { label: 'Credit Scoring',        desc: 'Bond Score output',      color: '#22c55e', x: 300, y: 430 },
   { label: 'Capital Allocation',    desc: 'Vault access & terms',   color: '#f59e0b', x: 110, y: 335 },
   { label: 'Agent Performance',     desc: 'Yield & risk metrics',   color: '#f97316', x: 110, y: 155 },
@@ -76,14 +76,18 @@ export default function Hero() {
         <div className="hero-g2" />
         <div className="hero-grid">
           <div>
-            <div className="chip">
-              <div className="chip-dot" />
-              <span>LIVE</span>
+            <div className="chip" style={{ borderColor: 'rgba(69,69,233,0.35)', background: 'rgba(69,69,233,0.06)' }}>
+              <div className="chip-dot" style={{ background: 'var(--lime)', boxShadow: '0 0 6px rgba(69,69,233,0.5)' }} />
+              <span style={{ color: 'var(--lime)' }}>LIVE</span>
               <span style={{ margin: '0 4px', opacity: 0.4 }}>·</span>
               <span>ERC-8004 × bond.credit</span>
             </div>
-            <h1 className="hero-h1">WATCHTOWER</h1>
-            <p className="hero-sub">The Agentic Credit Intelligence System</p>
+            <h1 className="hero-h1">
+              WATCHTOWER
+              <span style={{ fontSize: '0.52em', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--s1)', lineHeight: 1.3, display: 'block', marginTop: 6 }}>
+                The Agentic Credit Intelligence System
+              </span>
+            </h1>
             <blockquote className="hero-quote">
               &ldquo;In credit markets, what you did matters more than what people think of you.&rdquo;
             </blockquote>
