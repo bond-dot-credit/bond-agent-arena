@@ -13,7 +13,7 @@ from models import Agent, compute_bond_score, compute_grade
 load_dotenv()
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Watchtower API", version="1.0.0")
+app = FastAPI(title="Watchtower API", version="1.0.0", docs_url=None, redoc_url=None, openapi_url=None)
 
 app.add_middleware(
     CORSMiddleware,
