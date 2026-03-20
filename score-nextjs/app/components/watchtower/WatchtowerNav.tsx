@@ -46,8 +46,8 @@ export default function WatchtowerNav() {
             </a>
           ))}
         </nav>
-        <a href="https://bond.credit" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
-          bond.credit ↗
+        <a href="https://dune.com" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
+          Dune ↗
         </a>
       </div>
     </div>

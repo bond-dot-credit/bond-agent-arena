@@ -245,6 +245,6 @@ export function getWatchtowerSummary(): WatchtowerSummary {
     total_agents: GENESIS_AGENTS.length,
     avg_bond_score: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
     total_credit_capacity: GENESIS_AGENTS.reduce((sum, a) => sum + a.credit_capacity, 0),
-    last_updated: LAST_UPDATED,
+    last_updated: new Date().toISOString(),
   };
 }

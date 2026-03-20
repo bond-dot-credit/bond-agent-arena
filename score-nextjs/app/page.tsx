@@ -19,6 +19,7 @@ const SEASON_KPIS = [
 export default function Home() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [chartType, setChartType] = useState<'aua' | 'apy'>('aua');
 
   useEffect(() => {
     getAllAgents()
@@ -86,9 +87,22 @@ export default function Home() {
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div className="flex items-center gap-3">
-                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Total Agent Account Value
-                  </span>
+                  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                    <select
+                      value={chartType}
+                      onChange={e => setChartType(e.target.value as 'aua' | 'apy')}
+                      style={{
+                        background: 'transparent', border: 'none', outline: 'none',
+                        fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)',
+                        letterSpacing: '0.06em', cursor: 'pointer', appearance: 'none',
+                        WebkitAppearance: 'none', paddingRight: '14px', fontFamily: 'inherit',
+                      }}
+                    >
+                      <option value="aua">TOTAL AGENT ACCOUNT VALUE</option>
+                      <option value="apy">DAILY APY</option>
+                    </select>
+                    <span style={{ position: 'absolute', right: 0, fontSize: '8px', color: 'var(--s2)', pointerEvents: 'none' }}>▾</span>
+                  </div>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', boxShadow: '0 0 8px var(--green)' }} />
                 </div>
                 <span style={{ fontSize: '0.6875rem', color: 'var(--s2)' }}>AUA · Genesis</span>
@@ -106,7 +120,7 @@ export default function Home() {
                     </div>
                   </div>
                 ) : (
-                  <ChartWithData agents={agents} />
+                  <ChartWithData agents={agents} chartType={chartType} />
                 )}
               </div>
             </div>

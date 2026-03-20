@@ -24,23 +24,39 @@ const agentColors = [
 
 const BarChartView: React.FC<BarChartViewProps> = ({ agentsData, currentTimeframe, showDollar }) => {
   const [chartData, setChartData] = React.useState<any>(null);
+  const wmImageRef = React.useRef<HTMLImageElement | null>(null);
 
-  // Watermark plugin for Chart.js
+  React.useEffect(() => {
+    const img = new window.Image();
+    img.src = '/bond.credit%20logo_black.svg';
+    wmImageRef.current = img;
+  }, []);
+
+  // Watermark plugin — logo + "AGENTIC ALPHA" label
   const watermarkPlugin = {
     id: 'watermark',
     beforeDraw: (chart: any) => {
       const ctx = chart.ctx;
-      const chartArea = chart.chartArea;
-      const rightX = chartArea.right - 15; // Position near the right edge
-      const topY = chartArea.top + 20; // Position near the top
+      const { left, top, right, bottom } = chart.chartArea;
+      const cx = (left + right) / 2;
+      const cy = (top + bottom) / 2;
+      const isDark = document.body.getAttribute('data-theme') !== 'light';
+      const w = 180, h = 45;
 
       ctx.save();
-      ctx.globalAlpha = 0.12;
-      ctx.fillStyle = '#ccff00';
-      ctx.font = 'bold 28px ui-monospace, monospace';
-      ctx.textAlign = 'right';
+      const img = wmImageRef.current;
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.globalAlpha = 0.06;
+        if (isDark) ctx.filter = 'invert(1)';
+        ctx.drawImage(img, cx - w / 2, cy - h / 2 - 10, w, h);
+        ctx.filter = 'none';
+      }
+      ctx.globalAlpha = 0.09;
+      ctx.font = 'bold 9px ui-monospace, monospace';
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillText('bond.credit / agentic alpha', rightX, topY);
+      ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+      ctx.fillText('AGENTIC ALPHA', cx, cy + h / 2 - 2);
       ctx.restore();
     }
   };

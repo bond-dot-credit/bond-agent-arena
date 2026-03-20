@@ -76,7 +76,31 @@ const generateYieldEvents = (dataPoints: ChartPoint[], agentName: string): Chart
   return events;
 };
 
-const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
+function ApyBars({ agents }: { agents: Agent[] }) {
+  const max = Math.max(...agents.map(a => a.apyPercent || 0), 0.01);
+  return (
+    <div style={{ height: 550, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 40px', gap: 20 }}>
+      {agents.map((agent, i) => {
+        const color = agentColors[i % agentColors.length];
+        const pct = agent.apyPercent || 0;
+        const bar = (pct / max) * 100;
+        const daily = (pct / 365).toFixed(4);
+        return (
+          <div key={agent.agent} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 100, textAlign: 'right', fontSize: '0.75rem', fontWeight: 700, color, fontFamily: 'var(--mono)', flexShrink: 0 }}>{agent.agent}</div>
+            <div style={{ flex: 1, height: 32, background: 'var(--card2)', borderRadius: 4, overflow: 'hidden', position: 'relative' }}>
+              <div style={{ height: '100%', width: `${bar}%`, background: color, borderRadius: 4, opacity: 0.85, transition: 'width 0.6s ease' }} />
+            </div>
+            <div style={{ width: 80, fontSize: '0.75rem', fontWeight: 700, color, fontFamily: 'var(--mono)', flexShrink: 0 }}>{pct.toFixed(2)}% APY</div>
+            <div style={{ width: 72, fontSize: '0.6875rem', color: 'var(--s2)', fontFamily: 'var(--mono)', flexShrink: 0 }}>~{daily}%/day</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const ChartWithData: React.FC<{ agents: Agent[]; chartType?: 'aua' | 'apy' }> = ({ agents, chartType = 'aua' }) => {
   const agentsData = agents;
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [currentTimeframe, setCurrentTimeframe] = useState<string>('24H');
@@ -539,17 +563,28 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     const tooltipGroup = crosshairGroup.append('g')
       .attr('class', 'tooltip-group');
 
-    // Watermark logo
+    // Watermark logo + label
     const wmW = 220, wmH = 55;
     g.append('image')
       .attr('href', '/bond.credit%20logo_black.svg')
       .attr('x', (chartWidth - wmW) / 2)
-      .attr('y', (chartHeight - wmH) / 2)
+      .attr('y', (chartHeight - wmH) / 2 - 10)
       .attr('width', wmW)
       .attr('height', wmH)
       .attr('opacity', 0.06)
       .style('filter', isDark ? 'invert(1)' : 'none')
       .style('pointer-events', 'none');
+    g.append('text')
+      .attr('x', chartWidth / 2)
+      .attr('y', (chartHeight + wmH) / 2 + 6)
+      .attr('text-anchor', 'middle')
+      .attr('fill', isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)')
+      .attr('font-size', '9')
+      .attr('font-weight', '700')
+      .attr('letter-spacing', '3')
+      .attr('font-family', 'ui-monospace, monospace')
+      .style('pointer-events', 'none')
+      .text('AGENTIC ALPHA');
 
     // NOW add overlay after all elements are drawn
     const overlay = g.append('rect')
@@ -699,6 +734,10 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
   return (
     <div className="relative">
+      {chartType === 'apy' ? (
+        <ApyBars agents={agentsData} />
+      ) : (
+      <>
       <div
         className="relative h-[550px] rounded-lg p-3"
         style={{ background: 'transparent', border: 'none' }}
@@ -736,6 +775,8 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
           </div>
           <span className="text-gray-500">• Hover markers to see event details</span>
         </div>
+      )}
+      </>
       )}
     </div>
   );

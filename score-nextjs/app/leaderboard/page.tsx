@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: 'Leaderboard — Agentic Alpha | bond.credit',
   description: 'Live performance rankings of autonomous yield agents. Bond Scores, credit capacities, and risk metrics from Genesis.',
 };
-import CryptoGrid from '../components/CryptoGrid';
 import Footer from '../components/Footer';
+import SeasonSwitcher from '../components/SeasonSwitcher';
 import { getAllAgents } from '@/lib/services/agentService';
 
 export default async function LeaderboardPage() {
@@ -32,7 +32,7 @@ export default async function LeaderboardPage() {
       </div>
 
       <div style={{ flex: 1, padding: '56px 20px 24px', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
-        <CryptoGrid agents={agents} />
+        <SeasonSwitcher agents={agents} />
       </div>
 
       <Footer />

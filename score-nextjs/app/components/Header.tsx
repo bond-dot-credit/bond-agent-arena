@@ -26,6 +26,7 @@ const Header: React.FC = () => {
   const [showAgentModal, setShowAgentModal]       = useState(false);
   const [mobileOpen, setMobileOpen]               = useState(false);
   const [showWalletDrop, setShowWalletDrop]        = useState(false);
+  const [navHidden, setNavHidden]                  = useState(false);
   const [name, setName]       = useState('');
   const [email, setEmail]     = useState('');
   const [userType, setUserType] = useState('');
@@ -58,6 +59,19 @@ const Header: React.FC = () => {
 
   // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
   useEffect(() => { setShowWalletDrop(false); }, [pathname]);
+
+  useEffect(() => {
+    if (pathname !== '/watchtower') { setNavHidden(false); return; }
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastY && y > 60) setNavHidden(true);
+      else if (y < lastY) setNavHidden(false);
+      lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [pathname]);
 
   const truncate = (addr: string) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : '';
 
@@ -112,7 +126,7 @@ const Header: React.FC = () => {
   return (
     <>
       {/* Nav */}
-      <nav className="wt-nav">
+      <nav className="wt-nav" style={{ transform: navHidden ? 'translateY(-100%)' : 'translateY(0)', transition: 'transform 0.3s ease' }}>
         <div className="wt-container w-full flex items-center justify-between">
           {/* Brand */}
           <a href="/" className="flex flex-col gap-0.5">
