@@ -569,7 +569,9 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
               {['Rank', 'Agent',
                 <span key="aua" className="flex items-center gap-1">AUA <Tooltip text="Assets Under Agent — total balance managed"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
                 <span key="aum" className="flex items-center gap-1">AUM <Tooltip text="Assets Under Management — native USDC balance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
-                'Native Yield', 'Rewards', 'Capital APY', 'Bond Score', 'Verify', '',
+                'Native Yield', 'Rewards', 'Capital APY',
+                <span key="bond-score" className="flex items-center gap-1">Bond Score <Tooltip text="Composite credit score (0–100) across 5 dimensions: Performance, Risk, Stability, Sentiment &amp; Provenance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
+                'Verify', '',
               ].map((h, i) => (
                 <th key={i} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--s2)', whiteSpace: 'nowrap' }}>
                   {h}

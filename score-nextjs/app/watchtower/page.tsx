@@ -15,6 +15,7 @@ import ERC8004Section from '../components/watchtower/ERC8004Section';
 import Methodology from '../components/watchtower/Methodology';
 import FootnoteStrip from '../components/watchtower/FootnoteStrip';
 import ScrollReveal from '../components/watchtower/ScrollReveal';
+import Footer from '../components/Footer';
 
 export default function WatchtowerPage() {
   return (
@@ -45,6 +46,7 @@ export default function WatchtowerPage() {
       <ERC8004Section />
       <Methodology />
       <FootnoteStrip />
+      <Footer />
       <ScrollReveal />
     </BetaGate>
   );

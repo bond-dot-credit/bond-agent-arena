@@ -563,20 +563,20 @@ const ChartWithData: React.FC<{ agents: Agent[]; chartType?: 'aua' | 'apy' }> = 
     const tooltipGroup = crosshairGroup.append('g')
       .attr('class', 'tooltip-group');
 
-    // Watermark logo + label
+    // Watermark — top-left
     const wmW = 220, wmH = 55;
     g.append('image')
       .attr('href', '/bond.credit%20logo_black.svg')
-      .attr('x', (chartWidth - wmW) / 2)
-      .attr('y', (chartHeight - wmH) / 2 - 10)
+      .attr('x', 12)
+      .attr('y', 12)
       .attr('width', wmW)
       .attr('height', wmH)
       .attr('opacity', 0.06)
       .style('filter', isDark ? 'invert(1)' : 'none')
       .style('pointer-events', 'none');
     g.append('text')
-      .attr('x', chartWidth / 2)
-      .attr('y', (chartHeight + wmH) / 2 + 6)
+      .attr('x', 12 + wmW / 2)
+      .attr('y', 12 + wmH + 4)
       .attr('text-anchor', 'middle')
       .attr('fill', isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)')
       .attr('font-size', '9')

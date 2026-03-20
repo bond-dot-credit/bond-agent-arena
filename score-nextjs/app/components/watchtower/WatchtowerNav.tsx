@@ -42,7 +42,6 @@ export default function WatchtowerNav() {
       <div className="wt-subnav-inner">
         <div className="wt-subnav-brand">
           <span className="wt-subnav-dot" />
-          <span className="wt-subnav-label">WATCHTOWER</span>
         </div>
         <nav className="wt-subnav-links">
           {navLinks.map(link => (

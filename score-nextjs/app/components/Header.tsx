@@ -105,7 +105,7 @@ const Header: React.FC = () => {
     { href: '/',             label: 'LIVE',        live: true  },
     { href: '/leaderboard',  label: 'LEADERBOARD', live: false },
     { href: '/watchtower',   label: 'WATCHTOWER',  live: false },
-    { href: '/report',       label: 'REPORT',      live: false },
+    { href: '/report',       label: 'REPORT ↗',   live: false },
   ];
 
   const inputStyle: React.CSSProperties = {
@@ -126,7 +126,7 @@ const Header: React.FC = () => {
           <a href="/" className="flex flex-col gap-0.5">
             <img src="/bond.credit%20logo_black.svg" alt="bond.credit" className="h-4 w-auto" style={{ filter: theme === 'dark' ? 'invert(1)' : 'none' }} />
             <span style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Agentic Alpha
+              {pathname === '/watchtower' ? 'WATCHTOWER' : 'Agentic Alpha'}
             </span>
           </a>
 
