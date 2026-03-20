@@ -61,21 +61,10 @@ const Header: React.FC = () => {
   useEffect(() => { setShowWalletDrop(false); }, [pathname]);
 
   useEffect(() => {
-    if (pathname !== '/watchtower') {
-      setNavHidden(false);
-      document.documentElement.classList.remove('wt-nav-hidden');
-      return;
-    }
-    const onScroll = () => {
-      const hidden = window.scrollY > 100;
-      setNavHidden(hidden);
-      document.documentElement.classList.toggle('wt-nav-hidden', hidden);
-    };
+    if (pathname !== '/watchtower') { setNavHidden(false); return; }
+    const onScroll = () => setNavHidden(window.scrollY > 100);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      document.documentElement.classList.remove('wt-nav-hidden');
-    };
+    return () => window.removeEventListener('scroll', onScroll);
   }, [pathname]);
 
   const truncate = (addr: string) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : '';

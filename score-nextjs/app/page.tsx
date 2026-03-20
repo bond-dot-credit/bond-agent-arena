@@ -5,6 +5,8 @@ import AgentCarousel from './components/AgentCarousel';
 import ChartWithData from './components/ChartWithData';
 import InfoTabs from './components/InfoTabs';
 import Footer from './components/Footer';
+import Timeline from './components/watchtower/Timeline';
+import ScrollReveal from './components/watchtower/ScrollReveal';
 import { Agent } from '@/lib/types';
 import { getAllAgents } from '@/lib/services/agentService';
 
@@ -187,7 +189,9 @@ export default function Home() {
         </div>
       </main>
 
+      <Timeline />
       <Footer />
+      <ScrollReveal />
 
       <style jsx global>{`
         @keyframes spin { to { transform: rotate(360deg); } }

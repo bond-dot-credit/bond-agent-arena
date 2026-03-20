@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 
+const NAV_H = 64; // main header height
+
 const navLinks = [
   { label: 'Overview',    href: '#portfolio'   },
   { label: 'Timeline',    href: '#timeline'    },
@@ -11,6 +13,13 @@ const navLinks = [
 
 export default function WatchtowerNav() {
   const [active, setActive] = useState('');
+  const [top, setTop] = useState(NAV_H);
+
+  useEffect(() => {
+    const onScroll = () => setTop(window.scrollY > 100 ? 0 : NAV_H);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const ids = navLinks.map(l => l.href.slice(1));
@@ -29,7 +38,7 @@ export default function WatchtowerNav() {
   }, []);
 
   return (
-    <div className="wt-subnav">
+    <div className="wt-subnav" style={{ top }}>
       <div className="wt-subnav-inner">
         <div className="wt-subnav-brand">
           <span className="wt-subnav-dot" />

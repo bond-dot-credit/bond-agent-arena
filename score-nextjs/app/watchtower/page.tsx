@@ -9,7 +9,6 @@ import WatchtowerNav from '../components/watchtower/WatchtowerNav';
 import Hero from '../components/watchtower/Hero';
 import DifferentiationStrip from '../components/watchtower/DifferentiationStrip';
 import PortfolioOverview from '../components/watchtower/PortfolioOverview';
-import Timeline from '../components/watchtower/Timeline';
 import AgentCards from '../components/watchtower/AgentCards';
 import StrategicPriorities from '../components/watchtower/StrategicPriorities';
 import ERC8004Section from '../components/watchtower/ERC8004Section';
@@ -24,7 +23,6 @@ export default function WatchtowerPage() {
       <Hero />
       <DifferentiationStrip />
       <PortfolioOverview />
-      <Timeline />
       <section className="sec" id="scores">
         <div className="wrap">
           <div className="sh reveal">

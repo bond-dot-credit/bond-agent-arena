@@ -535,9 +535,8 @@ body::before {
 .wt-subnav {
   position: sticky; top: 64px; z-index: 99;
   background: var(--bg); border-bottom: 1px solid var(--border);
-  transition: top 0.3s ease;
+  transition: top 0.28s ease;
 }
-html.wt-nav-hidden .wt-subnav { top: 0; }
 [data-theme="light"] .wt-subnav { background: var(--bg2); }
 .wt-subnav-inner {
   max-width: 1440px; margin: 0 auto; padding: 0 48px;
