@@ -134,8 +134,8 @@ export default function ERC8004Section() {
             <div key={card.num} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 24, transition: 'border-color 0.2s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(69,69,233,0.25)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)'; }}>
-              <div style={{ fontFamily: 'monospace', fontSize: 34, fontWeight: 700, color: 'rgba(255,255,255,0.05)', lineHeight: 1, marginBottom: 12 }}>{card.num}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 8 }}>{card.title}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 34, fontWeight: 700, color: 'var(--border2)', lineHeight: 1, marginBottom: 12 }}>{card.num}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--white)', marginBottom: 8 }}>{card.title}</div>
               <div style={{ fontSize: 12, color: 'var(--s2)', lineHeight: 1.75 }}>{card.body}</div>
             </div>
           ))}

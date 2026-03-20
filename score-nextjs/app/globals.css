@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -540,12 +539,9 @@ body::before {
 [data-theme="light"] .wt-subnav { background: var(--bg2); }
 .wt-subnav-inner {
   max-width: 1440px; margin: 0 auto; padding: 0 48px;
-  height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  height: 44px; display: flex; align-items: center; position: relative;
 }
-.wt-subnav-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.wt-subnav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 6px var(--lime); flex-shrink: 0; }
-.wt-subnav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--s2); font-family: var(--mono); }
-.wt-subnav-links { display: flex; align-items: center; gap: 4px; flex: 1; justify-content: center; }
+.wt-subnav-links { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; }
 .wt-subnav-link { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--s2); text-decoration: none; padding: 4px 12px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
 .wt-subnav-link:hover { color: var(--white); }
 .wt-subnav-link.active { color: var(--lime); border-bottom-color: var(--lime); }
@@ -695,7 +691,7 @@ body::before {
 .priority-card:hover { border-color: rgba(69,69,233,.25); }
 .priority-num { font-family: var(--mono); font-size: 64px; font-weight: 900; line-height: 1; color: var(--lime); opacity: .07; position: absolute; top: -6px; right: 10px; pointer-events: none; }
 .priority-tag { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--lime); margin-bottom: 10px; }
-.priority-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.priority-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--white); }
 .priority-body { font-size: 12px; color: var(--s1); line-height: 1.75; }
 
 /* Footnote strip */

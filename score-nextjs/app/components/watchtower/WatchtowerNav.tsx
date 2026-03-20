@@ -5,7 +5,6 @@ const NAV_H = 64; // main header height
 
 const navLinks = [
   { label: 'Overview',    href: '#portfolio'   },
-  { label: 'Timeline',    href: '#timeline'    },
   { label: 'Bond Scores', href: '#scores'      },
   { label: 'ERC-8004',    href: '#erc8004'     },
   { label: 'Methodology', href: '#methodology' },
@@ -14,6 +13,12 @@ const navLinks = [
 export default function WatchtowerNav() {
   const [active, setActive] = useState('');
   const [top, setTop] = useState(NAV_H);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('wt-theme') as 'dark' | 'light' | null;
+    if (saved === 'light') setTheme('light');
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setTop(window.scrollY > 100 ? 0 : NAV_H);
@@ -37,12 +42,34 @@ export default function WatchtowerNav() {
     return () => observers.forEach(o => o.disconnect());
   }, []);
 
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    if (next === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      document.documentElement.style.background = '#f4f4f5';
+    } else {
+      document.body.removeAttribute('data-theme');
+      document.documentElement.style.background = '#050505';
+    }
+    localStorage.setItem('wt-theme', next);
+  };
+
   return (
     <div className="wt-subnav" style={{ top }}>
       <div className="wt-subnav-inner">
-        <div className="wt-subnav-brand">
-          <span className="wt-subnav-dot" />
+        {/* Left brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+          <img
+            src="/watchtower-logo.png"
+            alt="Watchtower"
+            style={{ height: 52, width: 'auto', display: 'block', filter: theme === 'dark' ? 'invert(1)' : 'none' }}
+          />
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--s2)', fontFamily: 'var(--mono)' }}>
+            Watchtower
+          </span>
         </div>
+
         <nav className="wt-subnav-links">
           {navLinks.map(link => (
             <a
@@ -54,9 +81,29 @@ export default function WatchtowerNav() {
             </a>
           ))}
         </nav>
-        <a href="https://dune.com/abdelhaks/agentic-alpha-season-0" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
-          Dune ↗
-        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+          <a href="https://dune.com/abdelhaks/agentic-alpha-season-0" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
+            Dune ↗
+          </a>
+          {top === 0 && (
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="theme-toggle-btn"
+            >
+              {theme === 'dark' ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

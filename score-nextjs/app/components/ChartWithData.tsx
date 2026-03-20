@@ -6,8 +6,10 @@ import {
   pointer, range, scaleLinear, select, timeFormat,
 } from 'd3';
 import type { ScaleLinear } from 'd3';
+import dynamic from 'next/dynamic';
 import { Agent } from '@/lib/types';
-import BarChartView from './BarChartView';
+
+const BarChartView = dynamic(() => import('./BarChartView'), { ssr: false });
 
 interface ModelData {
   color: string;
@@ -571,14 +573,14 @@ const ChartWithData: React.FC<{ agents: Agent[]; chartType?: 'aua' | 'apy' }> = 
       .attr('y', 12)
       .attr('width', wmW)
       .attr('height', wmH)
-      .attr('opacity', 0.06)
+      .attr('opacity', 0.18)
       .style('filter', isDark ? 'invert(1)' : 'none')
       .style('pointer-events', 'none');
     g.append('text')
       .attr('x', 12 + wmW / 2)
       .attr('y', 12 + wmH + 4)
       .attr('text-anchor', 'middle')
-      .attr('fill', isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)')
+      .attr('fill', isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)')
       .attr('font-size', '9')
       .attr('font-weight', '700')
       .attr('letter-spacing', '3')

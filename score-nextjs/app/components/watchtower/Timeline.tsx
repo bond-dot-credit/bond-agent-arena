@@ -38,7 +38,7 @@ export default function Timeline() {
       <div className="wrap">
         <div className="sh reveal">
           <div className="stag">NOV 2024 – FEB 2025</div>
-          <h2 className="sh2">Genesis Timeline</h2>
+          <h2 className="sh2">Genesis</h2>
           <p className="sdesc">Eight key milestones across 107 days of continuous agent operation, scoring, and credit evaluation.</p>
         </div>
         <div className="tl-grid">
