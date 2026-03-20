@@ -125,7 +125,10 @@ const Header: React.FC = () => {
           {/* Brand */}
           <a href="/" className="flex flex-col gap-0.5">
             <img src="/bond.credit%20logo_black.svg" alt="bond.credit" className="h-4 w-auto" style={{ filter: theme === 'dark' ? 'invert(1)' : 'none' }} />
-            <span style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
+              {pathname === '/watchtower' && (
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', boxShadow: '0 0 5px var(--green)', flexShrink: 0 }} />
+              )}
               {pathname === '/watchtower' ? 'WATCHTOWER' : 'Agentic Alpha'}
             </span>
           </a>
