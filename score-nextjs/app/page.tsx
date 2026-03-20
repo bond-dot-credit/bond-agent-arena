@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AgentCarousel from './components/AgentCarousel';
 import ChartWithData from './components/ChartWithData';
 import InfoTabs from './components/InfoTabs';
@@ -20,6 +20,16 @@ export default function Home() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [chartType, setChartType] = useState<'aua' | 'apy'>('aua');
+  const [dropOpen, setDropOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   useEffect(() => {
     getAllAgents()
@@ -87,21 +97,50 @@ export default function Home() {
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div className="flex items-center gap-3">
-                  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-                    <select
-                      value={chartType}
-                      onChange={e => setChartType(e.target.value as 'aua' | 'apy')}
+                  <div ref={dropRef} style={{ position: 'relative' }}>
+                    <button
+                      onClick={() => setDropOpen(o => !o)}
                       style={{
-                        background: 'transparent', border: 'none', outline: 'none',
-                        fontSize: '0.6875rem', fontWeight: 700, color: 'var(--s2)',
-                        letterSpacing: '0.06em', cursor: 'pointer', appearance: 'none',
-                        WebkitAppearance: 'none', paddingRight: '14px', fontFamily: 'inherit',
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        background: 'var(--card2)', border: '1px solid var(--border2)',
+                        borderRadius: 6, padding: '4px 10px', cursor: 'pointer',
+                        fontSize: '0.6875rem', fontWeight: 700, color: 'var(--white)',
+                        letterSpacing: '0.06em', fontFamily: 'inherit', textTransform: 'uppercase',
                       }}
                     >
-                      <option value="aua">TOTAL AGENT ACCOUNT VALUE</option>
-                      <option value="apy">DAILY APY</option>
-                    </select>
-                    <span style={{ position: 'absolute', right: 0, fontSize: '8px', color: 'var(--s2)', pointerEvents: 'none' }}>▾</span>
+                      {chartType === 'aua' ? 'Total Account Value' : 'Daily APY'}
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transform: dropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                        <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    {dropOpen && (
+                      <div style={{
+                        position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 50,
+                        background: 'var(--card)', border: '1px solid var(--border2)',
+                        borderRadius: 8, overflow: 'hidden', minWidth: 210,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+                      }}>
+                        {([
+                          { value: 'aua' as const, label: 'Total Account Value', sub: 'AUA per agent over time' },
+                          { value: 'apy' as const, label: 'Daily APY',           sub: 'Annual yield rate by agent' },
+                        ]).map(({ value, label, sub }, i, arr) => (
+                          <button
+                            key={value}
+                            onClick={() => { setChartType(value); setDropOpen(false); }}
+                            style={{
+                              display: 'flex', flexDirection: 'column', width: '100%', textAlign: 'left',
+                              padding: '10px 14px', background: 'transparent', border: 'none', cursor: 'pointer',
+                              borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--card2)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                          >
+                            <span style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: chartType === value ? 'var(--lime)' : 'var(--white)' }}>{label}</span>
+                            <span style={{ fontSize: '0.625rem', color: 'var(--s2)', marginTop: 2 }}>{sub}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block', boxShadow: '0 0 8px var(--green)' }} />
                 </div>

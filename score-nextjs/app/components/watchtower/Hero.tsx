@@ -86,9 +86,9 @@ export default function Hero() {
               <span style={{ margin: '0 4px', opacity: 0.4 }}>·</span>
               <span>ERC-8004 × bond.credit</span>
             </div>
-            <h1 className="hero-h1">
+            <h1 className="tge-h1">
               WATCHTOWER
-              <span style={{ fontSize: '0.52em', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--s1)', lineHeight: 1.3, display: 'block', marginTop: 6 }}>
+              <span style={{ fontSize: '0.52em', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--s1)', lineHeight: 1.3, display: 'block', marginTop: 8 }}>
                 The Agentic Credit Intelligence System
               </span>
             </h1>

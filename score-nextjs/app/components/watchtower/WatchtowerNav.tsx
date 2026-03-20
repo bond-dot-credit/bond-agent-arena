@@ -46,7 +46,7 @@ export default function WatchtowerNav() {
             </a>
           ))}
         </nav>
-        <a href="https://dune.com" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
+        <a href="https://dune.com/abdelhaks/agentic-alpha-season-0" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
           Dune ↗
         </a>
       </div>
