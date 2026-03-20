@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Insert into agent_submissions table
     const { data, error } = await supabase
-      .from('agent_submissions')
+      .from('agent_waitlist')
       .insert([{
         name,
         agent_name: agentName,

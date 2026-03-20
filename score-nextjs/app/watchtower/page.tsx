@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import BetaGate from '../components/watchtower/BetaGate';
+
+export const metadata: Metadata = {
+  title: 'Watchtower — Bond Scores | bond.credit',
+  description: 'Institutional-grade credit dashboard for autonomous yield agents. Bond Scores, risk metrics, and TEE-verified performance.',
+};
 import WatchtowerNav from '../components/watchtower/WatchtowerNav';
 import Hero from '../components/watchtower/Hero';
 import DifferentiationStrip from '../components/watchtower/DifferentiationStrip';

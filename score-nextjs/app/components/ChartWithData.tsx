@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as d3 from 'd3';
+import {
+  axisBottom, axisLeft, curveMonotoneX, line as d3line,
+  pointer, range, scaleLinear, select, timeFormat,
+} from 'd3';
+import type { ScaleLinear } from 'd3';
 import { Agent } from '@/lib/types';
 import BarChartView from './BarChartView';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 interface ModelData {
   color: string;
@@ -168,7 +168,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     const height = 550;
     const margin = { top: 15, right: 140, bottom: 50, left: 55 };
 
-    const svg = d3.select(svgRef.current)
+    const svg = select(svgRef.current)
       .attr('viewBox', `0 0 ${width} ${height}`);
 
     // Clear previous chart - use remove() instead of html('')
@@ -185,11 +185,11 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     const minTime = Math.min(...allTimes);
     const maxTime = Math.max(...allTimes);
 
-    const xScale = d3.scaleLinear()
+    const xScale = scaleLinear()
       .domain([minTime, maxTime])
       .range([0, chartWidth]);
 
-    let yScale: d3.ScaleLinear<number, number>;
+    let yScale: ScaleLinear<number, number>;
     let minValue: number;
     let maxValue: number;
 
@@ -201,7 +201,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       minValue = 2000;
       maxValue = Math.max(maxVal * 1.02, 2015); // Add 2% padding or minimum $2015
 
-      yScale = d3.scaleLinear()
+      yScale = scaleLinear()
         .domain([minValue, maxValue])
         .range([chartHeight, 0]);
     } else {
@@ -210,7 +210,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       const allRoiPercents = Object.values(chartData).flat().map(d => ((d.value - baseValue) / baseValue) * 100);
       minValue = Math.min(...allRoiPercents, 0) * 1.1; // Include 0 and add padding
       maxValue = Math.max(...allRoiPercents) * 1.1;
-      yScale = d3.scaleLinear()
+      yScale = scaleLinear()
         .domain([minValue, maxValue])
         .range([chartHeight, 0]);
     }
@@ -218,7 +218,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
     // Grid lines
     const yTicks = 7;
     g.selectAll('.grid-line-y')
-      .data(d3.range(yTicks + 1))
+      .data(range(yTicks + 1))
       .enter()
       .append('line')
       .attr('class', 'grid-line-y')
@@ -232,7 +232,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
     const xTicks = 6;
     g.selectAll('.grid-line-x')
-      .data(d3.range(xTicks + 1))
+      .data(range(xTicks + 1))
       .enter()
       .append('line')
       .attr('class', 'grid-line-x')
@@ -253,7 +253,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       const latestValue = data.length > 0 ? data[data.length - 1].value : model.value;
 
       // Use curve interpolation for smooth, natural-looking lines
-      const lineGenerator = d3.line<ChartPoint>()
+      const lineGenerator = d3line<ChartPoint>()
         .x(d => xScale(d.time))
         .y(d => {
           if (showDollar) {
@@ -264,7 +264,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
             return yScale(roiPercent);
           }
         })
-        .curve(d3.curveMonotoneX); // Smooth curve that preserves monotonicity
+        .curve(curveMonotoneX); // Smooth curve that preserves monotonicity
 
       // Draw line with smooth curves
       const linePath = g.append('path')
@@ -487,7 +487,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
     // Y-axis - show more precision for shorter timeframes
     const decimalPlaces = currentTimeframe === '1H' ? 3 : 2;
-    const yAxis = d3.axisLeft(yScale)
+    const yAxis = axisLeft(yScale)
       .ticks(yTicks)
       .tickFormat(d => showDollar ? `$${(d as number).toFixed(decimalPlaces)}` : `${(d as number).toFixed(2)}%`)
       .tickSizeOuter(0);
@@ -503,9 +503,9 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       .attr('font-weight', '600');
 
     // X-axis
-    const xAxis = d3.axisBottom(xScale)
+    const xAxis = axisBottom(xScale)
       .ticks(xTicks)
-      .tickFormat(d => d3.timeFormat('%b %d %H:%M')(new Date(d as number)))
+      .tickFormat(d => timeFormat('%b %d %H:%M')(new Date(d as number)))
       .tickSizeOuter(0);
 
     g.append('g')
@@ -562,7 +562,7 @@ const ChartWithData: React.FC<{ agents: Agent[] }> = ({ agents }) => {
 
     overlay
       .on('mousemove', function(event) {
-        const [mouseX, mouseY] = d3.pointer(event, this);
+        const [mouseX, mouseY] = pointer(event, this);
         const xTime = xScale.invert(mouseX);
         const yValue = yScale.invert(mouseY);
 

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import AgentCarousel from '../components/AgentCarousel';
+
+export const metadata: Metadata = {
+  title: 'Leaderboard — Agentic Alpha | bond.credit',
+  description: 'Live performance rankings of autonomous yield agents. Bond Scores, credit capacities, and risk metrics from Genesis.',
+};
 import CryptoGrid from '../components/CryptoGrid';
 import Footer from '../components/Footer';
 import { getAllAgents } from '@/lib/services/agentService';
