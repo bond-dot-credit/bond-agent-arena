@@ -35,6 +35,16 @@ const getAgentKey = (name: string): string => {
   return '';
 };
 
+const getAgentMeta = (name: string) => {
+  if (AGENT_META[name]) return AGENT_META[name];
+  const n = name.toLowerCase();
+  if (n.includes('sail'))               return AGENT_META['Sail.Money'];
+  if (n.includes('zyfai'))              return AGENT_META['ZyFAI'];
+  if (n.includes('giza') || n.includes('arma')) return AGENT_META['Giza'];
+  if (n.includes('surf'))               return AGENT_META['Surf'];
+  return AGENT_META['Mamo'];
+};
+
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
@@ -413,7 +423,7 @@ const LeaderboardRow: React.FC<{
   onToggle: () => void;
 }> = ({ agent, index, isExpanded, onToggle }) => {
   const { authenticated, connect: login } = useWallet();
-  const meta = AGENT_META[agent.agent] || AGENT_META['Mamo'];
+  const meta = getAgentMeta(agent.agent);
 
   const fmt = (v?: number) => v != null ? `$${v.toFixed(2)}` : 'N/A';
   const rankColor = index === 0 ? 'var(--lime)' : index === 1 ? 'var(--s1)' : index === 2 ? 'var(--amber)' : 'var(--s2)';
@@ -584,7 +594,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
       {/* Mobile cards */}
       <div className="flex flex-col gap-2 md:hidden">
         {agents.map((agent, i) => {
-          const meta   = AGENT_META[agent.agent] || AGENT_META['Mamo'];
+          const meta   = getAgentMeta(agent.agent);
           const isExp  = expandedId === agent.agent;
           return (
             <div key={agent.agent} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', borderLeft: `3px solid ${meta.color}` }}>
