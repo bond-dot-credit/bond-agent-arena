@@ -7,6 +7,7 @@ import { Alerts } from "../components/alerts/Alerts";
 import { ConnectModal } from "../components/wallet/ConnectModal";
 import PageTransition from "./components/PageTransition";
 import Header from "./components/Header";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,6 +43,7 @@ export default function RootLayout({
             <PageTransition>{children}</PageTransition>
           </PrivyProviderWrapper>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

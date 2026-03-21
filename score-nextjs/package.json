@@ -28,6 +28,7 @@
     "@privy-io/react-auth": "^3.14.1",
     "@supabase/supabase-js": "^2.77.0",
     "@types/d3": "^7.4.3",
+    "@vercel/analytics": "^2.0.1",
     "adm-zip": "^0.5.16",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
