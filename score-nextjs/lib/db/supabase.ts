@@ -1,40 +1,32 @@
-const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || 
-                    process.env.SUPABASE_URL || '').trim();
+function getSupabaseConfig() {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
+               process.env.SUPABASE_URL || '').trim();
 
-const supabaseKey = (process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-                    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-                    process.env.SUPABASE_ANON_KEY ||
-                    process.env.AGENTS_SUPABASE_ANON_KEY ||
-                    process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  const key = (process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+               process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+               process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+               process.env.SUPABASE_ANON_KEY ||
+               process.env.AGENTS_SUPABASE_ANON_KEY ||
+               process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
-// Validate configuration
-if (!supabaseUrl) {
-  throw new Error(
-    'Missing NEXT_PUBLIC_SUPABASE_URL. ' +
-    'Please set it to your full Supabase project URL (e.g., https://your-project.supabase.co) in .env.local'
-  );
+  if (!url) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_URL. ' +
+      'Please set it to your full Supabase project URL (e.g., https://your-project.supabase.co)'
+    );
+  }
+  try { new URL(url); } catch {
+    throw new Error(`Invalid NEXT_PUBLIC_SUPABASE_URL: "${url}".`);
+  }
+  if (!key) {
+    throw new Error(
+      'Missing Supabase API key. ' +
+      'Please set NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY.'
+    );
+  }
+
+  return { url: url.replace(/\/$/, ''), key };
 }
-
-// Validate URL format (must be absolute URL)
-try {
-  new URL(supabaseUrl);
-} catch {
-  throw new Error(
-    `Invalid NEXT_PUBLIC_SUPABASE_URL: "${supabaseUrl}". ` +
-    'Please use a full absolute URL (e.g., https://your-project.supabase.co)'
-  );
-}
-
-if (!supabaseKey) {
-  throw new Error(
-    'Missing Supabase API key. ' +
-    'Please set one of: SUPABASE_PUBLISHABLE_DEFAULT_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, or SUPABASE_SERVICE_ROLE_KEY in .env.local'
-  );
-}
-
-// Ensure URL doesn't end with a trailing slash for consistent concatenation
-const normalizedSupabaseUrl = supabaseUrl.replace(/\/$/, '');
 
 export class SupabaseFetchError extends Error {
   status: number;
@@ -65,8 +57,9 @@ export class SupabaseFetchError extends Error {
 
 // Direct fetch function for Supabase REST API
 async function supabaseFetch(endpoint: string, schema: string = 'public') {
-  const url = `${normalizedSupabaseUrl}${endpoint}`;
-  
+  const { url: baseUrl, key: supabaseKey } = getSupabaseConfig();
+  const url = `${baseUrl}${endpoint}`;
+
   const headers: Record<string, string> = {
     'apikey': supabaseKey,
     'Authorization': `Bearer ${supabaseKey}`,

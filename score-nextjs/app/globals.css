@@ -96,7 +96,7 @@ body[data-theme="light"] { background: #f4f4f5; }
 /* Theme toggle icon button */
 .theme-toggle-btn {
   display: flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 6px; border: none;
+  width: 24px; height: 24px; border-radius: 5px; border: none;
   background: var(--card2); color: var(--s2);
   cursor: pointer; flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
