@@ -436,13 +436,6 @@ const LeaderboardRow: React.FC<{
         onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = isExpanded ? 'var(--card2)' : 'transparent')}
         onClick={onToggle}
       >
-        {/* Rank */}
-        <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
-          <span style={{ width: '28px', height: '28px', borderRadius: '50%', border: `1px solid ${rankColor}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: rankColor }}>
-            {agent.rank}
-          </span>
-        </td>
-
         {/* Agent */}
         <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
           <div className="flex items-center gap-2">
@@ -566,7 +559,7 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
         <table className="wt-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Rank', 'Agent',
+              {['Agent',
                 <span key="aua" className="flex items-center gap-1">AUA <Tooltip text="Assets Under Agent — total balance managed"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
                 <span key="aum" className="flex items-center gap-1">AUM <Tooltip text="Assets Under Management — native USDC balance"><span style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--card2)', border: '1px solid var(--border2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--s2)', cursor: 'help' }}>?</span></Tooltip></span>,
                 'Native Yield', 'Rewards', 'Capital APY',
@@ -605,7 +598,6 @@ const CryptoGrid: React.FC<{ agents: Agent[] }> = ({ agents }) => {
                 style={{ width: '100%', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', cursor: 'pointer' }}
               >
                 <div className="flex items-center gap-2">
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--s2)', width: '16px' }}>{agent.rank}</span>
                   {(meta.logo || agent.medal) && (
                     <div style={{ width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', border: `1px solid ${meta.color}30`, background: 'var(--card2)', padding: '2px', flexShrink: 0 }}>
                       <img src={meta.logo || agent.medal} alt={agent.agent} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />

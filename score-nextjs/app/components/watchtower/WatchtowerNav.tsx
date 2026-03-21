@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const NAV_H = 64; // main header height
 
@@ -14,6 +14,8 @@ export default function WatchtowerNav() {
   const [active, setActive] = useState('');
   const [top, setTop] = useState(NAV_H);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [dropOpen, setDropOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('wt-theme') as 'dark' | 'light' | null;
@@ -42,6 +44,18 @@ export default function WatchtowerNav() {
     return () => observers.forEach(o => o.disconnect());
   }, []);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setDropOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [dropOpen]);
+
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
@@ -55,21 +69,24 @@ export default function WatchtowerNav() {
     localStorage.setItem('wt-theme', next);
   };
 
+
   return (
     <div className="wt-subnav" style={{ top }}>
       <div className="wt-subnav-inner">
-        {/* Left brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+
+        {/* Left brand — hidden on mobile via CSS */}
+        <a href="#hero" className="wt-subnav-brand" style={{ textDecoration: 'none' }}>
           <img
             src="/watchtower-logo.png"
             alt="Watchtower"
-            style={{ height: 52, width: 'auto', display: 'block', filter: theme === 'dark' ? 'invert(1)' : 'none' }}
+            style={{ height: 28, width: 'auto', display: 'block', filter: theme === 'dark' ? 'invert(1)' : 'none' }}
           />
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--s2)', fontFamily: 'var(--mono)' }}>
             Watchtower
           </span>
-        </div>
+        </a>
 
+        {/* Desktop links — hidden on mobile via CSS */}
         <nav className="wt-subnav-links">
           {navLinks.map(link => (
             <a
@@ -81,6 +98,49 @@ export default function WatchtowerNav() {
             </a>
           ))}
         </nav>
+
+        {/* Mobile dropdown — shown only on mobile via CSS */}
+        <div className="wt-subnav-mobile" ref={dropRef}>
+          <button
+            className="wt-subnav-drop-btn"
+            onClick={() => setDropOpen(o => !o)}
+            aria-expanded={dropOpen}
+          >
+            <img
+              src="/watchtower-logo.png"
+              alt="Watchtower"
+              style={{ height: 28, width: 'auto', display: 'block', filter: theme === 'dark' ? 'invert(1)' : 'none' }}
+            />
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--s2)', fontFamily: 'var(--mono)' }}>
+              Watchtower
+            </span>
+            <svg
+              className="wt-subnav-drop-chevron"
+              width="12" height="12" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.5"
+              style={{ transform: dropOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+
+          {dropOpen && (
+            <div className="wt-subnav-dropdown">
+              {navLinks.map(link => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={`wt-subnav-drop-item${active === link.href.slice(1) ? ' active' : ''}`}
+                  onClick={() => setDropOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
           <a href="https://dune.com/abdelhaks/agentic-alpha-season-0" className="wt-subnav-ext" target="_blank" rel="noopener noreferrer">
             Dune ↗
@@ -104,6 +164,7 @@ export default function WatchtowerNav() {
             </button>
           )}
         </div>
+
       </div>
     </div>
   );

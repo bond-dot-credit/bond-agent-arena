@@ -4,7 +4,7 @@ const notes = [
   { key: 'TYR', body: 'Turnover Yield Rate = Total Yield / Total Volume. Measures yield efficiency per dollar of capital cycled through protocols.' },
   { key: 'Reward Dependency', body: '(Reward Yield / Total Yield) × 100. Percentage of yield derived from protocol emissions vs. sustainable native sources.' },
   { key: 'Credit Capacity', body: 'Linear function of Bond Score. Formula: round(score × 10,000). Maximum $1M at score 100. Reviewed each scoring cycle.' },
-  { key: 'Data Source', body: 'All on-chain data sourced from Ethereum mainnet and Base via Watchtower indexing nodes. Genesis: Nov 5 2024 – Feb 19 2025.' },
+  { key: 'Data Source', body: 'All on-chain data sourced from Arbitrum mainnet and Base via Watchtower indexing nodes. Third party APIs are used for off-chain data.' },
 ];
 
 export default function FootnoteStrip() {

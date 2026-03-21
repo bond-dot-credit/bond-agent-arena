@@ -67,6 +67,11 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
   const truncate = (addr: string) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : '';
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
@@ -239,7 +244,12 @@ const Header: React.FC = () => {
             </button>
 
             {/* Mobile hamburger */}
-            <button className="lg:hidden text-white" onClick={() => setMobileOpen(!mobileOpen)}>
+            <button
+              className="lg:hidden flex items-center justify-center"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              style={{ width: 44, height: 44, color: 'var(--white)', flexShrink: 0 }}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {mobileOpen
                   ? <path d="M6 18L18 6M6 6l12 12" />
@@ -251,27 +261,69 @@ const Header: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — fixed full-screen overlay */}
       {mobileOpen && (
-        <div style={{ background: 'var(--card)', borderBottom: '1px solid var(--border)', padding: '12px 24px 16px' }}>
-          <div className="flex flex-col gap-2">
-            {navLinks.map(n => (
-              <a key={n.href} href={n.href}
-                className="flex items-center gap-2 text-sm font-semibold py-1"
-                style={{ color: pathname === n.href ? 'var(--white)' : 'var(--s2)' }}
-                onClick={() => setMobileOpen(false)}
-              >
-                {n.label}
-                {n.live && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />}
-              </a>
-            ))}
-            <div style={{ height: 1, background: 'var(--border)', margin: '6px 0' }} />
-            <button onClick={() => { setShowWaitlistModal(true); setMobileOpen(false); }} className="text-left text-sm" style={{ color: 'var(--s2)' }}>Waitlist</button>
-            <button onClick={() => { setShowAgentModal(true); setMobileOpen(false); }} className="text-left text-sm" style={{ color: 'var(--s2)' }}>Agents</button>
-            <button onClick={toggleTheme} className="flex items-center gap-2 text-left text-sm" style={{ color: 'var(--s2)' }}>
-              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 200,
+          background: 'var(--bg)', display: 'flex', flexDirection: 'column',
+          overflowY: 'auto',
+        }}>
+          {/* Top bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 64, borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+            <a href="/" className="flex flex-col gap-0.5" onClick={() => setMobileOpen(false)}>
+              <img src="/bond.credit%20logo_black.svg" alt="bond.credit" className="h-4 w-auto" style={{ filter: theme === 'dark' ? 'invert(1)' : 'none' }} />
+              <span style={{ fontSize: '0.5625rem', color: 'var(--s2)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                {pathname === '/watchtower' ? 'WATCHTOWER' : 'Agentic Alpha'}
+              </span>
+            </a>
+            <button
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--s1)', flexShrink: 0 }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
+
+          {/* Nav links */}
+          <nav style={{ padding: '16px 20px', flex: 1 }}>
+            <div className="flex flex-col">
+              {navLinks.map(n => (
+                <a key={n.href} href={n.href}
+                  className="flex items-center gap-2 text-sm font-semibold px-3 rounded-lg"
+                  style={{
+                    color: pathname === n.href ? 'var(--white)' : 'var(--s2)',
+                    background: pathname === n.href ? 'var(--card2)' : 'transparent',
+                    minHeight: 48, alignItems: 'center',
+                  }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {n.label}
+                  {n.live && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 6px var(--green)' }} />}
+                </a>
+              ))}
+            </div>
+            <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
+            <div className="flex flex-col">
+              <button onClick={() => { setShowWaitlistModal(true); setMobileOpen(false); }}
+                className="flex items-center text-left text-sm px-3 rounded-lg"
+                style={{ color: 'var(--s2)', minHeight: 48 }}>
+                Waitlist
+              </button>
+              <button onClick={() => { setShowAgentModal(true); setMobileOpen(false); }}
+                className="flex items-center text-left text-sm px-3 rounded-lg"
+                style={{ color: 'var(--s2)', minHeight: 48 }}>
+                Agents
+              </button>
+              <button onClick={toggleTheme}
+                className="flex items-center gap-2 text-left text-sm px-3 rounded-lg"
+                style={{ color: 'var(--s2)', minHeight: 48 }}>
+                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </button>
+            </div>
+          </nav>
         </div>
       )}
 

@@ -5,7 +5,7 @@ import type { WatchtowerSummary } from '@/lib/watchtower-data';
 const flywheelNodes = [
   { label: 'ERC-8004 Identity',    desc: 'Verifiable onchain ID',  color: '#3b82f6', x: 300, y: 60  },
   { label: 'Onchain Activity',      desc: 'Transaction history',    color: '#a855f7', x: 490, y: 155 },
-  { label: 'Watchtower Monitoring', desc: 'Continuous scoring',     color: '#4545e9', x: 490, y: 335 },
+  { label: 'Watchtower',            desc: 'Continuous monitoring',  color: '#4545e9', x: 490, y: 335 },
   { label: 'Credit Scoring',        desc: 'Bond Score output',      color: '#22c55e', x: 300, y: 430 },
   { label: 'Capital Allocation',    desc: 'Vault access & terms',   color: '#f59e0b', x: 110, y: 335 },
   { label: 'Agent Performance',     desc: 'Yield & risk metrics',   color: '#f97316', x: 110, y: 155 },
@@ -36,11 +36,14 @@ function FlywheelSVG() {
       })}
       {flywheelNodes.map((node, i) => {
         const w = 130, h = 46;
+        const isWT = i === 2;
         return (
-          <g key={`node-${i}`}>
-            <rect x={node.x - w / 2} y={node.y - h / 2} width={w} height={h} rx={8} fill={`${node.color}14`} stroke={node.color} strokeWidth={1.5} />
-            <text x={node.x} y={node.y - 4} textAnchor="middle" style={{ fill: 'var(--white)' }} fontSize={11} fontWeight={700}>{node.label}</text>
-            <text x={node.x} y={node.y + 12} textAnchor="middle" fill="#71717a" fontSize={9}>{node.desc}</text>
+          <g key={`node-${i}`} style={isWT ? { filter: 'drop-shadow(0 0 6px #4545e9) drop-shadow(0 0 12px rgba(69,69,233,0.5))' } : undefined}>
+            <rect x={node.x - w / 2} y={node.y - h / 2} width={w} height={h} rx={8}
+              fill={isWT ? `${node.color}28` : `${node.color}14`}
+              stroke={node.color} strokeWidth={isWT ? 2 : 1.5} />
+            <text x={node.x} y={node.y - 4} textAnchor="middle" style={{ fill: isWT ? '#fff' : 'var(--white)' }} fontSize={11} fontWeight={isWT ? 800 : 700}>{node.label}</text>
+            <text x={node.x} y={node.y + 12} textAnchor="middle" fill={isWT ? '#a1a1aa' : '#71717a'} fontSize={9}>{node.desc}</text>
           </g>
         );
       })}
@@ -74,7 +77,7 @@ export default function Hero() {
   }
 
   return (
-    <header className="hero">
+    <header id="hero" className="hero">
       <div className="wrap">
         <div className="hero-glow" />
         <div className="hero-g2" />
